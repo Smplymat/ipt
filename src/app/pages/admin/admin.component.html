@@ -1,0 +1,344 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-menu-button slot="start"></ion-menu-button>
+    <ion-title>Admin Management</ion-title>
+    <ion-buttons slot="end">
+      @if (user(); as u) {
+        <span style="background: rgba(255,91,53,0.2); color: #FF5B35; font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(255,91,53,0.35); margin-right: 12px;">
+          {{ roleBadge() }}
+        </span>
+      }
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- ── Welcome strip ───────────────────────────────────────────────── -->
+  <div style="background: #2B1712; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+    <div>
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #FF5B35; margin: 0 0 4px;">Product control room</p>
+      @if (user(); as u) {
+        <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 800; color: #FBF6EE; margin: 0; line-height: 1.2;">
+          {{ u.displayName }}
+        </p>
+      }
+    </div>
+    <span style="font-family: 'Inter', sans-serif; font-size: 0.78rem; color: rgba(251,246,238,0.55); flex-shrink: 0;">
+      {{ products().length }} product{{ products().length === 1 ? '' : 's' }} live
+    </span>
+  </div>
+
+  <!-- ── Tabs ───────────────────────────────────────────────────────── -->
+  <div style="background: #FBF6EE; padding: 16px 16px 0; display: flex; gap: 8px;">
+    <button
+      class="bakery-pill"
+      [class.bakery-pill--active]="tab() === 'products'"
+      [class.bakery-pill--inactive]="tab() !== 'products'"
+      (click)="tab.set('products')"
+    >
+      🍞 Products
+    </button>
+    @if (canManageUsers()) {
+      <button
+        class="bakery-pill"
+        [class.bakery-pill--active]="tab() === 'users'"
+        [class.bakery-pill--inactive]="tab() !== 'users'"
+        (click)="tab.set('users')"
+      >
+        👥 Users &amp; Roles
+      </button>
+    }
+  </div>
+
+  <!-- ══════════════════════ PRODUCTS TAB ═════════════════════════════ -->
+  @if (tab() === 'products') {
+
+    <!-- Error banner from any action -->
+    @if (formError(); as err) {
+      <div style="background: rgba(255,91,53,0.1); border: 1px solid rgba(255,91,53,0.35); color: #E04E2B; border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin: 16px 16px 0;">
+        {{ err }}
+      </div>
+    }
+
+    <!-- ── Create product form ─────────────────────────────────────── -->
+    <div style="background: #FBF6EE; padding: 18px 16px;">
+      <p class="bakery-section-eyebrow" style="margin-bottom: 10px;">Add Product</p>
+      <div class="page-card">
+
+        <div style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap;">
+          <!-- Image picker + preview -->
+          <div style="width: 120px; flex-shrink: 0; text-align: center;">
+            @if (createImagePreview(); as preview) {
+              <div style="position: relative; width: 120px; height: 120px; border-radius: 14px; overflow: hidden; background: #FAF3E0; border: 1px solid #EDE0CC; margin-bottom: 8px;">
+                <img [src]="preview" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                <div
+                  (click)="clearCreateImage()"
+                  style="position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%; background: rgba(61,30,22,0.75); color: #FBF6EE; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                >
+                  <ion-icon [icon]="closeIcon" size="small"></ion-icon>
+                </div>
+              </div>
+            } @else {
+              <div style="width: 120px; height: 120px; border-radius: 14px; background: #FAF3E0; border: 1.5px dashed #C4A882; color: #A07850; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px;">
+                <ion-icon [icon]="imageIcon" size="large" color="secondary"></ion-icon>
+                <span style="font-family: 'Inter', sans-serif; font-size: 0.65rem;">No image</span>
+              </div>
+            }
+            <input #createFile type="file" accept="image/*" hidden (change)="onFileSelected($event)">
+            <ion-button
+              size="small"
+              fill="outline"
+              (click)="createFile.click()"
+              style="--color: #3D1E16; --border-color: #C4A882; font-family: 'Inter', sans-serif; font-size: 0.72rem;"
+            >
+              Choose image
+            </ion-button>
+          </div>
+
+          <!-- Fields -->
+          <div style="flex: 1; min-width: 220px;">
+            <label style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: #3D1E16; display: block; margin-bottom: 6px;">Product name</label>
+            <ion-input
+              type="text"
+              placeholder="e.g. Sourdough Loaf"
+              [value]="createName()"
+              (ionInput)="createName.set(($event.detail.value ?? '').toString())"
+              style="--background: #FBF6EE; --border-radius: 10px; --padding-start: 14px; --padding-end: 14px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.875rem; margin-bottom: 12px; display: block;"
+            ></ion-input>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;">
+              <div style="flex: 1; min-width: 140px;">
+                <label style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: #3D1E16; display: block; margin-bottom: 6px;">Category</label>
+                <select
+                  [value]="createCategory()"
+                  (change)="createCategory.set(selectValue($event))"
+                  style="width: 100%; background: #FBF6EE; border: 1.5px solid #EDE0CC; border-radius: 10px; padding: 12px 14px; font-family: 'Inter', sans-serif; font-size: 0.875rem; color: #3D1E16;"
+                >
+                  @for (c of categoryOptions; track c) {
+                    <option [value]="c">{{ c }}</option>
+                  }
+                </select>
+              </div>
+              <div style="flex: 1; min-width: 120px;">
+                <label style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: #3D1E16; display: block; margin-bottom: 6px;">Price (₱)</label>
+                <ion-input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  [value]="createPrice()"
+                  (ionInput)="createPrice.set(($event.detail.value ?? '').toString())"
+                  style="--background: #FBF6EE; --border-radius: 10px; --padding-start: 14px; --padding-end: 14px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.875rem;"
+                ></ion-input>
+              </div>
+            </div>
+
+            <label style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: #3D1E16; display: block; margin-bottom: 6px;">Short description (optional)</label>
+            <ion-input
+              type="text"
+              placeholder="e.g. Stone-baked, chewy open crumb"
+              [value]="createDescription()"
+              (ionInput)="createDescription.set(($event.detail.value ?? '').toString())"
+              style="--background: #FBF6EE; --border-radius: 10px; --padding-start: 14px; --padding-end: 14px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.875rem; margin-bottom: 16px; display: block;"
+            ></ion-input>
+
+            <ion-button
+              expand="block"
+              [disabled]="saving()"
+              (click)="handleCreate()"
+              style="--background: #FF5B35; --background-hover: #E04E2B; --background-activated: #E04E2B; --color: #fff; --border-radius: 10px; --box-shadow: 0 4px 14px rgba(255,91,53,0.3); font-weight: 700; font-size: 0.85rem; height: 44px;"
+            >
+              {{ saving() ? 'Saving…' : '＋ Add Product' }}
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Product list ────────────────────────────────────────────── -->
+    <div style="background: #FBF6EE; padding: 8px 16px 40px;">
+
+      @if (productsError(); as err) {
+        <div style="text-align: center; padding: 40px 20px;">
+          <p style="font-size: 2rem; margin: 0 0 10px;">⚠️</p>
+          <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">Could not load products</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0 0 14px;">{{ err }}</p>
+          <ion-button fill="outline" (click)="loadProducts()" style="--color: #FF5B35; font-size: 0.8rem;">
+            Try again
+          </ion-button>
+        </div>
+      } @else if (productsLoading()) {
+        <div style="text-align: center; padding: 48px 20px;">
+          <div style="width: 34px; height: 34px; border: 3px solid #EDE0CC; border-top-color: #FF5B35; border-radius: 50%; margin: 0 auto 14px; animation: spin 0.8s linear infinite;"></div>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Loading products…</p>
+        </div>
+      } @else if (products().length === 0) {
+        <div style="text-align: center; padding: 48px 20px;">
+          <p style="font-size: 2.5rem; margin: 0 0 12px;">🧺</p>
+          <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">No products yet</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0;">
+            Use the form above to add your first product.
+          </p>
+        </div>
+      } @else {
+        @for (p of products(); track p.id) {
+          <!-- ── Product row ───────────────────────────────────── -->
+          <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 16px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 5px rgba(61,30,22,0.05);">
+
+            <!-- Display view -->
+            @if (editingId() !== p.id) {
+              <div style="display: flex; gap: 14px; align-items: center;">
+                <div style="width: 64px; height: 64px; border-radius: 12px; overflow: hidden; background: #FAF3E0; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                  @if (p.image_url) {
+                    <img [src]="p.image_url" [alt]="p.name" style="width: 100%; height: 100%; object-fit: cover;">
+                  } @else {
+                    <span style="font-size: 1.5rem;">🍞</span>
+                  }
+                </div>
+
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <p style="font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700; color: #3D1E16; margin: 0;">{{ p.name }}</p>
+                    <span style="background: rgba(255,91,53,0.1); color: #FF5B35; font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;">{{ p.category }}</span>
+                  </div>
+                  <p style="font-family: 'Inter', sans-serif; font-size: 0.75rem; color: #8B6347; margin: 3px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    {{ p.description || '—' }}
+                  </p>
+                  <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #A07850; margin: 4px 0 0;">
+                    Added {{ formattedDate(p.created_at) }} · <span style="color: #F5A623;">{{ ratingStars(p.rating) }}</span>
+                  </p>
+                </div>
+
+                <div style="text-align: right; flex-shrink: 0;">
+                  <p style="font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 800; color: #3D1E16; margin: 0 0 8px;">{{ formatPrice(p.price) }}</p>
+                  <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                    <ion-button size="small" fill="outline" (click)="startEdit(p)" style="--color: #6B3A2A; --border-color: #C4A882; font-family: 'Inter', sans-serif; font-size: 0.72rem; --padding-start: 12px; --padding-end: 12px;">
+                      <ion-icon [icon]="createIcon" slot="start" size="small"></ion-icon>
+                      Edit
+                    </ion-button>
+                    @if (canManageUsers()) {
+                      <ion-button size="small" fill="outline" style="--color: #E04E2B; --border-color: rgba(255,91,53,0.5); font-family: 'Inter', sans-serif; font-size: 0.72rem; --padding-start: 12px; --padding-end: 12px;" (click)="confirmDelete(p)">
+                        <ion-icon [icon]="trashIcon" slot="start" size="small"></ion-icon>
+                        Delete
+                      </ion-button>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Edit view -->
+            @else {
+              <div>
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #FF5B35; margin: 0 0 12px;">Editing “{{ editName() }}”</p>
+
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                  <div style="width: 110px; flex-shrink: 0; text-align: center;">
+                    @if (editImagePreview(); as preview) {
+                      <img [src]="preview" alt="New image" style="width: 110px; height: 110px; border-radius: 12px; object-fit: cover; border: 1px solid #EDE0CC;">
+                    } @else if (p.image_url) {
+                      <img [src]="p.image_url" [alt]="p.name" style="width: 110px; height: 110px; border-radius: 12px; object-fit: cover; border: 1px solid #EDE0CC;">
+                    } @else {
+                      <div style="width: 110px; height: 110px; border-radius: 12px; background: #FAF3E0; border: 1.5px dashed #C4A882; color: #A07850; display: flex; align-items: center; justify-content: center;">🍞</div>
+                    }
+                    <input #editFile type="file" accept="image/*" hidden (change)="onEditFileSelected($event)">
+                    <ion-button size="small" fill="outline" (click)="editFile.click()" style="--color: #3D1E16; --border-color: #C4A882; font-size: 0.7rem; margin-top: 6px;">
+                      Replace image
+                    </ion-button>
+                    <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; color: #A07850; margin: 6px 0 0;">Leave unchanged to keep the current image</p>
+                  </div>
+
+                  <div style="flex: 1; min-width: 220px;">
+                    <label style="font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 600; color: #3D1E16; display: block; margin-bottom: 5px;">Name</label>
+                    <ion-input type="text" [value]="editName()" (ionInput)="editName.set(($event.detail.value ?? '').toString())" style="--background: #FBF6EE; --border-radius: 10px; --padding-start: 12px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-size: 0.85rem; margin-bottom: 10px; display: block;"></ion-input>
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                      <select [value]="editCategory()" (change)="editCategory.set(selectValue($event))" style="flex: 1; min-width: 120px; background: #FBF6EE; border: 1.5px solid #EDE0CC; border-radius: 10px; padding: 10px 12px; font-size: 0.85rem; color: #3D1E16;">
+                        @for (c of categoryOptions; track c) {
+                          <option [value]="c">{{ c }}</option>
+                        }
+                      </select>
+                      <ion-input type="number" min="0" step="0.01" [value]="editPrice()" (ionInput)="editPrice.set(($event.detail.value ?? '').toString())" style="flex: 1; min-width: 100px; --background: #FBF6EE; --border-radius: 10px; --padding-start: 12px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-size: 0.85rem;"></ion-input>
+                    </div>
+
+                    <ion-input type="text" placeholder="Short description" [value]="editDescription()" (ionInput)="editDescription.set(($event.detail.value ?? '').toString())" style="--background: #FBF6EE; --border-radius: 10px; --padding-start: 12px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-size: 0.85rem; margin-bottom: 14px; display: block;"></ion-input>
+
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                      <ion-button size="small" fill="outline" (click)="cancelEdit()" style="--color: #8B6347; --border-color: #C4A882; font-size: 0.78rem;">Cancel</ion-button>
+                      <ion-button size="small" [disabled]="savingEdit()" (click)="handleUpdate(p)" style="--background: #3D1E16; --color: #FBF6EE; --border-radius: 8px; font-size: 0.78rem; font-weight: 700;">
+                        {{ savingEdit() ? 'Saving…' : 'Save changes' }}
+                      </ion-button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  }
+
+  <!-- ══════════════════════ USERS TAB (Admin only) ══════════════════ -->
+  @if (tab() === 'users') {
+
+    <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+      <p class="bakery-section-eyebrow" style="margin-bottom: 8px;">User Accounts</p>
+      <p class="bakery-section-subtitle" style="margin-bottom: 14px;">
+        Assign each member of your team a role. Changes take effect immediately.
+      </p>
+
+      @if (usersError(); as err) {
+        <div style="text-align: center; padding: 36px 20px;">
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #E04E2B; margin: 0 0 12px;">{{ err }}</p>
+          <ion-button fill="outline" (click)="loadUsers()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
+        </div>
+      } @else if (usersLoading()) {
+        <div style="text-align: center; padding: 36px 20px;">
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Loading users…</p>
+        </div>
+      } @else if (users().length === 0) {
+        <div style="text-align: center; padding: 36px 20px;">
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">No accounts yet.</p>
+        </div>
+      } @else {
+        @for (u of users(); track u.id) {
+          <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: #FAF3E0; color: #3D1E16; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; text-transform: uppercase; flex-shrink: 0;">
+              {{ (u.displayName || u.email)[0] }}
+            </div>
+            <div style="flex: 1; min-width: 160px;">
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: #3D1E16; margin: 0;">
+                {{ u.displayName }}
+                @if (u.id === user()?.id) {
+                  <span style="color: #A07850; font-weight: 500; font-size: 0.68rem;">(you)</span>
+                }
+              </p>
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: #8B6347; margin: 2px 0 0;">{{ u.email }}</p>
+            </div>
+            <div style="flex-shrink: 0;">
+              @if (u.id === user()?.id) {
+                <span style="background: rgba(255,91,53,0.1); color: #FF5B35; font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700; padding: 6px 12px; border-radius: 8px;">
+                  {{ roleLabel(u.role) }}
+                </span>
+              } @else {
+                <select
+                  [value]="u.role"
+                  [disabled]="roleUpdatingId() === u.id"
+                  (change)="handleRoleChange(u, $event)"
+                  style="background: #FBF6EE; border: 1.5px solid #EDE0CC; border-radius: 8px; padding: 8px 10px; font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 600; color: #3D1E16;"
+                >
+                  <option value="customer">Customer</option>
+                  <option value="store_admin">Store Admin</option>
+                  <option value="admin">Admin</option>
+                </select>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+
+</ion-content>

@@ -1,0 +1,1646 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// _page-shared.scss — Shared page layout styles · Knead to Know Bakery
+// Warm cream / chocolate brown / coral palette
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Design Tokens ─────────────────────────────────────────────────────────────
+
+$font:             'Inter', 'SF Pro Display', 'Roboto', sans-serif;
+$cream:            #FBF6EE;
+$cream-deep:       #FAF3E0;
+$cream-border:     #EDE0CC;
+$brown:            #3D1E16;
+$brown-dark:       #2B1712;
+$brown-mid:        #6B3A2A;
+$coral:            #FF5B35;
+$coral-dark:       #E04E2B;
+$yellow:           #FFF9A6;
+$beige-card:       #FDF8F0;
+$muted:            #A07850;
+$text-light:       #F5ECD7;
+$text-secondary:   #8B6347;
+
+// ── Toolbar ───────────────────────────────────────────────────────────────────
+
+ion-toolbar {
+  --background: #{$brown};
+  --color: #{$cream};
+  --border-color: #{$brown-dark};
+
+  ion-title {
+    font-family: $font;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+    color: $cream;
+  }
+
+  ion-menu-button {
+    --color: #{$cream};
+  }
+
+  ion-buttons ion-button {
+    --color: #{$cream};
+  }
+}
+
+// ── Page Content Wrapper ──────────────────────────────────────────────────────
+
+.page-content {
+  --background: #{$cream};
+  font-family: $font;
+}
+
+// ── Section Wrappers ──────────────────────────────────────────────────────────
+
+.bakery-section {
+  padding: 40px 20px;
+
+  &--cream    { background: $cream; }
+  &--beige    { background: $cream-deep; }
+  &--brown    { background: $brown; }
+  &--yellow   { background: $yellow; }
+}
+
+.bakery-section-eyebrow {
+  font-family: $font;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $coral;
+  margin: 0 0 8px 0;
+}
+
+.bakery-section-title {
+  font-family: $font;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 800;
+  color: $brown;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.bakery-section-subtitle {
+  font-family: $font;
+  font-size: 0.9rem;
+  color: $text-secondary;
+  margin: 0 0 28px 0;
+  line-height: 1.6;
+}
+
+// ── Hero Banner ───────────────────────────────────────────────────────────────
+
+.bakery-hero {
+  background: $cream-deep;
+  padding: 40px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 260px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bakery-hero__left {
+  flex: 1 1 0;
+  min-width: 0;
+  z-index: 1;
+}
+
+.bakery-hero__eyebrow {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $coral;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 10px 0;
+}
+
+.bakery-hero__headline {
+  font-family: $font;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 900;
+  color: $brown;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin: 0 0 12px 0;
+}
+
+.bakery-hero__sub {
+  font-size: 0.875rem;
+  color: $text-secondary;
+  margin: 0 0 20px 0;
+  line-height: 1.55;
+}
+
+.bakery-hero__rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+
+  .rating-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: $brown;
+    color: $cream;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+
+  .rating-stars {
+    font-size: 0.8rem;
+    color: $muted;
+  }
+}
+
+.bakery-hero__cta {
+  --background: #{$coral};
+  --background-hover: #{$coral-dark};
+  --background-activated: #{$coral-dark};
+  --color: #fff;
+  --border-radius: 10px;
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  --padding-start: 28px;
+  --padding-end: 28px;
+  --box-shadow: 0 4px 16px rgba(255, 91, 53, 0.35);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+  height: 46px;
+}
+
+.bakery-hero__right {
+  flex: 0 0 auto;
+  width: 180px;
+  height: 180px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 480px) {
+    width: 130px;
+    height: 130px;
+  }
+}
+
+.bakery-hero__splash {
+  width: 170px;
+  height: 170px;
+  background: rgba(255, 91, 53, 0.12);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  @media (max-width: 480px) {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+.bakery-hero__img {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 8px 20px rgba(61, 30, 22, 0.22));
+
+  @media (max-width: 480px) {
+    width: 115px;
+    height: 115px;
+  }
+}
+
+// ── Category Pills ────────────────────────────────────────────────────────────
+
+.bakery-pills {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  background: $cream;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.bakery-pill {
+  flex-shrink: 0;
+  padding: 8px 18px;
+  border-radius: 24px;
+  font-family: $font;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  white-space: nowrap;
+
+  &--active {
+    background: $coral;
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(255, 91, 53, 0.3);
+  }
+
+  &--inactive {
+    background: #fff;
+    color: $brown;
+    border: 1.5px solid $cream-border;
+  }
+}
+
+// ── Category Circles ──────────────────────────────────────────────────────────
+
+.bakery-cats {
+  display: flex;
+  justify-content: space-around;
+  padding: 16px 12px 8px;
+  gap: 8px;
+}
+
+.bakery-cat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 0;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.bakery-cat__circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  border: 2.5px solid $cream-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(61, 30, 22, 0.10);
+  transition: transform 0.18s, box-shadow 0.18s;
+
+  img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(61, 30, 22, 0.16);
+  }
+
+  @media (max-width: 400px) {
+    width: 58px;
+    height: 58px;
+    img { width: 50px; height: 50px; }
+  }
+}
+
+.bakery-cat__label {
+  font-family: $font;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: $brown;
+  text-align: center;
+}
+
+// ── Product Grid ──────────────────────────────────────────────────────────────
+
+.bakery-product-card {
+  --background: #fff;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 12px rgba(61, 30, 22, 0.09) !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  position: relative;
+}
+
+.bakery-product-card__price-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: $coral;
+  color: #fff;
+  font-family: $font;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 8px;
+  z-index: 2;
+  line-height: 1.4;
+}
+
+.bakery-product-card__img-wrap {
+  background: $beige-card;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 8px 8px;
+  min-height: 120px;
+
+  img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(61, 30, 22, 0.15));
+  }
+}
+
+.bakery-product-card__body {
+  padding: 10px 12px 12px;
+}
+
+.bakery-product-card__name {
+  font-family: $font;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: $brown;
+  margin: 0 0 3px 0;
+  line-height: 1.3;
+}
+
+.bakery-product-card__desc {
+  font-family: $font;
+  font-size: 0.72rem;
+  color: $text-secondary;
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+}
+
+.bakery-product-card__btn {
+  --background: #{$brown};
+  --background-hover: #{$brown-dark};
+  --background-activated: #{$brown-dark};
+  --color: #{$cream};
+  --border-radius: 8px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  height: 32px;
+  width: 100%;
+}
+
+// ── Chef Spotlight ────────────────────────────────────────────────────────────
+
+.bakery-chef-section {
+  background: $yellow;
+  padding: 32px 20px;
+  margin: 0;
+}
+
+.bakery-chef-card {
+  background: $brown;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  min-height: 160px;
+  display: flex;
+  align-items: flex-end;
+
+  img.bakery-chef-card__photo {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .bakery-chef-card__overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(43,23,18,0.92) 0%, transparent 100%);
+    padding: 16px;
+
+    p {
+      font-family: $font;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: $cream;
+      margin: 0;
+      line-height: 1.3;
+      font-style: italic;
+    }
+  }
+}
+
+.bakery-chef-info {
+  padding: 20px 4px 0;
+}
+
+.bakery-chef-info__name {
+  font-family: $font;
+  font-size: 1rem;
+  font-weight: 800;
+  color: $brown;
+  margin: 0 0 4px 0;
+}
+
+.bakery-chef-info__bio {
+  font-family: $font;
+  font-size: 0.82rem;
+  color: $text-secondary;
+  line-height: 1.55;
+  margin: 0 0 16px 0;
+}
+
+.bakery-chef-thumb-row {
+  display: flex;
+  gap: 10px;
+}
+
+.bakery-chef-thumb {
+  flex: 1 1 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: $beige-card;
+  border: 1.5px solid $cream-border;
+
+  img {
+    width: 100%;
+    height: 70px;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+// ── Testimonials ──────────────────────────────────────────────────────────────
+
+.bakery-testimonial-section {
+  background: $cream;
+  padding: 36px 20px;
+}
+
+.bakery-testimonial-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid $cream-border;
+  box-shadow: 0 2px 8px rgba(61, 30, 22, 0.06);
+  margin-bottom: 12px;
+}
+
+.bakery-testimonial-card__stars {
+  color: #F5A623;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+
+.bakery-testimonial-card__text {
+  font-family: $font;
+  font-size: 0.85rem;
+  color: $brown-mid;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+  font-style: italic;
+}
+
+.bakery-testimonial-card__author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .author-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: $brown;
+    margin: 0;
+  }
+
+  .author-role {
+    font-size: 0.72rem;
+    color: $text-secondary;
+    margin: 0;
+  }
+}
+
+// ── Newsletter / CTA Banner ───────────────────────────────────────────────────
+
+.bakery-newsletter {
+  background: $brown;
+  padding: 40px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(255, 91, 53, 0.12);
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    left: -40px;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: rgba(255, 91, 53, 0.08);
+    pointer-events: none;
+  }
+}
+
+.bakery-newsletter__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $coral;
+  margin: 0 0 8px 0;
+}
+
+.bakery-newsletter__headline {
+  font-family: $font;
+  font-size: clamp(1.3rem, 3.5vw, 1.9rem);
+  font-weight: 900;
+  color: $cream;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.bakery-newsletter__sub {
+  font-size: 0.875rem;
+  color: rgba(251, 246, 238, 0.7);
+  margin: 0 0 28px 0;
+  line-height: 1.55;
+}
+
+.bakery-newsletter__form {
+  display: flex;
+  gap: 10px;
+  max-width: 480px;
+  margin: 0 auto;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+}
+
+.bakery-newsletter__input {
+  flex: 1 1 0;
+  --background: rgba(255,255,255,0.1);
+  --color: #{$cream};
+  --placeholder-color: rgba(251, 246, 238, 0.5);
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --border-radius: 10px;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  font-size: 0.875rem;
+  height: 46px;
+  backdrop-filter: blur(4px);
+}
+
+.bakery-newsletter__btn {
+  --background: #{$coral};
+  --background-hover: #{$coral-dark};
+  --background-activated: #{$coral-dark};
+  --color: #fff;
+  --border-radius: 10px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 22px;
+  --padding-end: 22px;
+  --box-shadow: 0 4px 16px rgba(255, 91, 53, 0.4);
+  font-weight: 700;
+  font-size: 0.875rem;
+  height: 46px;
+  flex-shrink: 0;
+}
+
+// ── Promotions Page ───────────────────────────────────────────────────────────
+
+.promo-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(61, 30, 22, 0.08);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: stretch;
+}
+
+.promo-card__accent {
+  width: 8px;
+  flex-shrink: 0;
+  background: $coral;
+
+  &--yellow { background: $yellow; }
+  &--brown  { background: $brown-mid; }
+}
+
+.promo-card__body {
+  padding: 16px 18px;
+  flex: 1;
+}
+
+.promo-card__badge {
+  display: inline-block;
+  background: rgba(255, 91, 53, 0.1);
+  color: $coral;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.promo-card__title {
+  font-family: $font;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: $brown;
+  margin: 0 0 4px 0;
+}
+
+.promo-card__desc {
+  font-family: $font;
+  font-size: 0.8rem;
+  color: $text-secondary;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.promo-card__code {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: $cream-deep;
+  border: 1.5px dashed $cream-border;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: $brown;
+  letter-spacing: 0.05em;
+}
+
+// ── Orders Page ───────────────────────────────────────────────────────────────
+
+.orders-stat-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.orders-stat-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px 14px;
+  text-align: center;
+  border: 1px solid $cream-border;
+  box-shadow: 0 1px 6px rgba(61, 30, 22, 0.06);
+}
+
+.orders-stat-card__value {
+  font-family: $font;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: $brown;
+  margin: 0;
+  line-height: 1;
+}
+
+.orders-stat-card__label {
+  font-family: $font;
+  font-size: 0.72rem;
+  color: $text-secondary;
+  margin: 4px 0 0 0;
+  font-weight: 500;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border: 1px solid $cream-border;
+  box-shadow: 0 1px 4px rgba(61, 30, 22, 0.05);
+}
+
+.order-item__img {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: $beige-card;
+  flex-shrink: 0;
+}
+
+.order-item__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.order-item__name {
+  font-family: $font;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: $brown;
+  margin: 0 0 3px 0;
+}
+
+.order-item__meta {
+  font-size: 0.75rem;
+  color: $text-secondary;
+  margin: 0;
+}
+
+.order-item__status {
+  font-family: $font;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+  flex-shrink: 0;
+
+  &--ready    { background: rgba(34,197,94,0.12);  color: #16a34a; }
+  &--baking   { background: rgba(255,91,53,0.12);  color: $coral-dark; }
+  &--pending  { background: rgba(245,166,35,0.12); color: #b45309; }
+}
+
+// ── Feedback Page ─────────────────────────────────────────────────────────────
+
+.feedback-star-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  justify-content: center;
+}
+
+.feedback-star {
+  font-size: 2rem;
+  cursor: pointer;
+  transition: transform 0.15s;
+  color: $cream-border;
+
+  &--active { color: #F5A623; }
+  &:hover   { transform: scale(1.2); }
+}
+
+.feedback-form-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid $cream-border;
+  box-shadow: 0 2px 10px rgba(61, 30, 22, 0.07);
+  margin-bottom: 24px;
+}
+
+.feedback-form-label {
+  font-family: $font;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $brown;
+  margin: 0 0 6px 0;
+  display: block;
+}
+
+.feedback-submit-btn {
+  --background: #{$coral};
+  --background-hover: #{$coral-dark};
+  --background-activated: #{$coral-dark};
+  --color: #fff;
+  --border-radius: 12px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  --box-shadow: 0 4px 16px rgba(255, 91, 53, 0.3);
+  font-weight: 700;
+  font-size: 0.9rem;
+  width: 100%;
+  height: 50px;
+  margin-top: 8px;
+}
+
+// ── Admin / Developers (retain existing) ──────────────────────────────────────
+
+.page-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0 28px;
+  border-bottom: 1px solid $cream-border;
+  margin-bottom: 24px;
+}
+
+.page-hero-icon {
+  font-size: 40px;
+  color: $coral;
+}
+
+.page-title {
+  font-family: $font;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: $brown;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+  font-family: $font;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: $text-secondary;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.page-card {
+  background: #ffffff;
+  border: 1px solid $cream-border;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.page-card-heading {
+  font-family: $font;
+  font-size: 1rem;
+  font-weight: 600;
+  color: $brown;
+  margin: 0 0 8px 0;
+}
+
+.page-card-body {
+  font-family: $font;
+  font-size: 0.875rem;
+  color: $text-secondary;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.dev-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.dev-card {
+  --background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 1px 6px rgba(61, 30, 22, 0.07);
+  margin: 0;
+}
+
+.dev-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 12px 16px;
+}
+
+.dev-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(61, 30, 22, 0.10);
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.dev-name {
+  font-family: $font;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $brown;
+  margin: 0 0 4px 0;
+}
+
+.dev-role {
+  font-family: $font;
+  font-size: 0.75rem;
+  color: $text-secondary;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.admin-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+
+.admin-modules {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.admin-module-card {
+  background: #ffffff;
+  border: 1px solid $cream-border;
+  border-radius: 14px;
+  padding: 20px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(61, 30, 22, 0.05);
+}
+
+.admin-module-label {
+  font-family: $font;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $brown;
+  margin: 0;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// IONIC SHADOW DOM OVERRIDES — applied after all component styles so they win
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── IonCard — force bakery border-radius & shadow through the shadow DOM ──────
+
+ion-card.bakery-product-card {
+  --background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(61, 30, 22, 0.09);
+  margin: 0;
+  overflow: visible;
+
+  &::part(native) {
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(61, 30, 22, 0.09);
+    overflow: hidden;
+  }
+}
+
+// ── IonButton — product card "Buy Now" / "Add to Cart" ───────────────────────
+
+ion-button.bakery-product-card__btn {
+  --background: #{$brown};
+  --background-hover: #{$brown-dark};
+  --background-activated: #{$brown-dark};
+  --color: #{$cream};
+  --border-radius: 8px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --box-shadow: none;
+  font-family: $font;
+  font-size: 0.72rem;
+  font-weight: 600;
+  height: 32px;
+  width: 100%;
+  margin: 0;
+}
+
+// ── IonButton — hero CTA "Book Order" ────────────────────────────────────────
+
+ion-button.bakery-hero__cta {
+  --background: #{$coral};
+  --background-hover: #{$coral-dark};
+  --background-activated: #{$coral-dark};
+  --color: #fff;
+  --border-radius: 10px;
+  --box-shadow: 0 4px 16px rgba(255, 91, 53, 0.35);
+  --padding-start: 28px;
+  --padding-end: 28px;
+  font-family: $font;
+  font-weight: 700;
+  font-size: 0.9rem;
+  height: 46px;
+  margin: 0;
+}
+
+// ── IonButton — newsletter subscribe ─────────────────────────────────────────
+
+ion-button.bakery-newsletter__btn {
+  --background: #{$coral};
+  --background-hover: #{$coral-dark};
+  --background-activated: #{$coral-dark};
+  --color: #fff;
+  --border-radius: 10px;
+  --box-shadow: 0 4px 16px rgba(255, 91, 53, 0.4);
+  --padding-start: 22px;
+  --padding-end: 22px;
+  font-family: $font;
+  font-weight: 700;
+  font-size: 0.875rem;
+  height: 46px;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+// ── IonButton — feedback submit ───────────────────────────────────────────────
+
+ion-button.feedback-submit-btn {
+  --background: #{$coral};
+  --background-hover: #{$coral-dark};
+  --background-activated: #{$coral-dark};
+  --color: #fff;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 16px rgba(255, 91, 53, 0.3);
+  --padding-top: 0;
+  --padding-bottom: 0;
+  font-family: $font;
+  font-weight: 700;
+  font-size: 0.9rem;
+  height: 50px;
+  width: 100%;
+  margin-top: 8px;
+  display: block;
+}
+
+// ── IonInput — newsletter field ───────────────────────────────────────────────
+
+ion-input.bakery-newsletter__input {
+  --background: rgba(255, 255, 255, 0.1);
+  --color: #{$cream};
+  --placeholder-color: rgba(251, 246, 238, 0.5);
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --border-radius: 10px;
+  --highlight-color-focused: #{$coral};
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  font-family: $font;
+  font-size: 0.875rem;
+  height: 46px;
+  flex: 1 1 0;
+
+  &::part(native) {
+    border-radius: 10px;
+    padding-inline-start: 16px;
+    padding-inline-end: 16px;
+  }
+}
+
+// ── IonTextarea — feedback form ───────────────────────────────────────────────
+
+ion-textarea {
+  --background: #{$cream};
+  --color: #{$brown};
+  --placeholder-color: #C4A882;
+  --border-radius: 10px;
+  --highlight-color-focused: #{$coral};
+  border: 1.5px solid $cream-border;
+  border-radius: 10px;
+  font-family: $font;
+  font-size: 0.875rem;
+  margin-bottom: 16px;
+  display: block;
+
+  &::part(native) {
+    padding: 12px 14px;
+    border-radius: 10px;
+  }
+
+  &.has-focus {
+    border-color: $coral;
+  }
+}
+
+// ── IonToolbar — ensure menu button & title colour stay on dark bg ────────────
+
+ion-header ion-toolbar {
+  --background: #{$brown};
+  --color: #{$cream};
+  --border-color: #{$brown-dark};
+  --min-height: 56px;
+
+  &::part(native) {
+    background: $brown;
+  }
+
+  ion-menu-button {
+    --color: #{$cream};
+
+    &::part(native) {
+      color: $cream;
+    }
+  }
+
+  ion-title {
+    color: $cream;
+
+    &::part(native) {
+      color: $cream;
+    }
+  }
+
+  // Ensure back-button & icon buttons also get cream colour
+  ion-back-button {
+    --color: #{$cream};
+  }
+}
+
+// ── IonList inside menu — remove default white background ─────────────────────
+
+ion-list.menu-nav-list,
+ion-list.menu-footer-list {
+  --background: transparent;
+  --ion-item-background: transparent;
+  background: transparent;
+}
+
+// ── IonItem inside menu — flatten default Ionic item chrome ──────────────────
+
+ion-item.menu-nav-item {
+  --background: transparent;
+  --inner-border-width: 0;
+  --border-width: 0;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --min-height: 46px;
+
+  &::part(native) {
+    border-radius: 12px;
+    padding-inline-start: 14px;
+    padding-inline-end: 14px;
+  }
+}
+
+// ── Responsive: single-column newsletter form on narrow screens ───────────────
+
+@media (max-width: 480px) {
+  .bakery-newsletter__form {
+    flex-direction: column;
+  }
+
+  ion-input.bakery-newsletter__input {
+    flex: none;
+    width: 100%;
+  }
+
+  ion-button.bakery-newsletter__btn {
+    width: 100%;
+  }
+}
+
+// ── Scrollbar — global thin bakery-toned scrollbar (WebKit) ──────────────────
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid $cream-border;
+  border-top-color: $coral;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+// ── Generic qty stepper buttons (cart / checkout) ────────────────────────────
+
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-family: $font;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &--minus {
+    border: 1.5px solid $cream-border;
+    background: #fff;
+    color: $brown;
+  }
+
+  &--plus {
+    border: none;
+    background: $coral;
+    color: #fff;
+  }
+}
+
+// ── Checkout ─────────────────────────────────────────────────────────────────
+
+.checkout-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__label {
+    font-family: $font;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: $brown-mid;
+  }
+
+  &__hint {
+    font-family: $font;
+    font-size: 0.72rem;
+    color: $muted;
+    margin: 0;
+  }
+
+  &__input {
+    font-family: $font;
+    font-size: 0.92rem;
+    color: $brown;
+    padding: 12px 14px;
+    border: 1.5px solid $cream-border;
+    border-radius: 12px;
+    background: #fff;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.18s;
+
+    &:focus {
+      border-color: $coral;
+    }
+
+    &::placeholder {
+      color: $muted;
+      opacity: 0.75;
+    }
+  }
+
+  &__error {
+    font-family: $font;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $coral-dark;
+    margin: 0;
+  }
+}
+
+.checkout-map {
+  height: 260px;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1.5px solid $cream-border;
+  background: $cream-deep;
+}
+
+.coords-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  background: #EAF6EE;
+  color: #227A4B;
+  border: 1px solid #BFE3CE;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-family: $font;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.pay-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1.5px solid $cream-border;
+  border-radius: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  font-family: inherit;
+
+  &--active {
+    border-color: $coral;
+    box-shadow: 0 0 0 3px rgba(255, 91, 53, 0.14);
+  }
+
+  &__title {
+    display: block;
+    font-family: $font;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: $brown;
+    margin-bottom: 2px;
+  }
+
+  &__sub {
+    display: block;
+    font-family: $font;
+    font-size: 0.75rem;
+    color: $muted;
+  }
+
+  &__check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid $cream-border;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    color: transparent;
+    transition: all 0.18s;
+    flex-shrink: 0;
+  }
+
+  &--active &__check {
+    background: $coral;
+    border-color: $coral;
+    color: #fff;
+  }
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  font-family: $font;
+  font-size: 0.85rem;
+  color: rgba(251, 246, 238, 0.82);
+
+  span:last-child {
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
+// ── Status badges ────────────────────────────────────────────────────────────
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: $font;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  &--amber {
+    background: #FFF4D6;
+    color: #A9700A;
+    border: 1px solid #F2DCA0;
+  }
+
+  &--blue {
+    background: #E3EDFB;
+    color: #1F5FA8;
+    border: 1px solid #BFD5F0;
+  }
+
+  &--purple {
+    background: #F0E7FB;
+    color: #6D3FA8;
+    border: 1px solid #D9C6F0;
+  }
+
+  &--green {
+    background: #EAF6EE;
+    color: #227A4B;
+    border: 1px solid #BFE3CE;
+  }
+
+  &--red {
+    background: #FDE8E6;
+    color: #B03A2A;
+    border: 1px solid #F2C6C0;
+  }
+}
+
+// ── Fulfillment / order cards ────────────────────────────────────────────────
+
+.fulfill-card {
+  background: #fff;
+  border: 1px solid $cream-border;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 10px rgba(61, 30, 22, 0.04);
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  &__order-no {
+    margin: 0;
+    font-family: $font;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: $brown;
+  }
+
+  &__meta {
+    margin: 2px 0 0;
+    font-family: $font;
+    font-size: 0.72rem;
+    color: $muted;
+  }
+
+  &__customer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: $cream-deep;
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+  }
+
+  &__name {
+    margin: 0;
+    font-family: $font;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: $brown;
+  }
+
+  &__tel {
+    font-family: $font;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: $coral;
+    text-decoration: none;
+  }
+
+  &__block {
+    padding: 8px 0;
+  }
+
+  &__label {
+    margin: 0 0 4px;
+    font-family: $font;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: $muted;
+  }
+
+  &__text {
+    margin: 0 0 3px;
+    font-family: $font;
+    font-size: 0.84rem;
+    color: $brown;
+    line-height: 1.45;
+  }
+
+  &__link {
+    color: #1F5FA8;
+    font-weight: 600;
+  }
+
+  &__total {
+    margin: 0;
+    font-family: $font;
+    font-weight: 800;
+    font-size: 1rem;
+    color: $coral;
+  }
+
+  &__status {
+    font-family: $font;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+}
+
+// ── Printable receipt ────────────────────────────────────────────────────────
+
+.receipt-label {
+  margin: 0 0 5px;
+  font-family: $font;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: $muted;
+}
+
+.receipt-value {
+  margin: 0 0 3px;
+  font-family: $font;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: $brown;
+  line-height: 1.5;
+}
+
+.receipt-link {
+  color: #1F5FA8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+// ── Print ────────────────────────────────────────────────────────────────────
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  // Flatten Ionic's scroll containers so the whole receipt can print.
+  ion-app,
+  ion-router-outlet,
+  ion-content,
+  ion-content .inner-scroll {
+    height: auto !important;
+    overflow: visible !important;
+    contain: none !important;
+    position: static !important;
+    display: block !important;
+  }
+
+  .page-content {
+    --background: #fff;
+    background: #fff !important;
+  }
+
+  .receipt-print,
+  .receipt-print * {
+    visibility: visible;
+  }
+
+  .receipt-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+  }
+}
+
+// ── Scrollbar — global thin bakery-toned scrollbar (WebKit) ──────────────────
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: $cream-deep;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $brown-mid;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: $brown;
+}

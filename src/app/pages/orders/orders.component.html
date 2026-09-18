@@ -1,0 +1,305 @@
+<ion-header class="no-print">
+  <ion-toolbar>
+    <ion-menu-button slot="start"></ion-menu-button>
+    <ion-title>{{ isStaff() ? 'Order Fulfillment' : 'My Orders & Cart' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- ── Stats row ───────────────────────────────────────────────────── -->
+  <div class="bakery-section bakery-section--beige" style="padding-bottom: 20px;">
+    <p class="bakery-section-eyebrow">Overview</p>
+    <h2 class="bakery-section-title" style="margin-bottom: 20px;">
+      {{ isStaff() ? 'Live Order Dashboard' : 'Your Orders & Cart' }}
+    </h2>
+    <ion-grid style="padding: 0;">
+      <ion-row>
+        @for (s of stats(); track s.label) {
+          <ion-col size="6" size-md="3" style="padding: 5px;">
+            <div class="orders-stat-card">
+              <p class="orders-stat-card__value">{{ s.value }}</p>
+              <p class="orders-stat-card__label">{{ s.label }}</p>
+            </div>
+          </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- ── Tab switcher ────────────────────────────────────────────────── -->
+  <div style="background: #FBF6EE; padding: 16px 20px 0; display: flex; gap: 8px; border-bottom: 2px solid #EDE0CC;">
+    <button
+      (click)="tab.set('orders')"
+      style="background: none; border: none; padding: 10px 20px; font-family: 'Inter', sans-serif; font-size: 0.875rem; cursor: pointer; transition: color 0.18s; margin-bottom: -2px;"
+      [style.border-bottom]="tab() === 'orders' ? '3px solid #FF5B35' : '3px solid transparent'"
+      [style.font-weight]="tab() === 'orders' ? 700 : 500"
+      [style.color]="tab() === 'orders' ? '#FF5B35' : '#8B6347'"
+    >
+      {{ isStaff() ? 'Fulfillment Queue' : 'Order History' }}
+    </button>
+    @if (!isStaff()) {
+      <button
+        (click)="tab.set('cart')"
+        style="background: none; border: none; padding: 10px 20px; font-family: 'Inter', sans-serif; font-size: 0.875rem; cursor: pointer; transition: color 0.18s; margin-bottom: -2px;"
+        [style.border-bottom]="tab() === 'cart' ? '3px solid #FF5B35' : '3px solid transparent'"
+        [style.font-weight]="tab() === 'cart' ? 700 : 500"
+        [style.color]="tab() === 'cart' ? '#FF5B35' : '#8B6347'"
+      >
+        My Cart ({{ itemCount() }})
+      </button>
+    }
+  </div>
+
+  <!-- ── Order History / Fulfillment tab ─────────────────────────────── -->
+  @if (tab() === 'orders') {
+    <div style="padding: 20px 16px 40px; background: #FBF6EE;">
+
+      @if (loading()) {
+        <div style="text-align: center; padding: 48px 24px;">
+          <div class="spinner" style="margin: 0 auto 16px;"></div>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347;">Loading orders…</p>
+        </div>
+      } @else if (errorMessage()) {
+        <div style="text-align: center; padding: 40px 24px;">
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #FF5B35; margin-bottom: 16px;">{{ errorMessage() }}</p>
+          <ion-button fill="outline" (click)="loadOrders()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
+        </div>
+      } @else if (orders().length === 0) {
+        <div style="text-align: center; padding: 48px 24px;">
+          <p style="font-size: 2.5rem; margin: 0 0 12px;">🥖</p>
+          <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; font-size: 1rem; margin: 0 0 6px;">
+            {{ isStaff() ? 'No orders yet' : 'No orders yet' }}
+          </p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin-bottom: 20px;">
+            @if (isStaff()) {
+              Incoming orders will appear here in real time.
+            } @else {
+              When you place an order you can track its status here live.
+            }
+          </p>
+          @if (!isStaff()) {
+            <ion-button routerLink="/bread-catalog" style="--background: #FF5B35; --color: #fff; --border-radius: 10px; font-weight: 700;">
+              Browse Catalog
+            </ion-button>
+          }
+        </div>
+      } @else {
+
+        @for (order of orders(); track order.id) {
+
+          <!-- ── Staff fulfillment card ─────────────────────────────── -->
+          @if (isStaff()) {
+            <div class="fulfill-card">
+              <div class="fulfill-card__head">
+                <div>
+                  <p class="fulfill-card__order-no">#{{ shortId(order) }}</p>
+                  <p class="fulfill-card__meta">{{ formatDate(order.created_at) }}</p>
+                </div>
+                <span [class]="'status-badge status-badge--' + statusBadge[order.status]">
+                  {{ statusLabel[order.status] }}
+                </span>
+              </div>
+
+              <div class="fulfill-card__customer">
+                <p class="fulfill-card__name">{{ order.customer_name }}</p>
+                <a class="fulfill-card__tel" [href]="'tel:' + order.phone">{{ order.phone }}</a>
+              </div>
+
+              <div class="fulfill-card__block">
+                <p class="fulfill-card__label">DELIVER TO</p>
+                <p class="fulfill-card__text">{{ order.address }}</p>
+                @if (order.unit_notes) {
+                  <p class="fulfill-card__text"><b>Notes:</b> {{ order.unit_notes }}</p>
+                }
+                <p class="fulfill-card__text">
+                  📍 {{ coords(order) }}
+                  @if (mapUrl(order)) {
+                    · <a [href]="mapUrl(order)" target="_blank" rel="noopener" class="fulfill-card__link">Open in Google Maps</a>
+                  }
+                </p>
+              </div>
+
+              <div class="fulfill-card__block" style="border-top: 1px dashed #EDE0CC;">
+                <p class="fulfill-card__label">ITEMS</p>
+                @for (item of order.items; track item.id) {
+                  <p class="fulfill-card__text" style="margin-bottom: 2px;">
+                    <b style="color: #FF5B35;">×{{ item.quantity }}</b> {{ item.name }}
+                    <span style="float: right; font-weight: 600;">{{ formatPrice(item.price * item.quantity) }}</span>
+                  </p>
+                }
+              </div>
+
+              <div class="fulfill-card__block" style="border-top: 1px dashed #EDE0CC; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+                <p class="fulfill-card__text" style="margin: 0;">
+                  {{ paymentLabel(order) }}
+                  @if (order.payment_status === 'paid') {
+                    · <span style="color: #3D9E6B; font-weight: 700;">Paid</span>
+                  }
+                </p>
+                <p class="fulfill-card__total">{{ formatPrice(order.total) }}</p>
+              </div>
+
+              @if (order.status !== 'cancelled' && order.status !== 'delivered') {
+                <div style="display: flex; gap: 10px; margin-top: 14px;">
+                  <ion-button
+                    expand="block"
+                    (click)="advanceStatus(order)"
+                    [disabled]="!nextStatus(order)"
+                    style="
+                      --background: #FF5B35;
+                      --background-activated: #E04E2B;
+                      --color: #fff;
+                      --border-radius: 10px;
+                      font-weight: 700;
+                      font-size: 0.8rem;
+                      flex: 2;
+                    "
+                  >
+                    {{ nextStatus(order) ? 'Mark as ' + statusLabel[nextStatus(order)!] : 'Completed' }}
+                  </ion-button>
+                  <ion-button
+                    expand="block"
+                    fill="outline"
+                    (click)="cancelOrder(order)"
+                    style="--border-color: #C9604F; --color: #C9604F; --border-radius: 10px; font-weight: 700; font-size: 0.8rem; flex: 1;"
+                  >
+                    Cancel
+                  </ion-button>
+                </div>
+              }
+            </div>
+
+          <!-- ── Customer order card ─────────────────────────────────── -->
+          } @else {
+            <div class="fulfill-card">
+              <div class="fulfill-card__head">
+                <div>
+                  <p class="fulfill-card__order-no">#{{ shortId(order) }}</p>
+                  <p class="fulfill-card__meta">{{ formatDate(order.created_at) }} · {{ paymentLabel(order) }}</p>
+                </div>
+                <span [class]="'status-badge status-badge--' + statusBadge[order.status]">
+                  {{ statusLabel[order.status] }}
+                </span>
+              </div>
+
+              <div class="fulfill-card__block">
+                @for (item of order.items; track item.id) {
+                  <p class="fulfill-card__text" style="margin-bottom: 2px;">
+                    <b style="color: #FF5B35;">×{{ item.quantity }}</b> {{ item.name }}
+                    <span style="float: right; font-weight: 600;">{{ formatPrice(item.price * item.quantity) }}</span>
+                  </p>
+                }
+              </div>
+
+              <div class="fulfill-card__block" style="border-top: 1px dashed #EDE0CC; display: flex; justify-content: space-between; align-items: center;">
+                <p class="fulfill-card__text" style="margin: 0;">Total</p>
+                <p class="fulfill-card__total">{{ formatPrice(order.total) }}</p>
+              </div>
+
+              <div style="margin-top: 14px;">
+                <ion-button
+                  expand="block"
+                  [routerLink]="['/order-confirmation', order.id]"
+                  style="--background: #FF5B35; --background-activated: #E04E2B; --color: #fff; --border-radius: 10px; font-weight: 700; font-size: 0.8rem;"
+                >
+                  View Receipt & Track
+                </ion-button>
+              </div>
+            </div>
+          }
+
+        }
+
+      }
+    </div>
+  }
+
+  <!-- ── Cart tab (customers) ───────────────────────────────────────── -->
+  @if (tab() === 'cart' && !isStaff()) {
+    <div style="padding: 20px 16px 40px; background: #FBF6EE;">
+
+      @if (lines().length === 0) {
+        <div style="text-align: center; padding: 48px 24px;">
+          <p style="font-size: 2.5rem; margin: 0 0 12px;">🛒</p>
+          <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; font-size: 1rem; margin: 0 0 6px;">
+            Your cart is empty
+          </p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin-bottom: 20px;">
+            Head over to the catalog to add some freshly baked goodies!
+          </p>
+          <ion-button routerLink="/bread-catalog" style="--background: #FF5B35; --color: #fff; --border-radius: 10px; font-weight: 700;">
+            Browse Catalog
+          </ion-button>
+        </div>
+      } @else {
+        @for (line of lines(); track line.product.id) {
+          <div class="order-item">
+            @if (line.product.image_url) {
+              <img class="order-item__img" [src]="line.product.image_url" [alt]="line.product.name">
+            } @else {
+              <div class="order-item__img" style="display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">🍞</div>
+            }
+            <div class="order-item__info">
+              <p class="order-item__name">{{ line.product.name }}</p>
+              <p class="order-item__meta">
+                {{ formatPrice(line.product.price) }} each · Subtotal {{ formatPrice(line.product.price * line.quantity) }}
+              </p>
+            </div>
+            <!-- qty controls -->
+            <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+              <button class="qty-btn qty-btn--minus" (click)="adjustQty(line.product.id, -1)">−</button>
+              <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.9rem; color: #3D1E16; min-width: 18px; text-align: center;">
+                {{ line.quantity }}
+              </span>
+              <button class="qty-btn qty-btn--plus" (click)="adjustQty(line.product.id, 1)">+</button>
+            </div>
+          </div>
+        }
+
+        <!-- Order total + checkout -->
+        <div style="background: #fff; border-radius: 16px; padding: 20px; border: 1px solid #EDE0CC; margin-top: 8px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347;">Subtotal ({{ itemCount() }} item{{ itemCount() === 1 ? '' : 's' }})</span>
+            <span style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; color: #3D1E16;">{{ formatPrice(subtotal()) }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347;">Delivery fee</span>
+            @if (deliveryFee() === 0) {
+              <span style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: #3D9E6B;">FREE</span>
+            } @else {
+              <span style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; color: #3D1E16;">{{ formatPrice(deliveryFee()) }}</span>
+            }
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+            <span style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347;">Tax (12%)</span>
+            <span style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; color: #3D1E16;">{{ formatPrice(tax()) }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-top: 1px solid #EDE0CC; padding-top: 14px; margin-bottom: 16px;">
+            <span style="font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 800; color: #3D1E16;">Estimated Total</span>
+            <span style="font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 800; color: #FF5B35;">{{ formatPrice(total()) }}</span>
+          </div>
+          <ion-button
+            expand="block"
+            routerLink="/checkout"
+            style="
+              --background: #FF5B35;
+              --background-activated: #E04E2B;
+              --color: #fff;
+              --border-radius: 12px;
+              --box-shadow: 0 4px 16px rgba(255,91,53,0.3);
+              --padding-top: 16px;
+              --padding-bottom: 16px;
+              font-weight: 800;
+              font-size: 0.9rem;
+            "
+          >
+            Proceed to Checkout
+          </ion-button>
+        </div>
+      }
+
+    </div>
+  }
+
+</ion-content>

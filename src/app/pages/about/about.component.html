@@ -1,0 +1,109 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-menu-button slot="start"></ion-menu-button>
+    <ion-title>About Us</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- ── Hero ────────────────────────────────────────────────────────── -->
+  <div style="position: relative; overflow: hidden; min-height: 220px;">
+    <img
+      src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=900&h=400&fit=crop&auto=format"
+      alt="Our bakery"
+      style="width: 100%; height: 220px; object-fit: cover; display: block;"
+    >
+    <div style="position: absolute; inset: 0; background: linear-gradient(to right, rgba(43,23,18,0.85) 40%, rgba(43,23,18,0.15)); display: flex; flex-direction: column; justify-content: center; padding: 28px 28px;">
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #FF5B35; margin: 0 0 6px;">Est. 2012</p>
+      <h1 style="font-family: 'Inter', sans-serif; font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 900; color: #FBF6EE; margin: 0 0 8px; line-height: 1.15; letter-spacing: -0.02em; max-width: 340px;">
+        Baked With Heart,<br>Served With Love.
+      </h1>
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: rgba(251,246,238,0.75); margin: 0; max-width: 280px;">
+        Artisan breads &amp; pastries crafted fresh every morning in Quezon City.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Stats strip ─────────────────────────────────────────────────── -->
+  <div style="background: #FF5B35; display: flex; justify-content: space-around; flex-wrap: wrap; padding: 16px; gap: 8px;">
+    @for (s of stats; track s.label) {
+      <div style="text-align: center; min-width: 70px;">
+        <p style="font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.05rem; color: #fff; margin: 0 0 2px; line-height: 1;">{{ s.value }}</p>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.65rem; color: rgba(255,255,255,0.82); margin: 0; letter-spacing: 0.03em;">{{ s.label }}</p>
+      </div>
+    }
+  </div>
+
+  <!-- ── Our Story ───────────────────────────────────────────────────── -->
+  <div class="bakery-section bakery-section--cream">
+    <p class="bakery-section-eyebrow">Our Story</p>
+    <h2 class="bakery-section-title">From a Small Oven<br>to Your Doorstep</h2>
+    <p style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #6B3A2A; line-height: 1.7; margin: 0 0 16px;">
+      Knead to Know began in a tiny home kitchen in 2012, when founder Maria Cruz started
+      baking sourdough loaves for her neighbours. Word spread fast — the warm smell of
+      fresh bread and the honesty of simple, quality ingredients resonated with everyone
+      who tried it.
+    </p>
+    <p style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #6B3A2A; line-height: 1.7; margin: 0;">
+      Today, our full production bakery serves hundreds of families across the city. We
+      still use the same recipes, the same care, and the same belief that great bread
+      makes life a little sweeter.
+    </p>
+  </div>
+
+  <!-- ── Values grid ─────────────────────────────────────────────────── -->
+  <div class="bakery-section bakery-section--beige">
+    <p class="bakery-section-eyebrow">What We Stand For</p>
+    <h2 class="bakery-section-title" style="margin-bottom: 24px;">Our Values</h2>
+    <ion-grid style="padding: 0;">
+      <ion-row>
+        @for (v of values; track v.title) {
+          <ion-col size="12" size-md="6" style="padding: 6px;">
+            <div style="background: #fff; border-radius: 16px; padding: 20px; border: 1px solid #EDE0CC; height: 100%; box-sizing: border-box;">
+              <div style="font-size: 1.8rem; margin-bottom: 10px;">{{ v.emoji }}</div>
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">{{ v.title }}</p>
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; line-height: 1.6; margin: 0;">{{ v.body }}</p>
+            </div>
+          </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- ── Timeline ────────────────────────────────────────────────────── -->
+  <div class="bakery-section bakery-section--cream">
+    <p class="bakery-section-eyebrow">Our Journey</p>
+    <h2 class="bakery-section-title" style="margin-bottom: 28px;">Milestones</h2>
+    <div style="position: relative; padding-left: 28px;">
+      <!-- vertical line -->
+      <div style="position: absolute; left: 7px; top: 6px; bottom: 6px; width: 2px; background: #EDE0CC; border-radius: 2px;"></div>
+      @for (m of milestones; track m.year; let last = $last) {
+        <div [style.margin-bottom]="last ? '0px' : '24px'" style="position: relative;">
+          <!-- dot -->
+          <div style="position: absolute; left: -25px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: #FF5B35; border: 2.5px solid #FBF6EE; box-shadow: 0 0 0 2px #FF5B35; flex-shrink: 0;"></div>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700; color: #FF5B35; margin: 0 0 3px; letter-spacing: 0.05em;">{{ m.year }}</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.875rem; color: #3D1E16; margin: 0; line-height: 1.5;">{{ m.event }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── CTA footer ──────────────────────────────────────────────────── -->
+  <div class="bakery-newsletter">
+    <p class="bakery-newsletter__eyebrow">Join Our Family</p>
+    <h2 class="bakery-newsletter__headline">
+      Taste the Difference<br>Yourself
+    </h2>
+    <p class="bakery-newsletter__sub">
+      Order fresh from our catalog or stop by the bakery — we'd love to meet you.
+    </p>
+    <ion-button
+      routerLink="/bread-catalog"
+      style="--background: #FF5B35; --background-activated: #E04E2B; --color: #fff; --border-radius: 10px; --padding-start: 28px; --padding-end: 28px; --padding-top: 14px; --padding-bottom: 14px; --box-shadow: 0 4px 16px rgba(255,91,53,0.35); font-weight: 700; font-size: 0.9rem;"
+    >
+      Shop the Catalog
+    </ion-button>
+  </div>
+
+</ion-content>

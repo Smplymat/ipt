@@ -1,0 +1,326 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// _menu.scss — Knead to Know · Bakery App Side Menu
+// Warm Chocolate Brown Theme
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Design Tokens ─────────────────────────────────────────────────────────────
+
+:root {
+  // Colors — dark chocolate panel
+  --menu-panel-bg:          #2B1712;
+  --menu-panel-surface:     #3D1E16;
+  --menu-backdrop-color:    rgba(43, 23, 18, 0.55);
+  --menu-accent:            #FF5B35;
+  --menu-active-pill-bg:    rgba(255, 91, 53, 0.15);
+  --menu-active-pill-border:rgba(255, 91, 53, 0.35);
+  --menu-text-primary:      #FBF6EE;
+  --menu-text-secondary:    #C4A882;
+  --menu-nav-label-color:   #D9C4A8;
+  --menu-divider-color:     rgba(255, 255, 255, 0.08);
+  --menu-logout-color:      #FF8060;
+
+  // Dimensions
+  --menu-width:             280px;
+  --menu-padding-x:         24px;
+  --menu-item-radius:       12px;
+  --menu-avatar-size:       64px;
+
+  // Typography
+  --menu-font-family:       'Inter', 'SF Pro Display', 'Roboto', sans-serif;
+  --menu-profile-name-size: 1.05rem;
+  --menu-nav-label-size:    0.9375rem;
+  --menu-secondary-size:    0.8125rem;
+}
+
+// ── Menu Host Override ────────────────────────────────────────────────────────
+
+ion-menu.app-menu {
+  --width: var(--menu-width);
+  --background: var(--menu-panel-bg);
+  --ion-background-color: var(--menu-panel-bg);
+
+  &::part(backdrop) {
+    background-color: var(--menu-backdrop-color);
+  }
+
+  &::part(container) {
+    box-shadow: 6px 0 32px rgba(0, 0, 0, 0.35);
+  }
+}
+
+// ── Scrollable Content Area ───────────────────────────────────────────────────
+
+.menu-content {
+  --background: var(--menu-panel-bg);
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-family: var(--menu-font-family);
+}
+
+// ── Inner Flex Wrapper ────────────────────────────────────────────────────────
+
+.menu-inner {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+// ── Brand Logo Strip ──────────────────────────────────────────────────────────
+
+.menu-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: calc(env(safe-area-inset-top, 0px) + 28px) var(--menu-padding-x) 20px;
+
+  .menu-brand-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--menu-accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 20px;
+      color: #fff;
+    }
+  }
+
+  .menu-brand-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--menu-text-primary);
+    letter-spacing: -0.01em;
+    margin: 0;
+    line-height: 1.2;
+
+    span {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 400;
+      color: var(--menu-text-secondary);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+  }
+}
+
+// ── Header: User Profile Block ────────────────────────────────────────────────
+
+.menu-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 4px var(--menu-padding-x) 20px;
+  background: var(--menu-panel-surface);
+  margin: 0 12px 8px;
+  border-radius: 14px;
+}
+
+.menu-avatar {
+  width: var(--menu-avatar-size);
+  height: var(--menu-avatar-size);
+  border-radius: 50%;
+  margin-bottom: 10px;
+  margin-top: 16px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(255, 91, 53, 0.4);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.menu-profile-name {
+  font-family: var(--menu-font-family);
+  font-size: var(--menu-profile-name-size);
+  font-weight: 600;
+  color: var(--menu-text-primary);
+  margin: 0 0 3px 0;
+  line-height: 1.3;
+}
+
+.menu-profile-email {
+  font-family: var(--menu-font-family);
+  font-size: var(--menu-secondary-size);
+  font-weight: 400;
+  color: var(--menu-text-secondary);
+  margin: 0;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(var(--menu-width) - (var(--menu-padding-x) * 2));
+}
+
+// ── Divider ───────────────────────────────────────────────────────────────────
+
+.menu-divider {
+  height: 1px;
+  background-color: var(--menu-divider-color);
+  margin: 0 var(--menu-padding-x);
+}
+
+// ── Section Label ─────────────────────────────────────────────────────────────
+
+.menu-section-label {
+  font-family: var(--menu-font-family);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--menu-text-secondary);
+  padding: 16px 28px 6px;
+  margin: 0;
+}
+
+// ── Navigation List ───────────────────────────────────────────────────────────
+
+.menu-nav-list {
+  padding: 4px 12px;
+  background: transparent;
+  flex: 1;
+
+  ion-list-header,
+  ion-note {
+    display: none;
+  }
+}
+
+// ── Navigation Item ───────────────────────────────────────────────────────────
+
+.menu-nav-item {
+  --background: transparent;
+  --background-hover: rgba(255, 91, 53, 0.07);
+  --background-activated: var(--menu-active-pill-bg);
+  --background-focused: var(--menu-active-pill-bg);
+  --color: var(--menu-nav-label-color);
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --padding-top: 11px;
+  --padding-bottom: 11px;
+  --inner-padding-end: 0;
+  --border-radius: var(--menu-item-radius);
+  --ripple-color: rgba(255, 91, 53, 0.15);
+  --min-height: 46px;
+
+  border-radius: var(--menu-item-radius);
+  margin-bottom: 3px;
+  transition: background 0.18s ease, color 0.18s ease;
+  cursor: pointer;
+
+  &:last-child { margin-bottom: 0; }
+}
+
+// ── Active State ──────────────────────────────────────────────────────────────
+
+.menu-nav-item.active-item {
+  --background: var(--menu-active-pill-bg);
+  --color: var(--menu-accent);
+  border: 1px solid var(--menu-active-pill-border);
+
+  .menu-nav-icon {
+    color: var(--menu-accent);
+  }
+
+  .menu-nav-label {
+    color: var(--menu-accent);
+    font-weight: 600;
+  }
+}
+
+// ── Nav Icon ──────────────────────────────────────────────────────────────────
+
+.menu-nav-icon {
+  font-size: 19px;
+  color: var(--menu-text-secondary);
+  margin-inline-end: 12px;
+  flex-shrink: 0;
+  transition: color 0.18s ease;
+}
+
+// ── Nav Label ─────────────────────────────────────────────────────────────────
+
+.menu-nav-label {
+  font-family: var(--menu-font-family);
+  font-size: var(--menu-nav-label-size);
+  font-weight: 500;
+  color: var(--menu-nav-label-color);
+  line-height: 1.4;
+  transition: color 0.18s ease;
+}
+
+// ── Footer: Log Out Section ───────────────────────────────────────────────────
+
+.menu-footer {
+  margin-top: auto;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  background: var(--menu-panel-bg);
+
+  .menu-divider {
+    margin-bottom: 8px;
+  }
+}
+
+.menu-user-chip {
+  margin: 0 24px 12px;
+  padding: 10px 14px;
+  background: var(--menu-panel-surface);
+  border: 1px solid rgba(255, 91, 53, 0.25);
+  border-radius: 12px;
+  min-width: 0;
+}
+
+.menu-footer-list {
+  padding: 8px 12px 0;
+  background: transparent;
+}
+
+// ── Log Out Item ──────────────────────────────────────────────────────────────
+
+.menu-logout-item {
+  --background-hover: rgba(255, 128, 96, 0.08);
+  --background-activated: rgba(255, 128, 96, 0.14);
+
+  &.logging-out {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .logout-icon {
+    color: var(--menu-logout-color);
+  }
+
+  .logout-label {
+    color: var(--menu-logout-color);
+  }
+}
+
+// ── Hover States (non-touch) ──────────────────────────────────────────────────
+
+@media (hover: hover) {
+  .menu-nav-item:not(.active-item):hover {
+    --background: rgba(255, 91, 53, 0.07);
+
+    .menu-nav-icon { color: var(--menu-accent); }
+    .menu-nav-label { color: var(--menu-text-primary); }
+  }
+
+  .menu-logout-item:hover {
+    --background: rgba(255, 128, 96, 0.08);
+  }
+}

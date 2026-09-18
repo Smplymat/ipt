@@ -1,0 +1,9 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// styles.scss — global stylesheet entry · Knead to Know Bakery
+// Ionic core CSS is wired up via angular.json "styles" array (before this file),
+// so these theme partials always win specificity battles.
+// ─────────────────────────────────────────────────────────────────────────────
+
+@use './theme/_variables';
+@use './theme/_page-shared';
+@use './theme/_menu';

@@ -1,0 +1,48 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   variables.css — Ionic theme overrides · Knead to Know Bakery
+   Warm cream / chocolate brown / coral orange palette
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Brand Palette ──────────────────────────────────────────────────────── */
+  --bakery-cream:          #FBF6EE;
+  --bakery-cream-deep:     #FAF3E0;
+  --bakery-cream-border:   #EDE0CC;
+  --bakery-brown:          #3D1E16;
+  --bakery-brown-dark:     #2B1712;
+  --bakery-brown-mid:      #6B3A2A;
+  --bakery-coral:          #FF5B35;
+  --bakery-coral-dark:     #E04E2B;
+  --bakery-yellow:         #FFF9A6;
+  --bakery-yellow-mid:     #FFE066;
+  --bakery-beige-card:     #FDF8F0;
+  --bakery-muted:          #A07850;
+  --bakery-text-light:     #F5ECD7;
+
+  /* ── Ionic Colour Overrides ─────────────────────────────────────────────── */
+  --ion-color-primary:           #FF5B35;
+  --ion-color-primary-rgb:       255, 91, 53;
+  --ion-color-primary-contrast:  #ffffff;
+  --ion-color-primary-shade:     #e04e2b;
+  --ion-color-primary-tint:      #ff7254;
+
+  /* App background → warm cream */
+  --ion-background-color:        #FBF6EE;
+  --ion-background-color-rgb:    251, 246, 238;
+
+  /* Text → rich chocolate */
+  --ion-text-color:              #3D1E16;
+  --ion-text-color-rgb:          61, 30, 22;
+
+  /* Fonts */
+  --ion-font-family:             'Inter', 'SF Pro Display', 'Roboto', sans-serif;
+
+  /* Toolbar → chocolate brown */
+  --ion-toolbar-background:      #3D1E16;
+  --ion-toolbar-color:           #FBF6EE;
+  --ion-toolbar-border-color:    #2B1712;
+
+  /* Item */
+  --ion-item-background:         transparent;
+  --ion-item-color:              #3D1E16;
+}

@@ -1,0 +1,238 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-menu-button slot="start"></ion-menu-button>
+    <ion-title>Dashboard</ion-title>
+    <ion-buttons slot="end">
+      <ion-button
+        routerLink="/bread-catalog"
+        size="small"
+        style="--background: #FF5B35; --background-activated: #E04E2B; --color: #fff; --border-radius: 8px; --padding-start: 14px; --padding-end: 14px; --margin-end: 8px; font-weight: 700; font-size: 0.8rem;"
+      >
+        Book Now
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- ── 1. Hero Banner ──────────────────────────────────────────────── -->
+  <div class="bakery-hero">
+    <div class="bakery-hero__left">
+      <p class="bakery-hero__eyebrow">What Are You Craving</p>
+      <h1 class="bakery-hero__headline">
+        Baking Smiles,<br>One Pastry<br>At A Time.
+      </h1>
+      <p class="bakery-hero__sub">
+        Tasty Freshness, Love, And Attention to Details.
+      </p>
+      <div class="bakery-hero__rating">
+        <span class="rating-badge">4.8 ★★★★★</span>
+        <span class="rating-stars">2,400+ reviews</span>
+      </div>
+      <ion-button class="bakery-hero__cta" routerLink="/bread-catalog">
+        Book Order
+      </ion-button>
+    </div>
+    <div class="bakery-hero__right">
+      <div class="bakery-hero__splash"></div>
+      <img
+        class="bakery-hero__img"
+        src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=320&h=320&fit=crop&auto=format"
+        alt="Freshly baked croissants"
+      >
+    </div>
+  </div>
+
+  <!-- ── 2. Category Circles (derived from catalog) ─────────────────── -->
+  @if (categoryCircles().length > 0) {
+    <div class="bakery-section bakery-section--beige" style="padding-bottom: 24px;">
+      <p class="bakery-section-eyebrow" style="text-align: center;">Services</p>
+      <h2 class="bakery-section-title" style="text-align: center;">
+        Sweet, Fluffy &amp; Delicious<br>Relishment
+      </h2>
+      <div class="bakery-cats">
+        @for (cat of categoryCircles(); track cat.label) {
+          <div class="bakery-cat">
+            <div class="bakery-cat__circle">
+              @if (cat.img) {
+                <img [src]="cat.img" [alt]="cat.label">
+              } @else {
+                <span style="font-size: 1.4rem;">🍞</span>
+              }
+            </div>
+            <span class="bakery-cat__label">{{ cat.label }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── 3. Category Filter Pills + Product Grid ─────────────────────── -->
+  <div class="bakery-section bakery-section--cream" style="padding-top: 32px; padding-bottom: 0;">
+    <p class="bakery-section-eyebrow">Our Premium Product</p>
+    <h2 class="bakery-section-title">Handcrafted With Love</h2>
+  </div>
+
+  <!-- Scrollable pills (derived from catalog) -->
+  <div class="bakery-pills">
+    @for (cat of categories(); track cat) {
+      <button
+        class="bakery-pill"
+        [class.bakery-pill--active]="activeCategory() === cat"
+        [class.bakery-pill--inactive]="activeCategory() !== cat"
+        (click)="activeCategory.set(cat)"
+      >
+        {{ cat }}
+      </button>
+    }
+  </div>
+
+  <!-- Product grid -->
+  <div style="background: #FBF6EE; padding: 0 12px 32px;">
+
+    @if (errorMessage(); as err) {
+      <div style="text-align: center; padding: 36px 20px;">
+        <p style="font-size: 2rem; margin: 0 0 10px;">⚠️</p>
+        <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">Could not load the catalog</p>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0 0 14px;">{{ err }}</p>
+        <ion-button fill="outline" (click)="loadProducts()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
+      </div>
+    } @else if (loading()) {
+      <div style="text-align: center; padding: 48px 20px;">
+        <div style="width: 34px; height: 34px; border: 3px solid #EDE0CC; border-top-color: #FF5B35; border-radius: 50%; margin: 0 auto 14px; animation: spin 0.8s linear infinite;"></div>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Loading fresh bakes…</p>
+      </div>
+    } @else if (visibleProducts().length === 0) {
+      <div style="text-align: center; padding: 48px 20px;">
+        <p style="font-size: 2.5rem; margin: 0 0 12px;">🍞</p>
+        <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">Nothing here yet</p>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347;">
+          Check back soon — our bakers are hard at work!
+        </p>
+      </div>
+    } @else {
+      <ion-grid style="padding: 0;">
+        <ion-row>
+          @for (product of visibleProducts(); track product.id) {
+            <ion-col size="6" size-md="4" size-lg="3" style="padding: 6px;">
+              <ion-card class="bakery-product-card">
+                <span class="bakery-product-card__price-tag">{{ formatPrice(product.price) }}</span>
+                <div class="bakery-product-card__img-wrap">
+                  @if (product.image_url) {
+                    <img [src]="product.image_url" [alt]="product.name">
+                  } @else {
+                    <span style="font-size: 2rem;">🍞</span>
+                  }
+                </div>
+                <div class="bakery-product-card__body">
+                  <p class="bakery-product-card__name">{{ product.name }}</p>
+                  <p class="bakery-product-card__desc">{{ product.description }}</p>
+                  <ion-button class="bakery-product-card__btn" fill="solid" (click)="addToCart(product)">
+                    Buy Now
+                  </ion-button>
+                </div>
+              </ion-card>
+            </ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+    }
+
+  </div>
+
+  <!-- ── 4. Chef Spotlight ───────────────────────────────────────────── -->
+  <div class="bakery-chef-section">
+    <p class="bakery-section-eyebrow">Bite into Our Best</p>
+    <ion-grid style="padding: 0;">
+      <ion-row class="ion-align-items-start">
+        <!-- Chef photo card -->
+        <ion-col size="12" size-md="5" style="padding: 0 8px 0 0;">
+          <div class="bakery-chef-card">
+            <img
+              class="bakery-chef-card__photo"
+              src="https://images.unsplash.com/photo-1607631568010-a87245c0daf8?w=400&h=300&fit=crop&auto=format"
+              alt="Head Baker"
+            >
+            <div class="bakery-chef-card__overlay">
+              <p>"Baked Fresh Daily<br>With Love, Just For You"</p>
+            </div>
+          </div>
+        </ion-col>
+
+        <!-- Bio + thumbnails -->
+        <ion-col size="12" size-md="7" style="padding: 0 0 0 8px;">
+          <div class="bakery-chef-info">
+            <h3 class="bakery-chef-info__name">Emily Parker</h3>
+            <p class="bakery-chef-info__bio">
+              With over 12 years of artisan baking experience, Emily brings warmth
+              and precision to every recipe. Her philosophy is simple: only the
+              freshest ingredients, baked with heart.
+            </p>
+            <div class="bakery-chef-thumb-row">
+              <div class="bakery-chef-thumb">
+                <img src="https://images.unsplash.com/photo-1569864358642-9d1684040f43?w=160&h=100&fit=crop&auto=format" alt="Fresh bread">
+              </div>
+              <div class="bakery-chef-thumb">
+                <img src="https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=160&h=100&fit=crop&auto=format" alt="Pastries">
+              </div>
+              <div class="bakery-chef-thumb">
+                <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=160&h=100&fit=crop&auto=format" alt="Cookies">
+              </div>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- ── 5. Testimonials ─────────────────────────────────────────────── -->
+  <div class="bakery-testimonial-section">
+    <p class="bakery-section-eyebrow">Happy Customers</p>
+    <h2 class="bakery-section-title">What They Say About Us</h2>
+    <ion-grid style="padding: 0;">
+      <ion-row>
+        @for (t of testimonials; track t.id) {
+          <ion-col size="12" size-md="6" style="padding: 6px;">
+            <div class="bakery-testimonial-card">
+              <div class="bakery-testimonial-card__stars">★★★★★</div>
+              <p class="bakery-testimonial-card__text">"{{ t.text }}"</p>
+              <div class="bakery-testimonial-card__author">
+                <img [src]="t.avatar" [alt]="t.author">
+                <div>
+                  <p class="author-name">{{ t.author }}</p>
+                  <p class="author-role">{{ t.role }}</p>
+                </div>
+              </div>
+            </div>
+          </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- ── 6. Newsletter / CTA Footer ──────────────────────────────────── -->
+  <div class="bakery-newsletter">
+    <p class="bakery-newsletter__eyebrow">Stay In The Loop</p>
+    <h2 class="bakery-newsletter__headline">
+      Ready For Delicious Bakes?
+    </h2>
+    <p class="bakery-newsletter__sub">
+      Subscribe and get exclusive deals, fresh arrivals, and baking tips
+      delivered straight to your inbox.
+    </p>
+    <div class="bakery-newsletter__form">
+      <ion-input
+        class="bakery-newsletter__input"
+        type="email"
+        placeholder="Enter your email address"
+        [value]="email()"
+        (ionInput)="email.set($event.detail.value ?? '')"
+      ></ion-input>
+      <ion-button class="bakery-newsletter__btn" fill="solid">
+        Subscribe
+      </ion-button>
+    </div>
+  </div>
+
+</ion-content>

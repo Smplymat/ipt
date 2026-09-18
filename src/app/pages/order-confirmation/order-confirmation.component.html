@@ -1,0 +1,173 @@
+<ion-header class="no-print">
+  <ion-toolbar>
+    <ion-menu-button slot="start"></ion-menu-button>
+    <ion-title>Order Confirmation</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- ── Loading ─────────────────────────────────────────────────────── -->
+  @if (loading()) {
+    <div style="text-align: center; padding: 72px 24px;">
+      <div class="spinner" style="margin: 0 auto 16px;"></div>
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #8B6347;">Fetching your order…</p>
+    </div>
+  }
+
+  <!-- ── Error ───────────────────────────────────────────────────────── -->
+  @if (!loading() && error()) {
+    <div style="text-align: center; padding: 72px 24px;">
+      <p style="font-size: 2.6rem; margin: 0 0 12px;">🙈</p>
+      <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; font-size: 1rem; margin: 0 0 6px;">
+        We couldn't load this order
+      </p>
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin-bottom: 20px;">{{ error() }}</p>
+      <ion-button routerLink="/orders" style="--background: #FF5B35; --color: #fff; --border-radius: 10px; font-weight: 700;">
+        Back to My Orders
+      </ion-button>
+    </div>
+  }
+
+  <!-- ── Receipt ─────────────────────────────────────────────────────── -->
+  @if (!loading() && order(); as o) {
+
+    <div class="receipt-print">
+
+      <div style="text-align: center; padding: 8px 0 2px;" class="no-print">
+        <p style="font-size: 2.6rem; margin: 0 0 4px;">🎉</p>
+        <h1 style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 800; color: #3D1E16; font-size: 1.25rem;">
+          Order confirmed! Thank you!
+        </h1>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 4px 0 0;">
+          A copy of your receipt is below — your bakers are on it.
+        </p>
+      </div>
+
+      <!-- Business + order header -->
+      <div style="background: #3D1E16; color: #F5ECD7; padding: 22px 20px; margin-top: 22px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
+          <div>
+            <p style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.15rem; color: #FFB35C;">
+              Knead to Know
+            </p>
+            <p style="margin: 2px 0 0; font-family: 'Inter', sans-serif; font-size: 0.75rem; color: rgba(245,236,215,0.75);">
+              Artisan Breads · Baked daily
+            </p>
+            <p style="margin: 10px 0 0; font-family: 'Inter', sans-serif; font-size: 0.75rem; color: rgba(245,236,215,0.85);">
+              123 Banawe St, Quezon City<br>
+              0917 123 4567 · kneadtoknow@example.com
+            </p>
+          </div>
+          <div style="text-align: right;">
+            <p style="margin: 0; font-family: 'Inter', sans-serif; font-size: 0.7rem; color: rgba(245,236,215,0.7);">RECEIPT / ORDER NO.</p>
+            <p style="margin: 2px 0 0; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.05rem; color: #fff;">
+              #{{ orderNumber() }}
+            </p>
+            <p style="margin: 6px 0 0; font-family: 'Inter', sans-serif; font-size: 0.75rem; color: rgba(245,236,215,0.85);">
+              {{ formatDate(o.created_at) }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div style="background: #fff; border: 1px solid #EDE0CC; border-top: none; padding: 18px 20px;">
+        <p style="margin: 0 0 10px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.8rem; color: #8B6347; letter-spacing: 1px;">
+          ITEMS
+        </p>
+        @for (item of o.items; track item.id) {
+          <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px dashed #EDE0CC;">
+            <span style="font-family: 'Inter', sans-serif; font-size: 0.88rem; color: #3D1E16;">
+              <b style="color: #FF5B35;">×{{ item.quantity }}</b>&nbsp; {{ item.name }}
+            </span>
+            <span style="font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.88rem; color: #3D1E16; white-space: nowrap;">
+              {{ formatPrice(item.price * item.quantity) }}
+            </span>
+          </div>
+        }
+
+        <!-- Totals -->
+        <div style="padding: 12px 0 2px;">
+          <div style="display: flex; justify-content: space-between; padding: 3px 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347;">
+            <span>Subtotal</span><span style="color: #3D1E16;">{{ formatPrice(o.subtotal) }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 3px 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347;">
+            <span>Delivery fee</span>
+            <span style="color: #3D1E16;">{{ o.delivery_fee === 0 ? 'FREE' : formatPrice(o.delivery_fee) }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 3px 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347;">
+            <span>Tax (12%)</span><span style="color: #3D1E16;">{{ formatPrice(o.tax) }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 10px 0 0; border-top: 2px solid #3D1E16; margin-top: 8px; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1rem; color: #3D1E16;">
+            <span>TOTAL</span><span style="color: #FF5B35;">{{ formatPrice(o.total) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery + payment -->
+      <div style="display: grid; grid-template-columns: 1fr; gap: 1px; background: #EDE0CC; border: 1px solid #EDE0CC;">
+        <div style="background: #FBF6EE; padding: 16px 20px;">
+          <p class="receipt-label">DELIVER TO</p>
+          <p class="receipt-value">{{ o.customer_name }} · {{ o.phone }}</p>
+          <p class="receipt-value">{{ o.address }}</p>
+          @if (o.unit_notes) {
+            <p class="receipt-value">Notes: {{ o.unit_notes }}</p>
+          }
+          <p class="receipt-value">
+            📍 {{ coordinates() }}
+            @if (mapUrl()) {
+              · <a [href]="mapUrl()" target="_blank" rel="noopener" class="receipt-link">View on map</a>
+            }
+          </p>
+        </div>
+        <div style="background: #FBF6EE; padding: 16px 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <p class="receipt-label">PAYMENT</p>
+            <p class="receipt-value">{{ paymentLabel[o.payment_method] }}</p>
+          </div>
+          <div style="text-align: right;">
+            <p class="receipt-label">ORDER STATUS</p>
+            <span [class]="'status-badge status-badge--' + statusBadge[o.status]">{{ statusLabel[o.status] }}</span>
+          </div>
+        </div>
+      </div>
+
+      <p style="text-align: center; margin: 18px 0 0; font-family: 'Inter', sans-serif; font-size: 0.72rem; color: #A07850;">
+        Thank you for supporting Knead to Know — baked with love. 🥐
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="no-print" style="padding: 24px 20px 48px; display: flex; gap: 12px; flex-wrap: wrap;">
+      <ion-button
+        expand="block"
+        (click)="printReceipt()"
+        style="
+          --background: #FF5B35;
+          --background-activated: #E04E2B;
+          --color: #fff;
+          --border-radius: 12px;
+          --padding-top: 16px;
+          --padding-bottom: 16px;
+          font-weight: 800;
+          font-size: 0.92rem;
+          flex: 1;
+          min-width: 180px;
+        "
+      >
+        🖨️ Print / Save as PDF
+      </ion-button>
+      <ion-button
+        routerLink="/orders"
+        expand="block"
+        fill="outline"
+        style="--border-color: #FF5B35; --color: #FF5B35; --border-radius: 12px; --padding-top: 16px; --padding-bottom: 16px; font-weight: 700; font-size: 0.92rem; flex: 1; min-width: 180px;"
+      >
+        Track My Orders
+      </ion-button>
+    </div>
+
+  }
+
+</ion-content>

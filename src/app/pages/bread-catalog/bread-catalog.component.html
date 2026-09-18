@@ -1,0 +1,136 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-menu-button slot="start"></ion-menu-button>
+    <ion-title>Bread Catalog</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- ── Page intro ─────────────────────────────────────────────────── -->
+  <div class="bakery-section bakery-section--beige" style="padding-bottom: 16px;">
+    <p class="bakery-section-eyebrow">Our Menu</p>
+    <h2 class="bakery-section-title">Browse Our Fresh Bakes</h2>
+    <p class="bakery-section-subtitle">
+      Every item is made from scratch each morning with locally sourced ingredients.
+    </p>
+  </div>
+
+  <!-- ── Category pill filters (derived from catalog) ────────────────── -->
+  <div style="background: #FAF3E0; padding-top: 8px;">
+    <div class="bakery-pills">
+      @for (f of filters(); track f) {
+        <button
+          class="bakery-pill"
+          [class.bakery-pill--active]="active() === f"
+          [class.bakery-pill--inactive]="active() !== f"
+          (click)="active.set(f)"
+        >
+          {{ f }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ── Product grid ────────────────────────────────────────────────── -->
+  <div style="background: #FBF6EE; padding: 8px 12px 40px;">
+
+    <!-- result count -->
+    <p style="font-family: 'Inter', sans-serif; font-size: 0.78rem; color: #8B6347; margin: 4px 4px 12px;">
+      Showing <strong style="color: #3D1E16;">{{ visible().length }}</strong> item{{ visible().length === 1 ? '' : 's' }}
+      @if (active() !== 'All') {
+        in {{ active() }}
+      }
+    </p>
+
+    @if (errorMessage(); as err) {
+      <div style="text-align: center; padding: 48px 24px;">
+        <p style="font-size: 2rem; margin: 0 0 10px;">⚠️</p>
+        <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">Could not load the menu</p>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0 0 14px;">{{ err }}</p>
+        <ion-button fill="outline" (click)="loadProducts()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
+      </div>
+    } @else if (loading()) {
+      <div style="text-align: center; padding: 48px 24px;">
+        <div style="width: 34px; height: 34px; border: 3px solid #EDE0CC; border-top-color: #FF5B35; border-radius: 50%; margin: 0 auto 14px; animation: spin 0.8s linear infinite;"></div>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Loading fresh bakes…</p>
+      </div>
+    } @else {
+
+      <ion-grid style="padding: 0;">
+        <ion-row>
+          @for (product of visible(); track product.id) {
+            <ion-col size="6" size-md="4" size-lg="3" style="padding: 6px;">
+              <ion-card class="bakery-product-card">
+
+                <!-- price tag -->
+                <span class="bakery-product-card__price-tag">{{ formatPrice(product.price) }}</span>
+
+                <!-- category badge -->
+                <span
+                  style="position: absolute; top: 10px; left: 10px; background: rgba(61,30,22,0.82); color: #FBF6EE; font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; padding: 3px 7px; border-radius: 6px; z-index: 2; line-height: 1.4;"
+                >
+                  {{ product.category }}
+                </span>
+
+                <!-- image -->
+                <div class="bakery-product-card__img-wrap">
+                  @if (product.image_url) {
+                    <img [src]="product.image_url" [alt]="product.name">
+                  } @else {
+                    <span style="font-size: 2rem;">🍞</span>
+                  }
+                </div>
+
+                <!-- body -->
+                <div class="bakery-product-card__body">
+                  <p class="bakery-product-card__name">{{ product.name }}</p>
+                  <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #F5A623; letter-spacing: 1px; margin: 0 0 3px;">
+                    {{ stars(product.rating) }}
+                  </p>
+                  <p class="bakery-product-card__desc">{{ product.description }}</p>
+                  <ion-button class="bakery-product-card__btn" fill="solid" (click)="addToCart(product)">
+                    {{ formatPrice(product.price) }} · Add
+                  </ion-button>
+                </div>
+
+              </ion-card>
+            </ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+
+      <!-- empty state -->
+      @if (visible().length === 0) {
+        <div style="text-align: center; padding: 48px 24px;">
+          <p style="font-size: 2.5rem; margin: 0 0 12px;">🍞</p>
+          <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; font-size: 1rem; margin: 0 0 6px;">
+            Nothing here yet
+          </p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347;">
+            Check back soon — our bakers are hard at work!
+          </p>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- ── CTA strip ───────────────────────────────────────────────────── -->
+  <div style="background: #3D1E16; padding: 28px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+    <div>
+      <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 800; color: #FBF6EE; margin: 0 0 4px; line-height: 1.2;">
+        Can't find what you want?
+      </p>
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: rgba(251,246,238,0.65); margin: 0;">
+        We take custom orders for any occasion.
+      </p>
+    </div>
+    <ion-button
+      routerLink="/orders"
+      style="--background: #FF5B35; --background-activated: #E04E2B; --color: #fff; --border-radius: 10px; --padding-start: 20px; --padding-end: 20px; --box-shadow: 0 4px 14px rgba(255,91,53,0.35); font-weight: 700; font-size: 0.85rem; flex-shrink: 0;"
+    >
+      Custom Order
+    </ion-button>
+  </div>
+
+</ion-content>

@@ -1,0 +1,118 @@
+<ion-menu
+  content-id="main-content"
+  type="overlay"
+  class="app-menu"
+>
+  <!-- scrollY disabled — layout is flex column, footer is sticky bottom -->
+  <ion-content class="menu-content" [scrollY]="false">
+    <!--
+      Inner flex wrapper: fills the IonContent scroll container height,
+      allowing the footer to be pushed to the bottom with margin-top: auto.
+    -->
+    <div class="menu-inner">
+
+      <!-- ── Brand Logo Strip ─────────────────────────────────────────── -->
+      <div class="menu-brand">
+        <div class="menu-brand-icon">
+          <ion-icon [icon]="leafOutline" aria-hidden="true"></ion-icon>
+        </div>
+        <p class="menu-brand-name">
+          Knead to Know
+          <span>Artisan Bakery</span>
+        </p>
+      </div>
+
+      <!-- ── Divider ─────────────────────────────────────────────────── -->
+      <div class="menu-divider"></div>
+
+      <!-- ── Navigation List ─────────────────────────────────────────── -->
+      <p class="menu-section-label">Navigation</p>
+      <ion-list lines="none" class="menu-nav-list">
+        @for (page of visiblePages(); track page.url) {
+          <ion-menu-toggle auto-hide="false">
+            <ion-item
+              [routerLink]="page.url"
+              detail="false"
+              [class.active-item]="isActive(page)"
+              class="menu-nav-item"
+              lines="none"
+            >
+              <ion-icon
+                slot="start"
+                [icon]="page.icon"
+                class="menu-nav-icon"
+                aria-hidden="true"
+              ></ion-icon>
+              <ion-label class="menu-nav-label">{{ page.title }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+        }
+      </ion-list>
+
+      <!-- ── Footer: account / log out (pushed to bottom) ──────────── -->
+      <div class="menu-footer">
+
+        <!-- Signed-in user chip -->
+        @if (user(); as u) {
+          <div class="menu-user-chip">
+            <span style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 700; color: #FBF6EE; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              {{ u.displayName }}
+            </span>
+            <span style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #FF5B35; font-weight: 600;">
+              {{ u.role === 'admin' ? 'Admin' : u.role === 'store_admin' ? 'Store Admin' : 'Customer' }}
+            </span>
+          </div>
+        }
+
+        <div class="menu-divider"></div>
+        <ion-list lines="none" class="menu-footer-list">
+
+          @if (isAuthenticated()) {
+            <ion-menu-toggle auto-hide="false">
+              <ion-item
+                [button]="true"
+                detail="false"
+                lines="none"
+                [class.logging-out]="isLoggingOut()"
+                class="menu-nav-item menu-logout-item"
+                (click)="handleLogout()"
+              >
+                <ion-icon
+                  slot="start"
+                  [icon]="logOutOutline"
+                  class="menu-nav-icon logout-icon"
+                  aria-hidden="true"
+                ></ion-icon>
+                <ion-label class="menu-nav-label logout-label">
+                  {{ isLoggingOut() ? 'Signing out…' : 'Log Out' }}
+                </ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          } @else {
+            <ion-menu-toggle auto-hide="false">
+              <ion-item
+                [button]="true"
+                detail="false"
+                lines="none"
+                routerLink="/login"
+                class="menu-nav-item menu-logout-item"
+              >
+                <ion-icon
+                  slot="start"
+                  [icon]="logInOutline"
+                  class="menu-nav-icon logout-icon"
+                  aria-hidden="true"
+                ></ion-icon>
+                <ion-label class="menu-nav-label logout-label">
+                  Log In
+                </ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          }
+
+        </ion-list>
+      </div>
+
+    </div>
+  </ion-content>
+</ion-menu>

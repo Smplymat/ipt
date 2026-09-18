@@ -1,0 +1,278 @@
+<ion-header class="no-print">
+  <ion-toolbar>
+    <ion-menu-button slot="start"></ion-menu-button>
+    <ion-title>Checkout</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- ── Empty bag ───────────────────────────────────────────────────── -->
+  @if (lines().length === 0) {
+    <div style="text-align: center; padding: 72px 24px;">
+      <p style="font-size: 2.8rem; margin: 0 0 12px;">🛒</p>
+      <p style="font-family: 'Inter', sans-serif; font-weight: 800; color: #3D1E16; font-size: 1.05rem; margin: 0 0 6px;">
+        Your bag is empty
+      </p>
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin-bottom: 20px;">
+        Add some freshly baked goodies before checking out.
+      </p>
+      <ion-button
+        routerLink="/bread-catalog"
+        style="--background: #FF5B35; --color: #fff; --border-radius: 10px; font-weight: 700;"
+      >
+        Browse Catalog
+      </ion-button>
+    </div>
+  } @else {
+
+  <!-- ── 1 · Your bag ────────────────────────────────────────────────── -->
+  <div class="bakery-section bakery-section--beige" style="padding-bottom: 28px;">
+    <p class="bakery-section-eyebrow">Step 1 of 3</p>
+    <h2 class="bakery-section-title" style="margin-bottom: 18px;">Your Bag</h2>
+
+    @for (line of lines(); track line.product.id) {
+      <div class="order-item">
+        @if (line.product.image_url) {
+          <img class="order-item__img" [src]="line.product.image_url" [alt]="line.product.name">
+        } @else {
+          <div class="order-item__img" style="display:flex;align-items:center;justify-content:center;font-size:1.4rem;">🍞</div>
+        }
+        <div class="order-item__info">
+          <p class="order-item__name">{{ line.product.name }}</p>
+          <p class="order-item__meta">
+            {{ formatPrice(line.product.price) }} each
+            <span style="color: #FF5B35; font-weight: 700;">· {{ formatPrice(line.product.price * line.quantity) }}</span>
+          </p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+          <button class="qty-btn qty-btn--minus" (click)="cartQty(line.product.id, -1)">−</button>
+          <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.9rem; color: #3D1E16; min-width: 18px; text-align: center;">
+            {{ line.quantity }}
+          </span>
+          <button class="qty-btn qty-btn--plus" (click)="cartQty(line.product.id, 1)">+</button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- ── 2 · Delivery details ───────────────────────────────────────── -->
+  <div class="bakery-section" style="padding: 28px 20px;">
+    <p class="bakery-section-eyebrow">Step 2 of 3</p>
+    <h2 class="bakery-section-title" style="margin-bottom: 14px;">Delivery Details</h2>
+
+    <div style="display: grid; gap: 16px;">
+
+      <div class="checkout-field">
+        <label class="checkout-field__label" for="checkout-name">Recipient Name</label>
+        <input
+          id="checkout-name"
+          class="checkout-field__input"
+          type="text"
+          placeholder="e.g. Maria Santos"
+          [value]="form().name"
+          (input)="setField('name', $any($event.target).value)"
+        >
+        @if (touched() && errors().name) {
+          <p class="checkout-field__error">{{ errors().name }}</p>
+        }
+      </div>
+
+      <div class="checkout-field">
+        <label class="checkout-field__label" for="checkout-phone">Contact Number</label>
+        <input
+          id="checkout-phone"
+          class="checkout-field__input"
+          type="tel"
+          inputmode="tel"
+          placeholder="e.g. 09171234567"
+          [value]="form().phone"
+          (input)="setField('phone', $any($event.target).value)"
+        >
+        @if (touched() && errors().phone) {
+          <p class="checkout-field__error">{{ errors().phone }}</p>
+        }
+      </div>
+
+      <div class="checkout-field">
+        <label class="checkout-field__label" for="checkout-address">Delivery Address</label>
+        @if (mapConfigured && !mapError()) {
+          <p class="checkout-field__hint">
+            Start typing and pick a suggestion — or tap the map below.
+          </p>
+        }
+        <input
+          id="checkout-address"
+          class="checkout-field__input"
+          type="text"
+          placeholder="e.g. 123 Banawe St, Quezon City"
+          [value]="form().address"
+          (input)="setField('address', $any($event.target).value)"
+        >
+        @if (touched() && errors().address) {
+          <p class="checkout-field__error">{{ errors().address }}</p>
+        }
+      </div>
+
+      <div class="checkout-field">
+        <label class="checkout-field__label" for="checkout-unit">Unit / Building Notes</label>
+        <input
+          id="checkout-unit"
+          class="checkout-field__input"
+          type="text"
+          placeholder="House no, floor, landmark, gate code…"
+          [value]="form().unit"
+          (input)="setField('unit', $any($event.target).value)"
+        >
+      </div>
+
+      <!-- Interactive map (requires API key) -->
+      @if (mapConfigured && !mapError()) {
+        <div class="checkout-field">
+          <label class="checkout-field__label">Delivery Pin</label>
+          <div id="checkout-map" class="checkout-map"></div>
+          <p class="checkout-field__hint">Drag the pin or tap anywhere on the map to set the exact drop-off point.</p>
+        </div>
+      }
+
+      <!-- Manual coordinates fallback -->
+      @if (!mapConfigured || mapError()) {
+        <div class="checkout-field">
+          <label class="checkout-field__label">
+            Map Coordinates
+            @if (!mapConfigured) {
+              <span style="font-weight: 500; color: #8B6347;">(Google Maps key not configured — enter or look up lat/lng)</span>
+            }
+          </label>
+          <div style="display: flex; gap: 10px;">
+            <input
+              class="checkout-field__input"
+              type="number"
+              step="any"
+              placeholder="Latitude"
+              [value]="form().lat ?? ''"
+              (input)="setCoord('lat', $any($event.target).value)"
+            >
+            <input
+              class="checkout-field__input"
+              type="number"
+              step="any"
+              placeholder="Longitude"
+              [value]="form().lng ?? ''"
+              (input)="setCoord('lng', $any($event.target).value)"
+            >
+          </div>
+        </div>
+      }
+
+      @if (touched() && errors().coords) {
+        <p class="checkout-field__error" style="margin: -8px 0 0;">{{ errors().coords }}</p>
+      }
+
+      @if (form().lat != null && form().lng != null) {
+        <div class="coords-chip">
+          📍 Pin set: {{ form().lat!.toFixed(6) }}, {{ form().lng!.toFixed(6) }}
+        </div>
+      }
+
+    </div>
+  </div>
+
+  <!-- ── 3 · Payment ────────────────────────────────────────────────── -->
+  <div class="bakery-section bakery-section--beige" style="padding: 28px 20px;">
+    <p class="bakery-section-eyebrow">Step 3 of 3</p>
+    <h2 class="bakery-section-title" style="margin-bottom: 14px;">Payment Method</h2>
+
+    <div style="display: grid; gap: 10px;">
+      <button class="pay-option" [class.pay-option--active]="payment() === 'cod'" (click)="payment.set('cod')">
+        <span style="flex-grow: 1; text-align: left;">
+          <span class="pay-option__title">💵 Cash on Delivery</span>
+          <span class="pay-option__sub">Pay the driver when your order arrives.</span>
+        </span>
+        <span class="pay-option__check">✓</span>
+      </button>
+
+      <button class="pay-option" [class.pay-option--active]="payment() === 'online'" (click)="payment.set('online')">
+        <span style="flex-grow: 1; text-align: left;">
+          <span class="pay-option__title">💳 Online Payment (Card)</span>
+          <span class="pay-option__sub">Secure gateway — recorded as paid for this demo build.</span>
+        </span>
+        <span class="pay-option__check">✓</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Summary + place ────────────────────────────────────────────── -->
+  <div style="background: #3D1E16; padding: 24px 20px 40px;">
+
+    <div style="background: #2B1712; border-radius: 16px; border: 1px solid rgba(251,246,238,0.14); padding: 18px 18px 6px;">
+      <div class="summary-row">
+        <span>Subtotal ({{ itemCount() }} item{{ itemCount() === 1 ? '' : 's' }})</span>
+        <span>{{ formatPrice(subtotal()) }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Delivery fee</span>
+        @if (deliveryFee() === 0) {
+          <span style="color: #9BE8C4; font-weight: 700;">FREE</span>
+        } @else {
+          <span>{{ formatPrice(deliveryFee()) }}</span>
+        }
+      </div>
+      <div class="summary-row">
+        <span>Tax (12%)</span>
+        <span>{{ formatPrice(tax()) }}</span>
+      </div>
+      <div
+        class="summary-row"
+        style="border-top: 1px solid rgba(251,246,238,0.14); padding-top: 12px; margin-top: 4px;"
+      >
+        <span style="font-weight: 800;">Estimated total</span>
+        <span style="font-weight: 800; color: #FFB35C;">{{ formatPrice(total()) }}</span>
+      </div>
+      @if (deliveryFee() === 0) {
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #9BE8C4; margin: 6px 0 0;">
+          You unlocked FREE delivery on orders over ₱500!
+        </p>
+      }
+    </div>
+
+    @if (orderError()) {
+      <div style="background: rgba(255,91,53,0.18); color: #FFD2C6; border-radius: 10px; padding: 12px 14px; margin-top: 12px; font-family: 'Inter', sans-serif; font-size: 0.82rem;">
+        {{ orderError() }}
+      </div>
+    }
+
+    @if (touched() && hasErrors()) {
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.8rem; color: #FFB3A1; margin: 12px 0 0;">
+        Please fix the highlighted delivery fields above.
+      </p>
+    }
+
+    <ion-button
+      expand="block"
+      (click)="placeOrder()"
+      [disabled]="placing()"
+      style="
+        --background: #FF5B35;
+        --background-activated: #E04E2B;
+        --color: #fff;
+        --border-radius: 12px;
+        --box-shadow: 0 4px 16px rgba(255,91,53,0.35);
+        --padding-top: 16px;
+        --padding-bottom: 16px;
+        font-weight: 800;
+        font-size: 0.95rem;
+        margin-top: 16px;
+      "
+    >
+      @if (placing()) {
+        Placing order…
+      } @else {
+        Place Order · {{ formatPrice(total()) }}
+      }
+    </ion-button>
+  </div>
+
+  }
+
+</ion-content>
