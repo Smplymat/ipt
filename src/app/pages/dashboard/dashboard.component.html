@@ -229,8 +229,8 @@
         [value]="email()"
         (ionInput)="email.set($event.detail.value ?? '')"
       ></ion-input>
-      <ion-button class="bakery-newsletter__btn" fill="solid">
-        Subscribe
+      <ion-button class="bakery-newsletter__btn" fill="solid" (click)="handleSubscribe()" [disabled]="subscribed()">
+        {{ subscribed() ? '✓ Subscribed!' : 'Subscribe' }}
       </ion-button>
     </div>
   </div>

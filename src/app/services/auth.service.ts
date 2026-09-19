@@ -57,10 +57,17 @@ export class AuthService {
 
   /** Re-read the currently stored session and refresh the user signal. */
   async refresh(): Promise<void> {
-    const {
-      data: { user },
-    } = await this.db.client.auth.getUser();
-    await this.syncSession(user ? ({ user } as Session) : null);
+    try {
+      const {
+        data: { user },
+      } = await this.db.client.auth.getUser();
+      await this.syncSession(user ? ({ user } as Session) : null);
+    } catch {
+      // Treat a failed session lookup as signed out so the `ready` flag always
+      // resolves and route guards never hang on the auth check.
+      this.user.set(null);
+      this.ready.set(true);
+    }
   }
 
   private async syncSession(session: Session | null): Promise<void> {

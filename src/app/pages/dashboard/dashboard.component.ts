@@ -55,6 +55,7 @@ export class DashboardComponent {
 
   readonly activeCategory = signal('All');
   readonly email = signal('');
+  readonly subscribed = signal(false);
 
   /** Category pills derived from the real catalog. */
   readonly categories = computed(() => [
@@ -96,6 +97,14 @@ export class DashboardComponent {
 
   formatPrice(n: number): string {
     return `₱${(Number(n) || 0).toFixed(2)}`;
+  }
+
+  handleSubscribe(): void {
+    const email = this.email().trim();
+    if (!email || !email.includes('@')) return;
+    this.subscribed.set(true);
+    this.email.set('');
+    setTimeout(() => this.subscribed.set(false), 3000);
   }
 
   async addToCart(product: Product): Promise<void> {

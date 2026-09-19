@@ -110,12 +110,19 @@ export class OrdersService {
    * order if the items insert fails (keeps the DB free of orphan orders).
    */
   async placeOrder(payload: NewOrderPayload, lines: CartLine[]): Promise<Order> {
+    // RLS insert policy requires user_id = auth.uid(), so attach the caller.
+    const {
+      data: { user },
+    } = await this.client.auth.getUser();
+    if (!user) throw new Error('You must be signed in to place an order.');
+    const orderPayload = { ...payload, user_id: user.id };
+
     let order: Order;
 
     try {
       const { data, error } = await this.client
         .from('orders')
-        .insert(payload)
+        .insert(orderPayload)
         .select()
         .single<Order>();
       if (error) throw new Error(error.message);
@@ -212,8 +219,10 @@ export class OrdersService {
    * Returns an unsubscribe function. (RLS governs what the subscriber sees.)
    */
   subscribeToOrders(onChange: (event: OrderRealtimeEvent) => void): () => void {
+    // Unique channel name per subscription so multiple components can listen at
+    // the same time without colliding on a shared topic.
     const channel = this.client
-      .channel('orders-realtime')
+      .channel(`orders-realtime-${crypto.randomUUID()}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'orders' },

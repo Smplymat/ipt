@@ -87,7 +87,6 @@ export class BreadCatalogComponent {
       duration: 1800,
       position: 'bottom',
       color: 'dark',
-      buttons: [{ text: 'View', handler: () => undefined }],
     });
     await toast.present();
   }

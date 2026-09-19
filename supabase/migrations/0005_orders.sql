@@ -89,6 +89,14 @@ create policy "orders_update" on public.orders
     public.has_role('store_admin') or public.has_role('admin')
   );
 
+-- orders ─ delete: owner (e.g. client-side cleanup of a failed order) or staff.
+create policy "orders_delete" on public.orders
+  for delete using (
+    user_id = auth.uid()
+    or public.has_role('store_admin')
+    or public.has_role('admin')
+  );
+
 -- order_items ─ select: via an order the user owns, or staff.
 create policy "order_items_select" on public.order_items
   for select using (
