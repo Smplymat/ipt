@@ -15,13 +15,13 @@ import {
   codeSlashOutline,
   gridOutline,
   informationCircleOutline,
-  leafOutline,
   logInOutline,
   logOutOutline,
   pricetagOutline,
   shieldCheckmarkOutline,
   starOutline,
   storefrontOutline,
+  clipboardOutline,
 } from 'ionicons/icons';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -30,19 +30,21 @@ interface AppPage {
   title: string;
   url: string;
   icon: string;
+  staffOnly?: boolean;
 }
 
 // ─── Navigation Map ──────────────────────────────────────────────────────────
 
 const appPages: AppPage[] = [
-  { title: 'Dashboard', url: '/dashboard', icon: gridOutline },
-  { title: 'Bread Catalog', url: '/bread-catalog', icon: storefrontOutline },
-  { title: 'My Orders & Cart', url: '/orders', icon: bagHandleOutline },
-  { title: 'Promotions & Offers', url: '/promotions', icon: pricetagOutline },
-  { title: 'Customer Feedback', url: '/feedback', icon: starOutline },
-  { title: 'About Knead to Know', url: '/about', icon: informationCircleOutline },
-  { title: 'Developers', url: '/developers', icon: codeSlashOutline },
-  { title: 'Admin Management', url: '/admin', icon: shieldCheckmarkOutline },
+  { title: 'Dashboard',            url: '/dashboard',        icon: gridOutline },
+  { title: 'Bread Catalog',        url: '/bread-catalog',    icon: storefrontOutline },
+  { title: 'My Orders & Cart',     url: '/orders',           icon: bagHandleOutline },
+  { title: 'Promotions & Offers',  url: '/promotions',       icon: pricetagOutline },
+  { title: 'Customer Feedback',    url: '/feedback',         icon: starOutline },
+  { title: 'About Knead to Know',  url: '/about',            icon: informationCircleOutline },
+  { title: 'Developers',           url: '/developers',       icon: codeSlashOutline },
+  { title: 'Order Management',     url: '/order-oversight',  icon: clipboardOutline,  staffOnly: true },
+  { title: 'Admin Management',     url: '/admin',            icon: shieldCheckmarkOutline, staffOnly: true },
 ];
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -66,7 +68,6 @@ export class MenuComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly leafOutline = leafOutline;
   readonly logOutOutline = logOutOutline;
   readonly logInOutline = logInOutline;
   readonly isLoggingOut = signal(false);
@@ -75,9 +76,9 @@ export class MenuComponent {
   readonly isAuthenticated = this.auth.isAuthenticated;
   readonly canManageProducts = this.auth.canManageProducts;
 
-  /** Hide the Admin entry unless the current role may manage products. */
+  /** Hide staff-only entries unless the current role may manage products. */
   readonly visiblePages = computed(() =>
-    appPages.filter((p) => this.canManageProducts() || p.url !== '/admin')
+    appPages.filter((p) => !p.staffOnly || this.canManageProducts())
   );
 
   isActive(page: AppPage): boolean {

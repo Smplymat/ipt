@@ -17,6 +17,7 @@ import {
 } from '@ionic/angular';
 import { CartService } from '../../services/cart.service';
 import { Product, ProductsService, toErrorMessage } from '../../services/products.service';
+import { ProductDetailModalComponent } from '../../components/product-detail-modal/product-detail-modal.component';
 
 const TESTIMONIALS = [
   { id: 1, text: 'Every single bite feels like a warm hug. The sourdough is unbelievably good — I order every week!', author: 'Maria Santos', role: 'Loyal Customer', avatar: 'https://i.pravatar.cc/80?img=5' },
@@ -39,6 +40,7 @@ const TESTIMONIALS = [
     IonRow,
     IonTitle,
     IonToolbar,
+    ProductDetailModalComponent,
   ],
   templateUrl: './dashboard.component.html',
 })
@@ -56,6 +58,9 @@ export class DashboardComponent {
   readonly activeCategory = signal('All');
   readonly email = signal('');
   readonly subscribed = signal(false);
+
+  /** Selected product to display in the detail modal (null = closed). */
+  readonly selectedProduct = signal<Product | null>(null);
 
   /** Category pills derived from the real catalog. */
   readonly categories = computed(() => [
@@ -107,7 +112,16 @@ export class DashboardComponent {
     setTimeout(() => this.subscribed.set(false), 3000);
   }
 
-  async addToCart(product: Product): Promise<void> {
+  openDetail(product: Product): void {
+    this.selectedProduct.set(product);
+  }
+
+  closeDetail(): void {
+    this.selectedProduct.set(null);
+  }
+
+  async addToCart(product: Product, event: Event): Promise<void> {
+    event.stopPropagation();
     this.cart.add(product);
     const toast = await this.toast.create({
       message: `${product.name} added to cart 🛒`,

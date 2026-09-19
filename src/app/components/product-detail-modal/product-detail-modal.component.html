@@ -1,0 +1,92 @@
+<!-- Backdrop -->
+<div class="pdm-backdrop" (click)="dismiss.emit()"></div>
+
+<!-- Sheet -->
+<div class="pdm-sheet" role="dialog" aria-modal="true">
+
+  <!-- Close button -->
+  <button class="pdm-close" (click)="dismiss.emit()" aria-label="Close">
+    <ion-icon [icon]="closeIcon"></ion-icon>
+  </button>
+
+  <!-- Product image -->
+  <div class="pdm-img-wrap">
+    @if (product.image_url) {
+      <img [src]="product.image_url" [alt]="product.name" class="pdm-img">
+    } @else {
+      <span style="font-size: 3.5rem;">🍞</span>
+    }
+  </div>
+
+  <!-- Scrollable body -->
+  <div class="pdm-body">
+
+    <!-- Header info -->
+    <div style="padding: 0 20px 16px;">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+        <div>
+          <span class="pdm-category-badge">{{ product.category }}</span>
+          <h2 class="pdm-name">{{ product.name }}</h2>
+          <p class="pdm-stars">{{ stars(product.rating) }}</p>
+        </div>
+        <span class="pdm-price">{{ formatPrice(product.price) }}</span>
+      </div>
+
+      @if (product.description) {
+        <p class="pdm-description">{{ product.description }}</p>
+      }
+    </div>
+
+    <!-- Divider -->
+    <div class="pdm-divider"></div>
+
+    <!-- Details section (scrollable) -->
+    <div class="pdm-details">
+
+      <!-- Ingredients -->
+      @if (product.ingredients) {
+        <div class="pdm-section">
+          <p class="pdm-section-label">🌾 Ingredients</p>
+          <p class="pdm-section-text">{{ product.ingredients }}</p>
+        </div>
+      }
+
+      <!-- Nutritional Value -->
+      @if (product.nutritional_value) {
+        <div class="pdm-section">
+          <p class="pdm-section-label">📊 Nutritional Value</p>
+          <p class="pdm-section-text">{{ product.nutritional_value }}</p>
+        </div>
+      }
+
+      <!-- Extra Info dynamic fields -->
+      @if (product.extra_info?.length) {
+        @for (item of product.extra_info; track item.id) {
+          @if (item.label || item.value) {
+            <div class="pdm-section">
+              @if (item.label) {
+                <p class="pdm-section-label">• {{ item.label }}</p>
+              }
+              @if (item.value) {
+                <p class="pdm-section-text">{{ item.value }}</p>
+              }
+            </div>
+          }
+        }
+      }
+
+      <!-- Empty state when no extra details at all -->
+      @if (!product.ingredients && !product.nutritional_value && !product.extra_info?.length) {
+        <div style="text-align: center; padding: 28px 16px;">
+          <p style="font-size: 1.8rem; margin: 0 0 8px;">📋</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0;">
+            No additional details available for this item.
+          </p>
+        </div>
+      }
+
+      <!-- Bottom padding so last item clears the Add to Cart bar -->
+      <div style="height: 16px;"></div>
+    </div>
+  </div>
+</div>

@@ -4,6 +4,12 @@ import { DatabaseService } from './database.service';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
+export interface ExtraInfoItem {
+  id: string;       // client-side uuid for tracking
+  label: string;    // heading / bullet title
+  value: string;    // detail text
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -12,6 +18,9 @@ export interface Product {
   price: number;
   rating: number;
   image_url: string;
+  ingredients: string;
+  nutritional_value: string;
+  extra_info: ExtraInfoItem[];
   created_at: string;
 }
 

@@ -11,9 +11,10 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
-import { closeOutline, createOutline, imageOutline, trashOutline } from 'ionicons/icons';
+import { closeOutline, createOutline, imageOutline, trashOutline, addOutline } from 'ionicons/icons';
 import { AppRole, AuthUser, AuthService } from '../../services/auth.service';
-import { Product, ProductsService, toErrorMessage } from '../../services/products.service';
+import { Product, ProductsService, toErrorMessage, ExtraInfoItem } from '../../services/products.service';
+import { CategoriesService, Category } from '../../services/categories.service';
 
 @Component({
   selector: 'app-admin',
@@ -32,6 +33,7 @@ import { Product, ProductsService, toErrorMessage } from '../../services/product
 })
 export class AdminComponent {
   private readonly productsService = inject(ProductsService);
+  private readonly categoriesService = inject(CategoriesService);
   private readonly auth = inject(AuthService);
   private readonly alertCtrl = inject(AlertController);
 
@@ -40,7 +42,7 @@ export class AdminComponent {
     this.user()!.role === 'admin' ? 'Admin' : 'Store Admin'
   );
 
-  readonly tab = signal<'products' | 'users'>('products');
+  readonly tab = signal<'products' | 'categories' | 'users'>('products');
   readonly canManageUsers = this.auth.isAdmin;
 
   // ── Products state ──────────────────────────────────────────────────────────
@@ -49,24 +51,46 @@ export class AdminComponent {
   readonly productsLoading = signal(true);
   readonly productsError = signal<string | null>(null);
 
-  readonly categoryOptions = ['Breads', 'Pastries', 'Cakes', 'Cookies', 'Muffins', 'Seasonal'];
+  // ── Categories state ────────────────────────────────────────────────────────
 
-  // Create form
+  readonly categories = signal<Category[]>([]);
+  readonly categoriesLoading = signal(false);
+  readonly categoriesError = signal<string | null>(null);
+  readonly newCategoryName = signal('');
+  readonly savingCategory = signal(false);
+  readonly categoryFormError = signal<string | null>(null);
+
+  /** Names list used for dropdowns — derived from live categories signal. */
+  readonly categoryNames = computed(() =>
+    this.categories().length > 0
+      ? this.categories().map((c) => c.name)
+      : ['Breads', 'Pastries', 'Cakes', 'Cookies', 'Muffins', 'Seasonal']
+  );
+
+  // ── Create form ─────────────────────────────────────────────────────────────
+
   readonly createName = signal('');
   readonly createCategory = signal('Breads');
   readonly createDescription = signal('');
   readonly createPrice = signal('');
+  readonly createIngredients = signal('');
+  readonly createNutritionalValue = signal('');
+  readonly createExtraInfo = signal<ExtraInfoItem[]>([]);
   readonly createImageFile = signal<File | null>(null);
   readonly createImagePreview = signal<string | null>(null);
   readonly saving = signal(false);
   readonly formError = signal<string | null>(null);
 
-  // Edit state
+  // ── Edit state ──────────────────────────────────────────────────────────────
+
   readonly editingId = signal<string | null>(null);
   readonly editName = signal('');
   readonly editCategory = signal('');
   readonly editDescription = signal('');
   readonly editPrice = signal('');
+  readonly editIngredients = signal('');
+  readonly editNutritionalValue = signal('');
+  readonly editExtraInfo = signal<ExtraInfoItem[]>([]);
   readonly editImageFile = signal<File | null>(null);
   readonly editImagePreview = signal<string | null>(null);
   readonly savingEdit = signal(false);
@@ -80,6 +104,7 @@ export class AdminComponent {
 
   constructor() {
     void this.loadProducts();
+    void this.loadCategories();
     if (this.canManageUsers()) void this.loadUsers();
   }
 
@@ -97,6 +122,22 @@ export class AdminComponent {
     }
   }
 
+  async loadCategories(): Promise<void> {
+    this.categoriesLoading.set(true);
+    this.categoriesError.set(null);
+    try {
+      this.categories.set(await this.categoriesService.list());
+      // Keep createCategory pointing at a valid option after reload.
+      if (!this.categoryNames().includes(this.createCategory())) {
+        this.createCategory.set(this.categoryNames()[0] ?? 'Breads');
+      }
+    } catch (err) {
+      this.categoriesError.set(toErrorMessage(err));
+    } finally {
+      this.categoriesLoading.set(false);
+    }
+  }
+
   async loadUsers(): Promise<void> {
     this.usersLoading.set(true);
     this.usersError.set(null);
@@ -106,6 +147,51 @@ export class AdminComponent {
       this.usersError.set(toErrorMessage(err));
     } finally {
       this.usersLoading.set(false);
+    }
+  }
+
+  // ── Category management ──────────────────────────────────────────────────────
+
+  async handleCreateCategory(): Promise<void> {
+    const name = this.newCategoryName().trim();
+    if (!name) return this.categoryFormError.set('Please enter a category name.');
+
+    this.savingCategory.set(true);
+    this.categoryFormError.set(null);
+    try {
+      const cat = await this.categoriesService.create(name);
+      this.categories.update((list) => [...list, cat].sort((a, b) => a.name.localeCompare(b.name)));
+      this.newCategoryName.set('');
+    } catch (err) {
+      this.categoryFormError.set(toErrorMessage(err));
+    } finally {
+      this.savingCategory.set(false);
+    }
+  }
+
+  async confirmDeleteCategory(cat: Category): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Delete category',
+      message: `Delete "${cat.name}"? Products assigned to this category will keep the name but it will no longer appear in the dropdown.`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          cssClass: 'delete-button',
+          handler: () => void this.handleDeleteCategory(cat),
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  private async handleDeleteCategory(cat: Category): Promise<void> {
+    try {
+      await this.categoriesService.remove(cat.id);
+      this.categories.update((list) => list.filter((c) => c.id !== cat.id));
+    } catch (err) {
+      this.categoryFormError.set(toErrorMessage(err));
     }
   }
 
@@ -132,6 +218,40 @@ export class AdminComponent {
     return role === 'admin' ? 'Admin' : role === 'store_admin' ? 'Store Admin' : 'Customer';
   }
 
+  // ── Extra info dynamic fields (shared helper) ──────────────────────────────
+
+  private newExtraItem(): ExtraInfoItem {
+    return { id: crypto.randomUUID(), label: '', value: '' };
+  }
+
+  addCreateExtraItem(): void {
+    this.createExtraInfo.update((list) => [...list, this.newExtraItem()]);
+  }
+
+  removeCreateExtraItem(id: string): void {
+    this.createExtraInfo.update((list) => list.filter((i) => i.id !== id));
+  }
+
+  updateCreateExtraItem(id: string, field: 'label' | 'value', value: string): void {
+    this.createExtraInfo.update((list) =>
+      list.map((i) => (i.id === id ? { ...i, [field]: value } : i))
+    );
+  }
+
+  addEditExtraItem(): void {
+    this.editExtraInfo.update((list) => [...list, this.newExtraItem()]);
+  }
+
+  removeEditExtraItem(id: string): void {
+    this.editExtraInfo.update((list) => list.filter((i) => i.id !== id));
+  }
+
+  updateEditExtraItem(id: string, field: 'label' | 'value', value: string): void {
+    this.editExtraInfo.update((list) =>
+      list.map((i) => (i.id === id ? { ...i, [field]: value } : i))
+    );
+  }
+
   // ── Create product ──────────────────────────────────────────────────────────
 
   onFileSelected(event: Event): void {
@@ -151,9 +271,12 @@ export class AdminComponent {
 
   resetCreateForm(): void {
     this.createName.set('');
-    this.createCategory.set('Breads');
+    this.createCategory.set(this.categoryNames()[0] ?? 'Breads');
     this.createDescription.set('');
     this.createPrice.set('');
+    this.createIngredients.set('');
+    this.createNutritionalValue.set('');
+    this.createExtraInfo.set([]);
     this.createImageFile.set(null);
     this.createImagePreview.set(null);
   }
@@ -178,6 +301,9 @@ export class AdminComponent {
         price,
         rating: 4.8,
         image_url: imageUrl,
+        ingredients: this.createIngredients().trim(),
+        nutritional_value: this.createNutritionalValue().trim(),
+        extra_info: this.createExtraInfo().filter((i) => i.label.trim() || i.value.trim()),
       });
       this.products.update((list) => [product, ...list]);
       this.resetCreateForm();
@@ -196,6 +322,12 @@ export class AdminComponent {
     this.editCategory.set(p.category);
     this.editDescription.set(p.description);
     this.editPrice.set(String(p.price));
+    this.editIngredients.set(p.ingredients ?? '');
+    this.editNutritionalValue.set(p.nutritional_value ?? '');
+    // Ensure each item has a stable client-side id.
+    this.editExtraInfo.set(
+      (p.extra_info ?? []).map((i) => ({ ...i, id: i.id ?? crypto.randomUUID() }))
+    );
     this.editImageFile.set(null);
     this.editImagePreview.set(null);
   }
@@ -204,6 +336,7 @@ export class AdminComponent {
     this.editingId.set(null);
     this.editImageFile.set(null);
     this.editImagePreview.set(null);
+    this.editExtraInfo.set([]);
   }
 
   onEditFileSelected(event: Event): void {
@@ -229,8 +362,6 @@ export class AdminComponent {
       let imageUrl = p.image_url;
       if (this.editImageFile()) {
         const newUrl = await this.productsService.uploadImage(this.editImageFile()!);
-        // Replacing the old image is best-effort: Store Admins may upload new
-        // images but only Admins may delete stored files.
         await this.productsService.deleteImageByUrl(p.image_url).catch(() => undefined);
         imageUrl = newUrl;
       }
@@ -240,6 +371,9 @@ export class AdminComponent {
         description: this.editDescription().trim(),
         price,
         image_url: imageUrl,
+        ingredients: this.editIngredients().trim(),
+        nutritional_value: this.editNutritionalValue().trim(),
+        extra_info: this.editExtraInfo().filter((i) => i.label.trim() || i.value.trim()),
       });
       this.products.update((list) => list.map((x) => (x.id === updated.id ? updated : x)));
       this.cancelEdit();
@@ -308,4 +442,5 @@ export class AdminComponent {
   readonly createIcon = createOutline;
   readonly trashIcon = trashOutline;
   readonly imageIcon = imageOutline;
+  readonly addIcon = addOutline;
 }

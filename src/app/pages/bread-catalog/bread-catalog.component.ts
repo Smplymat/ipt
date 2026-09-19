@@ -15,6 +15,7 @@ import {
 } from '@ionic/angular';
 import { CartService } from '../../services/cart.service';
 import { Product, ProductsService, toErrorMessage } from '../../services/products.service';
+import { ProductDetailModalComponent } from '../../components/product-detail-modal/product-detail-modal.component';
 
 @Component({
   selector: 'app-bread-catalog',
@@ -30,6 +31,7 @@ import { Product, ProductsService, toErrorMessage } from '../../services/product
     IonRow,
     IonTitle,
     IonToolbar,
+    ProductDetailModalComponent,
   ],
   templateUrl: './bread-catalog.component.html',
 })
@@ -44,17 +46,40 @@ export class BreadCatalogComponent {
 
   readonly active = signal('All');
 
-  /** Filters derived from the real catalog data. */
+  /** Selected product to display in the detail modal (null = closed). */
+  readonly selectedProduct = signal<Product | null>(null);
+
+  /** Unique category list derived from catalog data. */
   readonly filters = computed(() => [
     'All',
     ...new Set(this.products().map((p) => p.category)),
   ]);
 
+  /** Products visible under the active filter. */
   readonly visible = computed(() =>
     this.active() === 'All'
       ? this.products()
       : this.products().filter((p) => p.category === this.active())
   );
+
+  /**
+   * When "All" is selected, group visible products by category so the catalog
+   * renders category headers + their items. When a specific category is active,
+   * returns a single group so the template works uniformly.
+   */
+  readonly groupedProducts = computed((): { category: string; items: Product[] }[] => {
+    const list = this.visible();
+    if (this.active() !== 'All') {
+      return list.length ? [{ category: this.active(), items: list }] : [];
+    }
+    const map = new Map<string, Product[]>();
+    for (const p of list) {
+      const bucket = map.get(p.category) ?? [];
+      bucket.push(p);
+      map.set(p.category, bucket);
+    }
+    return Array.from(map.entries()).map(([category, items]) => ({ category, items }));
+  });
 
   constructor() {
     void this.loadProducts();
@@ -72,6 +97,14 @@ export class BreadCatalogComponent {
     }
   }
 
+  openDetail(product: Product): void {
+    this.selectedProduct.set(product);
+  }
+
+  closeDetail(): void {
+    this.selectedProduct.set(null);
+  }
+
   formatPrice(n: number): string {
     return `₱${(Number(n) || 0).toFixed(2)}`;
   }
@@ -80,14 +113,16 @@ export class BreadCatalogComponent {
     return '★'.repeat(Math.round(r)) + '☆'.repeat(5 - Math.round(r));
   }
 
-  async addToCart(product: Product): Promise<void> {
+  async addToCart(product: Product, event: Event): Promise<void> {
+    // Prevent the card click (which opens the modal) from bubbling up.
+    event.stopPropagation();
     this.cart.add(product);
-    const toast = await this.toast.create({
+    const t = await this.toast.create({
       message: `${product.name} added to cart 🛒`,
       duration: 1800,
       position: 'bottom',
       color: 'dark',
     });
-    await toast.present();
+    await t.present();
   }
 }

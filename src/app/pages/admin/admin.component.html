@@ -30,22 +30,15 @@
   </div>
 
   <!-- ── Tabs ───────────────────────────────────────────────────────── -->
-  <div style="background: #FBF6EE; padding: 16px 16px 0; display: flex; gap: 8px;">
-    <button
-      class="bakery-pill"
-      [class.bakery-pill--active]="tab() === 'products'"
-      [class.bakery-pill--inactive]="tab() !== 'products'"
-      (click)="tab.set('products')"
-    >
+  <div style="background: #FBF6EE; padding: 16px 16px 0; display: flex; gap: 8px; flex-wrap: wrap;">
+    <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'products'" [class.bakery-pill--inactive]="tab() !== 'products'" (click)="tab.set('products')">
       🍞 Products
     </button>
+    <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'categories'" [class.bakery-pill--inactive]="tab() !== 'categories'" (click)="tab.set('categories')">
+      🏷️ Categories
+    </button>
     @if (canManageUsers()) {
-      <button
-        class="bakery-pill"
-        [class.bakery-pill--active]="tab() === 'users'"
-        [class.bakery-pill--inactive]="tab() !== 'users'"
-        (click)="tab.set('users')"
-      >
+      <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'users'" [class.bakery-pill--inactive]="tab() !== 'users'" (click)="tab.set('users')">
         👥 Users &amp; Roles
       </button>
     }
@@ -54,11 +47,8 @@
   <!-- ══════════════════════ PRODUCTS TAB ═════════════════════════════ -->
   @if (tab() === 'products') {
 
-    <!-- Error banner from any action -->
     @if (formError(); as err) {
-      <div style="background: rgba(255,91,53,0.1); border: 1px solid rgba(255,91,53,0.35); color: #E04E2B; border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin: 16px 16px 0;">
-        {{ err }}
-      </div>
+      <div style="background: rgba(255,91,53,0.1); border: 1px solid rgba(255,91,53,0.35); color: #E04E2B; border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin: 16px 16px 0;">{{ err }}</div>
     }
 
     <!-- ── Create product form ─────────────────────────────────────── -->
@@ -67,15 +57,13 @@
       <div class="page-card">
 
         <div style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap;">
-          <!-- Image picker + preview -->
+
+          <!-- Image picker -->
           <div style="width: 120px; flex-shrink: 0; text-align: center;">
             @if (createImagePreview(); as preview) {
               <div style="position: relative; width: 120px; height: 120px; border-radius: 14px; overflow: hidden; background: #FAF3E0; border: 1px solid #EDE0CC; margin-bottom: 8px;">
                 <img [src]="preview" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                <div
-                  (click)="clearCreateImage()"
-                  style="position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%; background: rgba(61,30,22,0.75); color: #FBF6EE; display: flex; align-items: center; justify-content: center; cursor: pointer;"
-                >
+                <div (click)="clearCreateImage()" style="position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%; background: rgba(61,30,22,0.75); color: #FBF6EE; display: flex; align-items: center; justify-content: center; cursor: pointer;">
                   <ion-icon [icon]="closeIcon" size="small"></ion-icon>
                 </div>
               </div>
@@ -86,69 +74,90 @@
               </div>
             }
             <input #createFile type="file" accept="image/*" hidden (change)="onFileSelected($event)">
-            <ion-button
-              size="small"
-              fill="outline"
-              (click)="createFile.click()"
-              style="--color: #3D1E16; --border-color: #C4A882; font-family: 'Inter', sans-serif; font-size: 0.72rem;"
-            >
+            <ion-button size="small" fill="outline" (click)="createFile.click()" style="--color: #3D1E16; --border-color: #C4A882; font-family: 'Inter', sans-serif; font-size: 0.72rem;">
               Choose image
             </ion-button>
           </div>
 
-          <!-- Fields -->
+          <!-- Core fields -->
           <div style="flex: 1; min-width: 220px;">
-            <label style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: #3D1E16; display: block; margin-bottom: 6px;">Product name</label>
-            <ion-input
-              type="text"
-              placeholder="e.g. Sourdough Loaf"
-              [value]="createName()"
-              (ionInput)="createName.set(($event.detail.value ?? '').toString())"
-              style="--background: #FBF6EE; --border-radius: 10px; --padding-start: 14px; --padding-end: 14px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.875rem; margin-bottom: 12px; display: block;"
-            ></ion-input>
+            <label class="admin-field-label">Product name</label>
+            <ion-input type="text" placeholder="e.g. Sourdough Loaf" [value]="createName()" (ionInput)="createName.set(($event.detail.value ?? '').toString())" class="admin-ion-input" style="margin-bottom: 12px;"></ion-input>
 
             <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;">
               <div style="flex: 1; min-width: 140px;">
-                <label style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: #3D1E16; display: block; margin-bottom: 6px;">Category</label>
-                <select
-                  [value]="createCategory()"
-                  (change)="createCategory.set(selectValue($event))"
-                  style="width: 100%; background: #FBF6EE; border: 1.5px solid #EDE0CC; border-radius: 10px; padding: 12px 14px; font-family: 'Inter', sans-serif; font-size: 0.875rem; color: #3D1E16;"
-                >
-                  @for (c of categoryOptions; track c) {
+                <label class="admin-field-label">Category</label>
+                <select [value]="createCategory()" (change)="createCategory.set(selectValue($event))" class="admin-select">
+                  @for (c of categoryNames(); track c) {
                     <option [value]="c">{{ c }}</option>
                   }
                 </select>
               </div>
               <div style="flex: 1; min-width: 120px;">
-                <label style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: #3D1E16; display: block; margin-bottom: 6px;">Price (₱)</label>
-                <ion-input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  [value]="createPrice()"
-                  (ionInput)="createPrice.set(($event.detail.value ?? '').toString())"
-                  style="--background: #FBF6EE; --border-radius: 10px; --padding-start: 14px; --padding-end: 14px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.875rem;"
-                ></ion-input>
+                <label class="admin-field-label">Price (₱)</label>
+                <ion-input type="number" min="0" step="0.01" placeholder="0.00" [value]="createPrice()" (ionInput)="createPrice.set(($event.detail.value ?? '').toString())" class="admin-ion-input"></ion-input>
               </div>
             </div>
 
-            <label style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: #3D1E16; display: block; margin-bottom: 6px;">Short description (optional)</label>
-            <ion-input
-              type="text"
-              placeholder="e.g. Stone-baked, chewy open crumb"
-              [value]="createDescription()"
-              (ionInput)="createDescription.set(($event.detail.value ?? '').toString())"
-              style="--background: #FBF6EE; --border-radius: 10px; --padding-start: 14px; --padding-end: 14px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.875rem; margin-bottom: 16px; display: block;"
-            ></ion-input>
+            <label class="admin-field-label">Short description (optional)</label>
+            <ion-input type="text" placeholder="e.g. Stone-baked, chewy open crumb" [value]="createDescription()" (ionInput)="createDescription.set(($event.detail.value ?? '').toString())" class="admin-ion-input" style="margin-bottom: 12px;"></ion-input>
 
-            <ion-button
-              expand="block"
-              [disabled]="saving()"
-              (click)="handleCreate()"
-              style="--background: #FF5B35; --background-hover: #E04E2B; --background-activated: #E04E2B; --color: #fff; --border-radius: 10px; --box-shadow: 0 4px 14px rgba(255,91,53,0.3); font-weight: 700; font-size: 0.85rem; height: 44px;"
-            >
+            <!-- Ingredients -->
+            <label class="admin-field-label">Ingredients</label>
+            <textarea
+              placeholder="e.g. Flour, Water, Salt, Yeast, Butter"
+              [value]="createIngredients()"
+              (input)="createIngredients.set($any($event.target).value)"
+              class="admin-textarea"
+              rows="3"
+            ></textarea>
+
+            <!-- Nutritional Value -->
+            <label class="admin-field-label" style="margin-top: 10px;">Nutritional Value</label>
+            <textarea
+              placeholder="e.g. Calories: 250 kcal, Protein: 8g, Carbs: 42g, Fat: 6g"
+              [value]="createNutritionalValue()"
+              (input)="createNutritionalValue.set($any($event.target).value)"
+              class="admin-textarea"
+              rows="3"
+            ></textarea>
+
+            <!-- Extra Info dynamic fields -->
+            <div style="margin-top: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <label class="admin-field-label" style="margin: 0;">Additional Information</label>
+                <button (click)="addCreateExtraItem()" class="admin-add-info-btn">
+                  <ion-icon [icon]="addIcon" style="font-size: 0.85rem; vertical-align: middle;"></ion-icon>
+                  Add More Information
+                </button>
+              </div>
+
+              @for (item of createExtraInfo(); track item.id) {
+                <div style="background: #FAF3E0; border: 1px solid #EDE0CC; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; display: flex; gap: 8px; align-items: flex-start;">
+                  <div style="flex: 1; display: flex; gap: 8px; flex-wrap: wrap;">
+                    <ion-input
+                      type="text"
+                      placeholder="Label (e.g. Allergens)"
+                      [value]="item.label"
+                      (ionInput)="updateCreateExtraItem(item.id, 'label', ($event.detail.value ?? '').toString())"
+                      style="flex: 1; min-width: 100px; --background: #fff; --border-radius: 8px; --padding-start: 10px; --padding-end: 10px; border: 1px solid #EDE0CC; border-radius: 8px; font-size: 0.8rem; height: 36px;"
+                    ></ion-input>
+                    <ion-input
+                      type="text"
+                      placeholder="Detail text"
+                      [value]="item.value"
+                      (ionInput)="updateCreateExtraItem(item.id, 'value', ($event.detail.value ?? '').toString())"
+                      style="flex: 2; min-width: 140px; --background: #fff; --border-radius: 8px; --padding-start: 10px; --padding-end: 10px; border: 1px solid #EDE0CC; border-radius: 8px; font-size: 0.8rem; height: 36px;"
+                    ></ion-input>
+                  </div>
+                  <button (click)="removeCreateExtraItem(item.id)" style="background: none; border: none; color: #E04E2B; cursor: pointer; padding: 4px; flex-shrink: 0;">
+                    <ion-icon [icon]="closeIcon" style="font-size: 1rem;"></ion-icon>
+                  </button>
+                </div>
+              }
+            </div>
+
+            <ion-button expand="block" [disabled]="saving()" (click)="handleCreate()" style="--background: #FF5B35; --background-hover: #E04E2B; --background-activated: #E04E2B; --color: #fff; --border-radius: 10px; --box-shadow: 0 4px 14px rgba(255,91,53,0.3); font-weight: 700; font-size: 0.85rem; height: 44px; margin-top: 16px;">
               {{ saving() ? 'Saving…' : '＋ Add Product' }}
             </ion-button>
           </div>
@@ -164,9 +173,7 @@
           <p style="font-size: 2rem; margin: 0 0 10px;">⚠️</p>
           <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">Could not load products</p>
           <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0 0 14px;">{{ err }}</p>
-          <ion-button fill="outline" (click)="loadProducts()" style="--color: #FF5B35; font-size: 0.8rem;">
-            Try again
-          </ion-button>
+          <ion-button fill="outline" (click)="loadProducts()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
         </div>
       } @else if (productsLoading()) {
         <div style="text-align: center; padding: 48px 20px;">
@@ -177,13 +184,10 @@
         <div style="text-align: center; padding: 48px 20px;">
           <p style="font-size: 2.5rem; margin: 0 0 12px;">🧺</p>
           <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">No products yet</p>
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0;">
-            Use the form above to add your first product.
-          </p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0;">Use the form above to add your first product.</p>
         </div>
       } @else {
         @for (p of products(); track p.id) {
-          <!-- ── Product row ───────────────────────────────────── -->
           <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 16px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 5px rgba(61,30,22,0.05);">
 
             <!-- Display view -->
@@ -196,20 +200,24 @@
                     <span style="font-size: 1.5rem;">🍞</span>
                   }
                 </div>
-
                 <div style="flex: 1; min-width: 0;">
                   <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                     <p style="font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700; color: #3D1E16; margin: 0;">{{ p.name }}</p>
                     <span style="background: rgba(255,91,53,0.1); color: #FF5B35; font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;">{{ p.category }}</span>
                   </div>
-                  <p style="font-family: 'Inter', sans-serif; font-size: 0.75rem; color: #8B6347; margin: 3px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    {{ p.description || '—' }}
-                  </p>
+                  <p style="font-family: 'Inter', sans-serif; font-size: 0.75rem; color: #8B6347; margin: 3px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ p.description || '—' }}</p>
+                  @if (p.ingredients) {
+                    <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #A07850; margin: 3px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                      🌾 {{ p.ingredients }}
+                    </p>
+                  }
                   <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #A07850; margin: 4px 0 0;">
                     Added {{ formattedDate(p.created_at) }} · <span style="color: #F5A623;">{{ ratingStars(p.rating) }}</span>
+                    @if (p.extra_info?.length) {
+                      · <span style="color: #8B6347;">{{ p.extra_info.length }} extra field{{ p.extra_info.length > 1 ? 's' : '' }}</span>
+                    }
                   </p>
                 </div>
-
                 <div style="text-align: right; flex-shrink: 0;">
                   <p style="font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 800; color: #3D1E16; margin: 0 0 8px;">{{ formatPrice(p.price) }}</p>
                   <div style="display: flex; gap: 6px; justify-content: flex-end;">
@@ -218,7 +226,7 @@
                       Edit
                     </ion-button>
                     @if (canManageUsers()) {
-                      <ion-button size="small" fill="outline" style="--color: #E04E2B; --border-color: rgba(255,91,53,0.5); font-family: 'Inter', sans-serif; font-size: 0.72rem; --padding-start: 12px; --padding-end: 12px;" (click)="confirmDelete(p)">
+                      <ion-button size="small" fill="outline" (click)="confirmDelete(p)" style="--color: #E04E2B; --border-color: rgba(255,91,53,0.5); font-family: 'Inter', sans-serif; font-size: 0.72rem; --padding-start: 12px; --padding-end: 12px;">
                         <ion-icon [icon]="trashIcon" slot="start" size="small"></ion-icon>
                         Delete
                       </ion-button>
@@ -231,9 +239,11 @@
             <!-- Edit view -->
             @else {
               <div>
-                <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #FF5B35; margin: 0 0 12px;">Editing “{{ editName() }}”</p>
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #FF5B35; margin: 0 0 12px;">Editing "{{ editName() }}"</p>
 
                 <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+
+                  <!-- Image -->
                   <div style="width: 110px; flex-shrink: 0; text-align: center;">
                     @if (editImagePreview(); as preview) {
                       <img [src]="preview" alt="New image" style="width: 110px; height: 110px; border-radius: 12px; object-fit: cover; border: 1px solid #EDE0CC;">
@@ -243,28 +253,82 @@
                       <div style="width: 110px; height: 110px; border-radius: 12px; background: #FAF3E0; border: 1.5px dashed #C4A882; color: #A07850; display: flex; align-items: center; justify-content: center;">🍞</div>
                     }
                     <input #editFile type="file" accept="image/*" hidden (change)="onEditFileSelected($event)">
-                    <ion-button size="small" fill="outline" (click)="editFile.click()" style="--color: #3D1E16; --border-color: #C4A882; font-size: 0.7rem; margin-top: 6px;">
-                      Replace image
-                    </ion-button>
-                    <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; color: #A07850; margin: 6px 0 0;">Leave unchanged to keep the current image</p>
+                    <ion-button size="small" fill="outline" (click)="editFile.click()" style="--color: #3D1E16; --border-color: #C4A882; font-size: 0.7rem; margin-top: 6px;">Replace image</ion-button>
+                    <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; color: #A07850; margin: 6px 0 0;">Leave unchanged to keep current</p>
                   </div>
 
+                  <!-- Edit fields -->
                   <div style="flex: 1; min-width: 220px;">
-                    <label style="font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 600; color: #3D1E16; display: block; margin-bottom: 5px;">Name</label>
-                    <ion-input type="text" [value]="editName()" (ionInput)="editName.set(($event.detail.value ?? '').toString())" style="--background: #FBF6EE; --border-radius: 10px; --padding-start: 12px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-size: 0.85rem; margin-bottom: 10px; display: block;"></ion-input>
+                    <label class="admin-field-label">Name</label>
+                    <ion-input type="text" [value]="editName()" (ionInput)="editName.set(($event.detail.value ?? '').toString())" class="admin-ion-input" style="margin-bottom: 10px;"></ion-input>
 
                     <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
-                      <select [value]="editCategory()" (change)="editCategory.set(selectValue($event))" style="flex: 1; min-width: 120px; background: #FBF6EE; border: 1.5px solid #EDE0CC; border-radius: 10px; padding: 10px 12px; font-size: 0.85rem; color: #3D1E16;">
-                        @for (c of categoryOptions; track c) {
+                      <select [value]="editCategory()" (change)="editCategory.set(selectValue($event))" class="admin-select" style="flex: 1; min-width: 120px;">
+                        @for (c of categoryNames(); track c) {
                           <option [value]="c">{{ c }}</option>
                         }
                       </select>
-                      <ion-input type="number" min="0" step="0.01" [value]="editPrice()" (ionInput)="editPrice.set(($event.detail.value ?? '').toString())" style="flex: 1; min-width: 100px; --background: #FBF6EE; --border-radius: 10px; --padding-start: 12px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-size: 0.85rem;"></ion-input>
+                      <ion-input type="number" min="0" step="0.01" [value]="editPrice()" (ionInput)="editPrice.set(($event.detail.value ?? '').toString())" class="admin-ion-input" style="flex: 1; min-width: 100px;"></ion-input>
                     </div>
 
-                    <ion-input type="text" placeholder="Short description" [value]="editDescription()" (ionInput)="editDescription.set(($event.detail.value ?? '').toString())" style="--background: #FBF6EE; --border-radius: 10px; --padding-start: 12px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-size: 0.85rem; margin-bottom: 14px; display: block;"></ion-input>
+                    <label class="admin-field-label">Short description</label>
+                    <ion-input type="text" placeholder="Short description" [value]="editDescription()" (ionInput)="editDescription.set(($event.detail.value ?? '').toString())" class="admin-ion-input" style="margin-bottom: 10px;"></ion-input>
 
-                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <!-- Ingredients -->
+                    <label class="admin-field-label">Ingredients</label>
+                    <textarea
+                      placeholder="e.g. Flour, Water, Salt, Yeast"
+                      [value]="editIngredients()"
+                      (input)="editIngredients.set($any($event.target).value)"
+                      class="admin-textarea"
+                      rows="2"
+                    ></textarea>
+
+                    <!-- Nutritional Value -->
+                    <label class="admin-field-label" style="margin-top: 8px;">Nutritional Value</label>
+                    <textarea
+                      placeholder="e.g. Calories: 250 kcal, Protein: 8g"
+                      [value]="editNutritionalValue()"
+                      (input)="editNutritionalValue.set($any($event.target).value)"
+                      class="admin-textarea"
+                      rows="2"
+                    ></textarea>
+
+                    <!-- Extra Info -->
+                    <div style="margin-top: 10px;">
+                      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                        <label class="admin-field-label" style="margin: 0;">Additional Information</label>
+                        <button (click)="addEditExtraItem()" class="admin-add-info-btn">
+                          <ion-icon [icon]="addIcon" style="font-size: 0.85rem; vertical-align: middle;"></ion-icon>
+                          Add More
+                        </button>
+                      </div>
+                      @for (item of editExtraInfo(); track item.id) {
+                        <div style="background: #FAF3E0; border: 1px solid #EDE0CC; border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; display: flex; gap: 8px; align-items: flex-start;">
+                          <div style="flex: 1; display: flex; gap: 8px; flex-wrap: wrap;">
+                            <ion-input
+                              type="text"
+                              placeholder="Label"
+                              [value]="item.label"
+                              (ionInput)="updateEditExtraItem(item.id, 'label', ($event.detail.value ?? '').toString())"
+                              style="flex: 1; min-width: 90px; --background: #fff; --border-radius: 8px; --padding-start: 10px; --padding-end: 10px; border: 1px solid #EDE0CC; border-radius: 8px; font-size: 0.8rem; height: 34px;"
+                            ></ion-input>
+                            <ion-input
+                              type="text"
+                              placeholder="Detail"
+                              [value]="item.value"
+                              (ionInput)="updateEditExtraItem(item.id, 'value', ($event.detail.value ?? '').toString())"
+                              style="flex: 2; min-width: 130px; --background: #fff; --border-radius: 8px; --padding-start: 10px; --padding-end: 10px; border: 1px solid #EDE0CC; border-radius: 8px; font-size: 0.8rem; height: 34px;"
+                            ></ion-input>
+                          </div>
+                          <button (click)="removeEditExtraItem(item.id)" style="background: none; border: none; color: #E04E2B; cursor: pointer; padding: 2px; flex-shrink: 0;">
+                            <ion-icon [icon]="closeIcon" style="font-size: 1rem;"></ion-icon>
+                          </button>
+                        </div>
+                      }
+                    </div>
+
+                    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px;">
                       <ion-button size="small" fill="outline" (click)="cancelEdit()" style="--color: #8B6347; --border-color: #C4A882; font-size: 0.78rem;">Cancel</ion-button>
                       <ion-button size="small" [disabled]="savingEdit()" (click)="handleUpdate(p)" style="--background: #3D1E16; --color: #FBF6EE; --border-radius: 8px; font-size: 0.78rem; font-weight: 700;">
                         {{ savingEdit() ? 'Saving…' : 'Save changes' }}
@@ -280,14 +344,72 @@
     </div>
   }
 
+  <!-- ══════════════════════ CATEGORIES TAB ════════════════════════════ -->
+  @if (tab() === 'categories') {
+    <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+      <p class="bakery-section-eyebrow" style="margin-bottom: 6px;">Manage Categories</p>
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0 0 16px;">
+        Categories group your products on the catalog page. Add custom ones here; they appear in the product form dropdown immediately.
+      </p>
+
+      @if (categoryFormError(); as err) {
+        <div style="background: rgba(255,91,53,0.1); border: 1px solid rgba(255,91,53,0.35); color: #E04E2B; border-radius: 12px; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 12px;">{{ err }}</div>
+      }
+
+      <!-- Create category form -->
+      <div class="page-card" style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 180px;">
+          <label class="admin-field-label">New Category Name</label>
+          <ion-input
+            type="text"
+            placeholder="e.g. Gluten-Free"
+            [value]="newCategoryName()"
+            (ionInput)="newCategoryName.set(($event.detail.value ?? '').toString())"
+            (keyup.enter)="handleCreateCategory()"
+            class="admin-ion-input"
+          ></ion-input>
+        </div>
+        <ion-button
+          [disabled]="savingCategory()"
+          (click)="handleCreateCategory()"
+          style="--background: #FF5B35; --background-hover: #E04E2B; --color: #fff; --border-radius: 10px; font-weight: 700; font-size: 0.82rem; height: 44px; --padding-start: 20px; --padding-end: 20px; flex-shrink: 0;"
+        >
+          {{ savingCategory() ? 'Adding…' : '＋ Add Category' }}
+        </ion-button>
+      </div>
+
+      <!-- Category list -->
+      @if (categoriesLoading()) {
+        <div style="text-align: center; padding: 32px 20px;">
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Loading categories…</p>
+        </div>
+      } @else if (categories().length === 0) {
+        <div style="text-align: center; padding: 32px 20px;">
+          <p style="font-size: 2rem; margin: 0 0 8px;">🏷️</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">No categories yet. Add one above.</p>
+        </div>
+      } @else {
+        <div style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px;">
+          @for (cat of categories(); track cat.id) {
+            <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 4px rgba(61,30,22,0.05);">
+              <span style="font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 600; color: #3D1E16;">{{ cat.name }}</span>
+              @if (canManageUsers()) {
+                <button (click)="confirmDeleteCategory(cat)" style="background: none; border: none; color: #C4A882; cursor: pointer; padding: 2px; line-height: 1; display: flex; align-items: center;" title="Delete category">
+                  <ion-icon [icon]="trashIcon" style="font-size: 0.9rem; color: #E04E2B;"></ion-icon>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
   <!-- ══════════════════════ USERS TAB (Admin only) ══════════════════ -->
   @if (tab() === 'users') {
-
     <div style="background: #FBF6EE; padding: 18px 16px 40px;">
       <p class="bakery-section-eyebrow" style="margin-bottom: 8px;">User Accounts</p>
-      <p class="bakery-section-subtitle" style="margin-bottom: 14px;">
-        Assign each member of your team a role. Changes take effect immediately.
-      </p>
+      <p class="bakery-section-subtitle" style="margin-bottom: 14px;">Assign each member of your team a role. Changes take effect immediately.</p>
 
       @if (usersError(); as err) {
         <div style="text-align: center; padding: 36px 20px;">
@@ -319,9 +441,7 @@
             </div>
             <div style="flex-shrink: 0;">
               @if (u.id === user()?.id) {
-                <span style="background: rgba(255,91,53,0.1); color: #FF5B35; font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700; padding: 6px 12px; border-radius: 8px;">
-                  {{ roleLabel(u.role) }}
-                </span>
+                <span style="background: rgba(255,91,53,0.1); color: #FF5B35; font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700; padding: 6px 12px; border-radius: 8px;">{{ roleLabel(u.role) }}</span>
               } @else {
                 <select
                   [value]="u.role"

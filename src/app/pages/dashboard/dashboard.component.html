@@ -116,7 +116,7 @@
         <ion-row>
           @for (product of visibleProducts(); track product.id) {
             <ion-col size="6" size-md="4" size-lg="3" style="padding: 6px;">
-              <ion-card class="bakery-product-card">
+              <ion-card class="bakery-product-card" (click)="openDetail(product)" style="cursor: pointer;">
                 <span class="bakery-product-card__price-tag">{{ formatPrice(product.price) }}</span>
                 <div class="bakery-product-card__img-wrap">
                   @if (product.image_url) {
@@ -128,7 +128,7 @@
                 <div class="bakery-product-card__body">
                   <p class="bakery-product-card__name">{{ product.name }}</p>
                   <p class="bakery-product-card__desc">{{ product.description }}</p>
-                  <ion-button class="bakery-product-card__btn" fill="solid" (click)="addToCart(product)">
+                  <ion-button class="bakery-product-card__btn" fill="solid" (click)="addToCart(product, $event)">
                     Buy Now
                   </ion-button>
                 </div>
@@ -236,3 +236,11 @@
   </div>
 
 </ion-content>
+
+<!-- -- Product Detail Modal ---------------------------------------------- -->
+@if (selectedProduct(); as product) {
+  <app-product-detail-modal
+    [product]="product"
+    (dismiss)="closeDetail()"
+  ></app-product-detail-modal>
+}

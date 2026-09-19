@@ -59,5 +59,13 @@ export const routes: Routes = [
     canActivate: [staffGuard],
     loadComponent: () => import('./pages/admin/admin.component').then((m) => m.AdminComponent),
   },
+  {
+    path: 'order-oversight',
+    canActivate: [staffGuard],
+    loadComponent: () =>
+      import('./pages/order-oversight/order-oversight.component').then(
+        (m) => m.OrderOversightComponent
+      ),
+  },
   { path: '**', redirectTo: 'dashboard' },
 ];
