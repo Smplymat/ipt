@@ -31,7 +31,7 @@ export class AuthService {
 
   /** Resolves when the initial session state has been determined. */
   private readonly readyPromise: Promise<void>;
-  private resolveReady!: () => void;
+  private resolveReady: (() => void) | null = null;
 
   readonly isAuthenticated = computed(() => this.user() !== null);
   readonly isAdmin = computed(() => this.user()?.role === 'admin');
@@ -41,18 +41,35 @@ export class AuthService {
   });
 
   constructor() {
-    this.readyPromise = new Promise<void>((resolve) => (this.resolveReady = resolve));
+    this.readyPromise = new Promise<void>((resolve) => {
+      this.resolveReady = () => {
+        resolve();
+        this.resolveReady = null; // only resolve once
+      };
+    });
+
+    // onAuthStateChange fires an INITIAL_SESSION event immediately on startup
+    // (synchronously from the cached token in localStorage). We rely on that
+    // single event to seed the user signal instead of also calling refresh(),
+    // which would fire a second round-trip and a second syncSession() call.
     this.db.client.auth.onAuthStateChange((_event, session) => {
       void this.syncSession(session);
     });
-    if (this.ready() === false) {
-      void this.refresh();
-    }
   }
 
   /** Wait until the persisted session has been resolved (used by guards). */
   waitForSession(): Promise<void> {
-    return this.readyPromise;
+    // Safety valve: if Supabase never responds (offline / misconfigured),
+    // unblock guards after 8 s so the UI doesn't hang indefinitely.
+    const timeout = new Promise<void>((resolve) =>
+      setTimeout(() => {
+        this.user.set(null);
+        this.ready.set(true);
+        this.resolveReady?.();
+        resolve();
+      }, 8000)
+    );
+    return Promise.race([this.readyPromise, timeout]);
   }
 
   /** Re-read the currently stored session and refresh the user signal. */
@@ -67,6 +84,7 @@ export class AuthService {
       // resolves and route guards never hang on the auth check.
       this.user.set(null);
       this.ready.set(true);
+      this.resolveReady?.();
     }
   }
 
@@ -74,6 +92,7 @@ export class AuthService {
     if (!session?.user) {
       this.user.set(null);
       this.ready.set(true);
+      this.resolveReady?.();
       return;
     }
 
@@ -101,6 +120,7 @@ export class AuthService {
     });
 
     this.ready.set(true);
+    this.resolveReady?.();
   }
 
   // ── Authentication ─────────────────────────────────────────────────────────
