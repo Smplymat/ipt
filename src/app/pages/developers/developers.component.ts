@@ -20,11 +20,44 @@ interface Developer {
   bio: string;
   skills: string[];
   resumeUrl?: string;
+  projects?: Project[];
+}
+
+interface Project {
+  name: string;
+  url: string;
+  modules: { title: string; features: string[] }[];
 }
 
 const DEVELOPERS: Developer[] = [
   { name: 'Ralph Mathew T. Reposar', role: 'Lead Developer', avatar: '/profile.png', emoji: '⚡', bio: 'Architect of the Knead to Know UI. Passionate about pixel-perfect interfaces and smooth Ionic animations.', skills: ['React', 'Ionic', 'TypeScript', 'SCSS'], resumeUrl: 'https://fascinating-fairy-a32e79.netlify.app/' },
-  { name: 'Ma. Rosa Camilla S. Sevilla', role: 'UX / UI Developer', avatar: '/sevilla.jpg', emoji: '🎨', bio: 'Crafted the bakery design system from scratch — every colour, curve, and card you see is her handiwork.', skills: ['Figma', 'Design Systems', 'Prototyping', 'Accessibility'] },
+  { name: 'Ma. Rosa Camilla S. Sevilla', role: 'UX / UI Developer', avatar: '/sevilla.jpg', emoji: '🎨', bio: 'Crafted the bakery design system from scratch — every colour, curve, and card you see is her handiwork.', skills: ['Figma', 'Design Systems', 'Prototyping', 'Accessibility'],
+    resumeUrl: 'https://sevilla-resume.netlify.app/tabs/tab1',
+    projects: [
+      {
+        name: 'Knead to Know – Bakery App',
+        url: 'https://sevilla-resume.netlify.app/tabs/tab1',
+        modules: [
+          {
+            title: 'Search and Filter Module',
+            features: ['Search Bread', 'Filter by Category', 'Filter by Price', 'Sort by Popularity/Price'],
+          },
+          {
+            title: 'Shopping Cart Module',
+            features: ['Add to Cart', 'Remove Items', 'Adjust Quantity', 'View Order Total'],
+          },
+          {
+            title: 'Order Management Module',
+            features: ['Place Order', 'Choose Delivery/Pickup', 'Select Order Schedule', 'Cancel Order'],
+          },
+          {
+            title: 'Payment Module',
+            features: ['Cash on Delivery', 'Online Payment', 'View Payment Status', 'Digital Receipt'],
+          },
+        ],
+      },
+    ],
+  },
   { name: 'Albert Blake N. Javier', role: 'QA Developer', avatar: '/javier.png', emoji: '🔍', bio: "Makes sure every page, form, and button works flawlessly before it reaches a customer's screen.", skills: ['Cypress', 'Jest', 'Manual Testing', 'CI/CD'], resumeUrl: 'https://fantastic-longma-224325.netlify.app/resume' },
   { name: 'Ariane Joy P. Rosario', role: 'UI / UX Developer', avatar: '/rosario.png', emoji: '🌸', bio: 'Brings user-centered design thinking to every screen, ensuring the experience feels intuitive and delightful.', skills: ['Figma', 'React', 'SCSS', 'UX Research'], resumeUrl: 'https://timely-khapse-90506d.netlify.app/resume?fbclid=IwY2xjawUSRphwZG9mBWV4dG4DYWVtAjEwAGJyaWQRMVpxUUpRWmc5UUE4dHlrTkZzcnRjBmFwcF9pZBAyMjIwMzkxNzg4MjAwODkyAAEe8svnI7ZQ9dx_aATvCRsb2MaCUqV1qp_DlZ4cv4U4CmWmIjrc4-JpaH84UuE_aem_TTY54CtNusTFN_0UIoHPfQ' },
   { name: 'Nico Recto Aquilar', role: 'Backend Developer', avatar: '/aguilar.png', emoji: '🛠️', bio: 'Powers the order management, inventory, and real-time delivery tracking behind the scenes.', skills: ['Node.js', 'PostgreSQL', 'REST APIs', 'Docker'], resumeUrl: 'https://re-su.netlify.app/folder/Inbox' },

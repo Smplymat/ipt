@@ -159,14 +159,33 @@ export class AdminComponent {
     this.savingCategory.set(true);
     this.categoryFormError.set(null);
     try {
-      const cat = await this.categoriesService.create(name);
+      // Timeout so a stalled request (offline, blocked fetch, CORS) surfaces
+      // an error instead of leaving the button disabled with no feedback.
+      const MAX_MS = 20_000;
+      const cat = await this.withTimeout(
+        this.categoriesService.create(name),
+        MAX_MS,
+        'Category request timed out. Check your connection and try again.'
+      );
+      if (!cat) throw new Error('The category was not saved. The database returned no row.');
       this.categories.update((list) => [...list, cat].sort((a, b) => a.name.localeCompare(b.name)));
       this.newCategoryName.set('');
     } catch (err) {
+      console.error('Create category failed:', err);
       this.categoryFormError.set(toErrorMessage(err));
     } finally {
       this.savingCategory.set(false);
     }
+  }
+
+  private withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+    let timer: ReturnType<typeof setTimeout>;
+    return Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(message)), ms);
+      }),
+    ]).finally(() => clearTimeout(timer));
   }
 
   async confirmDeleteCategory(cat: Category): Promise<void> {

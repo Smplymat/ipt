@@ -36,8 +36,6 @@ export class OrderConfirmationComponent {
     return o ? o.id.replace(/-/g, '').slice(0, 10).toUpperCase() : '--------';
   });
 
-  private autoPrinted = false;
-
   constructor() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) void this.load(id);
@@ -50,8 +48,9 @@ export class OrderConfirmationComponent {
     try {
       const order = await this.orders.getOrder(id);
       this.order.set(order);
-      // Spec: automatic print dialog once the receipt has rendered.
-      setTimeout(() => this.printReceipt(), 900);
+      // Print is intentionally manual — the button in the template calls
+      // printReceipt(). Auto-firing window.print() was removed because
+      // browsers may block it and it fires on every navigation to this page.
     } catch (err) {
       this.error.set(toErrorMessage(err));
     } finally {
@@ -60,7 +59,6 @@ export class OrderConfirmationComponent {
   }
 
   printReceipt(): void {
-    if (this.order() && !this.autoPrinted) this.autoPrinted = true;
     window.print();
   }
 

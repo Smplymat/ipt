@@ -37,11 +37,12 @@ export interface DonutSlice {
 const CIRCUMFERENCE = 2 * Math.PI * 54; // r = 54 on a 128×128 viewBox
 
 const STATUS_COLORS: Record<string, string> = {
-  Pending:          '#FF5B35',   // coral — project brand
-  Preparing:        '#F5A623',   // amber
-  'Out for Delivery': '#6B3A2A', // brown-mid
-  Delivered:        '#3D7A55',   // green
-  Cancelled:        '#C4A882',   // muted
+  Pending:            '#FF5B35',   // coral — project brand
+  Preparing:          '#F5A623',   // amber
+  'Out for Delivery': '#6B3A2A',   // brown-mid
+  'Ready for Pickup': '#17A2B8',   // teal — matches STATUS_BADGE 'teal'
+  Delivered:          '#3D7A55',   // green
+  Cancelled:          '#C4A882',   // muted
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -83,7 +84,11 @@ export class OrderOversightComponent implements OnDestroy {
   );
 
   readonly processingOrders = computed(() =>
-    this.orders().filter((o) => o.status === 'preparing' || o.status === 'out_for_delivery').length
+    this.orders().filter((o) =>
+      o.status === 'preparing' ||
+      o.status === 'out_for_delivery' ||
+      o.status === 'ready_for_pickup'
+    ).length
   );
 
   readonly finishedOrders = computed(() =>
@@ -101,7 +106,9 @@ export class OrderOversightComponent implements OnDestroy {
     const tab  = this.activeTab();
     const list = this.orders();
     if (tab === 'pending')    return list.filter((o) => o.status === 'pending');
-    if (tab === 'delivering') return list.filter((o) => o.status === 'preparing' || o.status === 'out_for_delivery');
+    if (tab === 'delivering') return list.filter((o) =>
+      o.status === 'preparing' || o.status === 'out_for_delivery' || o.status === 'ready_for_pickup'
+    );
     if (tab === 'finished')   return list.filter((o) => o.status === 'delivered' || o.status === 'cancelled');
     return list;
   });

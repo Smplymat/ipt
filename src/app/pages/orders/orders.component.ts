@@ -2,6 +2,7 @@ import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
+  AlertController,
   IonButton,
   IonCol,
   IonContent,
@@ -19,7 +20,8 @@ import {
   OrdersService,
   OrderStatus,
   STATUS_BADGE,
-  STATUS_FLOW,
+  STATUS_FLOW_DELIVERY,
+  STATUS_FLOW_PICKUP,
   STATUS_LABEL,
   toErrorMessage,
 } from '../../services/orders.service';
@@ -45,6 +47,7 @@ export class OrdersComponent implements OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly cart = inject(CartService);
   private readonly ordersService = inject(OrdersService);
+  private readonly alertCtrl = inject(AlertController);
 
   readonly statusLabel = STATUS_LABEL;
   readonly statusBadge = STATUS_BADGE;
@@ -63,7 +66,7 @@ export class OrdersComponent implements OnDestroy {
     const list = this.orders();
     const active = list.filter((o) => o.status !== 'cancelled');
     const inProgress = list.filter((o) =>
-      ['pending', 'preparing', 'out_for_delivery'].includes(o.status)
+      ['pending', 'preparing', 'out_for_delivery', 'ready_for_pickup'].includes(o.status)
     ).length;
     const spent = active.reduce((sum, o) => sum + Number(o.total), 0);
     return [
@@ -124,11 +127,14 @@ export class OrdersComponent implements OnDestroy {
 
   // ── Staff fulfillment controls ───────────────────────────────────────────────
 
-  /** Next step in pending → preparing → out_for_delivery → delivered. */
+  /** Next step in the correct status flow based on the order's fulfillment type. */
   nextStatus(order: OrderWithItems): OrderStatus | null {
-    const idx = STATUS_FLOW.indexOf(order.status);
-    if (idx === -1 || idx >= STATUS_FLOW.length - 1) return null;
-    return STATUS_FLOW[idx + 1];
+    const flow = order.fulfillment_type === 'pickup'
+      ? STATUS_FLOW_PICKUP
+      : STATUS_FLOW_DELIVERY;
+    const idx = flow.indexOf(order.status);
+    if (idx === -1 || idx >= flow.length - 1) return null;
+    return flow[idx + 1];
   }
 
   async advanceStatus(order: OrderWithItems): Promise<void> {
@@ -149,6 +155,36 @@ export class OrdersComponent implements OnDestroy {
     } catch (err) {
       this.errorMessage.set(toErrorMessage(err));
     }
+  }
+
+  // ── Customer cancel (pending orders only) ────────────────────────────────────
+
+  /** Returns true only while the customer is still allowed to self-cancel. */
+  canCustomerCancel(order: OrderWithItems): boolean {
+    return !this.isStaff() && order.status === 'pending';
+  }
+
+  async cancelMyOrder(order: OrderWithItems): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Cancel order?',
+      message: `Order #${this.shortId(order)} is still pending. Cancel it now?`,
+      buttons: [
+        { text: 'Keep order', role: 'cancel' },
+        {
+          text: 'Yes, cancel',
+          role: 'destructive',
+          handler: async () => {
+            try {
+              await this.ordersService.cancelMyOrder(order.id);
+              this.reloadAfterUpdate(order.id, 'cancelled');
+            } catch (err) {
+              this.errorMessage.set(toErrorMessage(err));
+            }
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   private reloadAfterUpdate(orderId: string, status: OrderStatus): void {
@@ -189,5 +225,20 @@ export class OrdersComponent implements OnDestroy {
 
   paymentLabel(order: OrderWithItems): string {
     return order.payment_method === 'cod' ? 'Cash on Delivery' : 'Online Payment';
+  }
+
+  fulfillmentLabel(order: OrderWithItems): string {
+    return order.fulfillment_type === 'pickup' ? '🏪 Pickup' : '🛵 Delivery';
+  }
+
+  scheduleLabel(order: OrderWithItems): string {
+    if (!order.scheduled_at) return 'ASAP';
+    const d = new Date(order.scheduled_at);
+    return d.toLocaleString('en-PH', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    });
   }
 }

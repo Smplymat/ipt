@@ -108,16 +108,30 @@
       <!-- Delivery + payment -->
       <div style="display: grid; grid-template-columns: 1fr; gap: 1px; background: #EDE0CC; border: 1px solid #EDE0CC;">
         <div style="background: #FBF6EE; padding: 16px 20px;">
-          <p class="receipt-label">DELIVER TO</p>
-          <p class="receipt-value">{{ o.customer_name }} · {{ o.phone }}</p>
-          <p class="receipt-value">{{ o.address }}</p>
-          @if (o.unit_notes) {
-            <p class="receipt-value">Notes: {{ o.unit_notes }}</p>
+          <p class="receipt-label">
+            @if (o.fulfillment_type === 'pickup') { PICKUP AT } @else { DELIVER TO }
+          </p>
+          @if (o.fulfillment_type === 'pickup') {
+            <p class="receipt-value">🏪 In-Store Pickup · 123 Banawe St, Quezon City</p>
+            <p class="receipt-value">{{ o.customer_name }} · {{ o.phone }}</p>
+          } @else {
+            <p class="receipt-value">{{ o.customer_name }} · {{ o.phone }}</p>
+            <p class="receipt-value">{{ o.address }}</p>
+            @if (o.unit_notes) {
+              <p class="receipt-value">Notes: {{ o.unit_notes }}</p>
+            }
+            <p class="receipt-value">
+              📍 {{ coordinates() }}
+              @if (mapUrl()) {
+                · <a [href]="mapUrl()" target="_blank" rel="noopener" class="receipt-link">View on map</a>
+              }
+            </p>
           }
-          <p class="receipt-value">
-            📍 {{ coordinates() }}
-            @if (mapUrl()) {
-              · <a [href]="mapUrl()" target="_blank" rel="noopener" class="receipt-link">View on map</a>
+          <p class="receipt-value" style="margin-top: 6px;">
+            @if (o.scheduled_at) {
+              📅 Scheduled: {{ formatDate(o.scheduled_at) }}
+            } @else {
+              ⚡ ASAP
             }
           </p>
         </div>

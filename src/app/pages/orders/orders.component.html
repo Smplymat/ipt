@@ -106,18 +106,39 @@
                 <a class="fulfill-card__tel" [href]="'tel:' + order.phone">{{ order.phone }}</a>
               </div>
 
-              <div class="fulfill-card__block">
-                <p class="fulfill-card__label">DELIVER TO</p>
-                <p class="fulfill-card__text">{{ order.address }}</p>
-                @if (order.unit_notes) {
-                  <p class="fulfill-card__text"><b>Notes:</b> {{ order.unit_notes }}</p>
-                }
-                <p class="fulfill-card__text">
-                  📍 {{ coords(order) }}
-                  @if (mapUrl(order)) {
-                    · <a [href]="mapUrl(order)" target="_blank" rel="noopener" class="fulfill-card__link">Open in Google Maps</a>
-                  }
+              <!-- Fulfillment mode + schedule -->
+              <div class="fulfill-card__block" style="padding: 8px 0;">
+                <p class="fulfill-card__text" style="margin: 0; display: flex; gap: 12px; flex-wrap: wrap;">
+                  <strong>{{ fulfillmentLabel(order) }}</strong>
+                  <span style="color: #A07850;">·</span>
+                  <span>
+                    @if (order.scheduled_at) {
+                      📅 {{ scheduleLabel(order) }}
+                    } @else {
+                      ⚡ ASAP
+                    }
+                  </span>
                 </p>
+              </div>
+
+              <div class="fulfill-card__block">
+                <p class="fulfill-card__label">
+                  @if (order.fulfillment_type === 'pickup') { PICKUP NOTES } @else { DELIVER TO }
+                </p>
+                @if (order.fulfillment_type === 'pickup') {
+                  <p class="fulfill-card__text">Customer will collect in-store.</p>
+                } @else {
+                  <p class="fulfill-card__text">{{ order.address }}</p>
+                  @if (order.unit_notes) {
+                    <p class="fulfill-card__text"><b>Notes:</b> {{ order.unit_notes }}</p>
+                  }
+                  <p class="fulfill-card__text">
+                    📍 {{ coords(order) }}
+                    @if (mapUrl(order)) {
+                      · <a [href]="mapUrl(order)" target="_blank" rel="noopener" class="fulfill-card__link">Open in Google Maps</a>
+                    }
+                  </p>
+                }
               </div>
 
               <div class="fulfill-card__block" style="border-top: 1px dashed #EDE0CC;">
@@ -183,6 +204,21 @@
                 </span>
               </div>
 
+              <!-- Fulfillment + schedule row -->
+              <div class="fulfill-card__block" style="padding: 8px 0;">
+                <p class="fulfill-card__text" style="margin: 0; display: flex; gap: 12px; flex-wrap: wrap;">
+                  <span>{{ fulfillmentLabel(order) }}</span>
+                  <span style="color: #A07850;">·</span>
+                  <span>
+                    @if (order.scheduled_at) {
+                      📅 {{ scheduleLabel(order) }}
+                    } @else {
+                      ⚡ ASAP
+                    }
+                  </span>
+                </p>
+              </div>
+
               <div class="fulfill-card__block">
                 @for (item of order.items; track item.id) {
                   <p class="fulfill-card__text" style="margin-bottom: 2px;">
@@ -197,14 +233,25 @@
                 <p class="fulfill-card__total">{{ formatPrice(order.total) }}</p>
               </div>
 
-              <div style="margin-top: 14px;">
+              <div style="margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap;">
                 <ion-button
                   expand="block"
                   [routerLink]="['/order-confirmation', order.id]"
-                  style="--background: #FF5B35; --background-activated: #E04E2B; --color: #fff; --border-radius: 10px; font-weight: 700; font-size: 0.8rem;"
+                  style="--background: #FF5B35; --background-activated: #E04E2B; --color: #fff; --border-radius: 10px; font-weight: 700; font-size: 0.8rem; flex: 2;"
                 >
-                  View Receipt & Track
+                  View Receipt &amp; Track
                 </ion-button>
+
+                @if (canCustomerCancel(order)) {
+                  <ion-button
+                    expand="block"
+                    fill="outline"
+                    (click)="cancelMyOrder(order)"
+                    style="--border-color: #C9604F; --color: #C9604F; --border-radius: 10px; font-weight: 700; font-size: 0.8rem; flex: 1;"
+                  >
+                    Cancel
+                  </ion-button>
+                }
               </div>
             </div>
           }

@@ -1,4 +1,5 @@
 import { Component, afterNextRender, computed, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import {
   IonButton,
@@ -11,7 +12,7 @@ import {
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { MapsService } from '../../services/maps.service';
-import { NewOrderPayload, OrdersService, toErrorMessage } from '../../services/orders.service';
+import { FulfillmentType, NewOrderPayload, OrdersService, toErrorMessage } from '../../services/orders.service';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -29,9 +30,13 @@ type FormErrors = Partial<Record<FormErrorKey, string>>;
 
 const EMPTY_FORM: DeliveryForm = { name: '', phone: '', address: '', unit: '', lat: null, lng: null };
 
+// Minimum number of minutes ahead a scheduled order must be placed.
+const MIN_SCHEDULE_MINUTES = 30;
+
 @Component({
   selector: 'app-checkout',
   imports: [
+    DatePipe,
     RouterLink,
     IonButton,
     IonContent,
@@ -55,6 +60,29 @@ export class CheckoutComponent {
   readonly placing = signal(false);
   readonly orderError = signal<string | null>(null);
 
+  // ── Fulfillment type ──────────────────────────────────────────────────────
+  readonly fulfillment = signal<FulfillmentType>('delivery');
+
+  // ── Order schedule ────────────────────────────────────────────────────────
+  /** 'asap' = place immediately; 'scheduled' = pick a date/time */
+  readonly scheduleMode = signal<'asap' | 'scheduled'>('asap');
+  readonly scheduledAt = signal<string>(''); // ISO datetime-local string
+
+  /** Minimum datetime value for the scheduler input (now + MIN_SCHEDULE_MINUTES). */
+  readonly minScheduleDateTime = computed(() => {
+    const d = new Date(Date.now() + MIN_SCHEDULE_MINUTES * 60 * 1000);
+    // datetime-local input wants "YYYY-MM-DDTHH:mm" in LOCAL time.
+    // toISOString() returns UTC, which is ~8 h too early in PH (UTC+8).
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return (
+      d.getFullYear() +
+      '-' + pad(d.getMonth() + 1) +
+      '-' + pad(d.getDate()) +
+      'T' + pad(d.getHours()) +
+      ':' + pad(d.getMinutes())
+    );
+  });
+
   /** Google Maps availability. */
   readonly mapConfigured = this.maps.configured;
   readonly mapReady = signal(false);
@@ -74,12 +102,28 @@ export class CheckoutComponent {
     if (f.name.trim().length < 2) errs.name = 'Recipient name is required.';
     if (!/^(?:63|0)?9\d{9}$/.test(f.phone.replace(/\D/g, '')))
       errs.phone = 'Enter a valid mobile number (e.g. 09171234567).';
-    if (f.address.trim().length < 5) errs.address = 'Delivery address is required.';
-    if (f.lat == null || f.lng == null) errs.coords = 'Set the delivery pin or coordinates.';
+
+    // Address and coords only required for delivery orders
+    if (this.fulfillment() === 'delivery') {
+      if (f.address.trim().length < 5) errs.address = 'Delivery address is required.';
+      if (f.lat == null || f.lng == null) errs.coords = 'Set the delivery pin or coordinates.';
+    }
+
     return errs;
   });
 
   readonly hasErrors = computed(() => Object.keys(this.errors()).length > 0);
+
+  // ── Schedule validation ───────────────────────────────────────────────────
+  readonly scheduleError = computed(() => {
+    if (this.scheduleMode() !== 'scheduled') return null;
+    const val = this.scheduledAt();
+    if (!val) return 'Please select a date and time.';
+    const selected = new Date(val).getTime();
+    const earliest = Date.now() + MIN_SCHEDULE_MINUTES * 60 * 1000;
+    if (selected < earliest) return `Schedule must be at least ${MIN_SCHEDULE_MINUTES} minutes from now.`;
+    return null;
+  });
 
   constructor() {
     // Prefill the recipient with the account display name.
@@ -153,6 +197,7 @@ export class CheckoutComponent {
   async placeOrder(): Promise<void> {
     this.touched.set(true);
     if (this.hasErrors()) return;
+    if (this.scheduleError()) return;
     if (this.placing()) return;
 
     this.placing.set(true);
@@ -167,19 +212,31 @@ export class CheckoutComponent {
         paymentStatus = 'paid';
       }
 
+      // Resolve scheduled_at
+      const scheduledAt =
+        this.scheduleMode() === 'scheduled' && this.scheduledAt()
+          ? new Date(this.scheduledAt()).toISOString()
+          : null;
+
+      const isPickup = this.fulfillment() === 'pickup';
+
       const payload: NewOrderPayload = {
         customer_name: f.name.trim(),
         phone: f.phone.trim(),
-        address: f.address.trim(),
-        unit_notes: f.unit.trim(),
-        latitude: f.lat,
-        longitude: f.lng,
+        fulfillment_type: this.fulfillment(),
+        address: isPickup ? '' : f.address.trim(),
+        unit_notes: isPickup ? '' : f.unit.trim(),
+        latitude: isPickup ? null : f.lat,
+        longitude: isPickup ? null : f.lng,
+        scheduled_at: scheduledAt,
         payment_method: this.payment(),
         payment_status: paymentStatus,
         subtotal: this.subtotal(),
-        delivery_fee: this.deliveryFee(),
+        delivery_fee: isPickup ? 0 : this.deliveryFee(),
         tax: this.tax(),
-        total: this.total(),
+        total: isPickup
+          ? this.subtotal() + this.tax()
+          : this.total(),
       };
 
       const order = await this.orders.placeOrder(payload, this.cart.lines());
@@ -199,4 +256,16 @@ export class CheckoutComponent {
   formatPrice(n: number): string {
     return `₱${(Number(n) || 0).toFixed(2)}`;
   }
+
+  /** Total shown in the summary — adjusts for pickup (no delivery fee). */
+  displayTotal = computed(() =>
+    this.fulfillment() === 'pickup'
+      ? this.subtotal() + this.tax()
+      : this.total()
+  );
+
+  /** Display-friendly delivery fee — FREE for pickup. */
+  displayDeliveryFee = computed(() =>
+    this.fulfillment() === 'pickup' ? 0 : this.deliveryFee()
+  );
 }

@@ -365,7 +365,7 @@
             placeholder="e.g. Gluten-Free"
             [value]="newCategoryName()"
             (ionInput)="newCategoryName.set(($event.detail.value ?? '').toString())"
-            (keyup.enter)="handleCreateCategory()"
+            (keydown.enter)="handleCreateCategory()"
             class="admin-ion-input"
           ></ion-input>
         </div>

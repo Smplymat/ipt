@@ -38,11 +38,13 @@ This will compile your project and store the build artifacts in the `dist/` dire
 
 ## Running unit tests
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+To execute unit tests once with the [Vitest](https://vitest.dev/) test runner, use the following command:
 
 ```bash
-ng test
+ng test --watch=false
 ```
+
+Omit `--watch=false` if you want Vitest to stay in watch mode (re-runs on file changes).
 
 ## Running end-to-end tests
 

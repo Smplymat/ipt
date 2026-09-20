@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SUPABASE_STORAGE_BUCKET } from '../config/supabase.config';
 import { DatabaseService } from './database.service';
+import { toErrorMessage } from './orders.service';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -75,8 +76,20 @@ export class ProductsService {
   /**
    * Uploads a product image to the `product-images` bucket and
    * returns the public URL of the newly created object.
+   *
+   * Allowed types: JPEG, PNG, WebP, GIF — max 5 MB.
    */
   async uploadImage(file: File): Promise<string> {
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      throw new Error(`Unsupported file type "${file.type}". Please upload a JPEG, PNG, WebP, or GIF.`);
+    }
+    if (file.size > MAX_BYTES) {
+      throw new Error(`File is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum allowed size is 5 MB.`);
+    }
+
     const ext =
       (file.name.split('.').pop() ?? 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
     const key = `products/${crypto.randomUUID()}.${ext}`;
@@ -99,7 +112,4 @@ export class ProductsService {
   }
 }
 
-export function toErrorMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  return 'Something went wrong. Please try again.';
-}
+export { toErrorMessage } from './orders.service';

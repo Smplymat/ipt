@@ -339,34 +339,38 @@ values
 on conflict (id) do nothing;
 
 /* ============ 0005_orders.sql ============ */
--- â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-- ────────────────────────────────────────────────────────────────────────────
 -- 0005_orders.sql
 -- Orders, order items, delivery details, payment info and status tracking.
 --
--- Run this file in the Supabase SQL Editor (or via `supabase db push`).
---
--- NOTE: this script DROPS and recreates the two tables so the schema is always
--- exactly as defined below. Safe to re-run any number of times (it wipes any
--- existing orders).
---
--- Status flow (driven by staff in the Fulfillment view):
---   pending â†’ preparing â†’ out_for_delivery â†’ delivered     (cancelled anytime)
--- â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-- fulfillment_type: 'delivery' (default) or 'pickup'
+-- scheduled_at:     NULL = ASAP, otherwise requested delivery/pickup datetime
+-- Status flow:
+--   delivery:  pending → preparing → out_for_delivery → delivered
+--   pickup:    pending → preparing → ready_for_pickup → delivered
+--   (cancelled anytime by staff OR by the customer while still 'pending')
+-- ────────────────────────────────────────────────────────────────────────────
 
 -- 0) Reset
 drop table if exists public.order_items cascade;
 drop table if exists public.orders      cascade;
 
--- 1) orders : one row per placed order, with delivery + payment snapshot
+-- 1) orders
 create table public.orders (
   id               uuid primary key default gen_random_uuid(),
   user_id          uuid references auth.users(id) on delete set null,
   customer_name    text not null,
   phone            text not null,
-  address          text not null,
+  -- Fulfillment mode
+  fulfillment_type text not null default 'delivery'
+                   check (fulfillment_type in ('delivery', 'pickup')),
+  -- Address fields are empty for pickup orders
+  address          text not null default '',
   unit_notes       text not null default '',
   latitude         double precision,
   longitude        double precision,
+  -- Schedule: null = ASAP, otherwise the requested datetime
+  scheduled_at     timestamptz,
   payment_method   text not null default 'cod'
                    check (payment_method in ('cod', 'online')),
   payment_status   text not null default 'pending'
@@ -376,12 +380,13 @@ create table public.orders (
   tax              numeric(10,2) not null default 0,
   total            numeric(10,2) not null default 0,
   status           text not null default 'pending'
-                   check (status in ('pending', 'preparing', 'out_for_delivery', 'delivered', 'cancelled')),
+                   check (status in ('pending', 'preparing', 'out_for_delivery',
+                                     'ready_for_pickup', 'delivered', 'cancelled')),
   created_at       timestamptz not null default now(),
   updated_at       timestamptz not null default now()
 );
 
--- 2) order_items : line items snapshot (survives later product edits)
+-- 2) order_items : line-item snapshot (survives later product edits)
 create table public.order_items (
   id         uuid primary key default gen_random_uuid(),
   order_id   uuid not null references public.orders(id) on delete cascade,
@@ -394,11 +399,12 @@ create table public.order_items (
 );
 
 -- 3) indexes
-create index if not exists idx_orders_user          on public.orders (user_id);
-create index if not exists idx_orders_status        on public.orders (status);
-create index if not exists idx_order_items_order    on public.order_items (order_id);
+create index if not exists idx_orders_user        on public.orders (user_id);
+create index if not exists idx_orders_status      on public.orders (status);
+create index if not exists idx_orders_scheduled   on public.orders (scheduled_at);
+create index if not exists idx_order_items_order  on public.order_items (order_id);
 
--- 4) updated_at upkeep
+-- 4) updated_at trigger
 create or replace function public.set_updated_at()
 returns trigger language plpgsql as
 $$ begin new.updated_at = now(); return new; end $$;
@@ -412,7 +418,8 @@ create trigger trg_orders_updated
 alter table public.orders       enable row level security;
 alter table public.order_items  enable row level security;
 
--- orders â”€ select: owner, or staff.
+-- orders – select: owner or staff
+drop policy if exists "orders_select" on public.orders;
 create policy "orders_select" on public.orders
   for select using (
     user_id = auth.uid()
@@ -420,17 +427,28 @@ create policy "orders_select" on public.orders
     or public.has_role('admin')
   );
 
--- orders â”€ insert: only for yourself (client always sends auth.uid()).
+-- orders – insert: only for yourself
+drop policy if exists "orders_insert" on public.orders;
 create policy "orders_insert" on public.orders
   for insert with check (user_id = auth.uid());
 
--- orders â”€ update: staff only (status / payment tracking).
+-- orders – update: staff may update any field;
+--                  customers may only cancel their own PENDING order.
+drop policy if exists "orders_update" on public.orders;
 create policy "orders_update" on public.orders
   for update using (
+    -- staff can update anything
     public.has_role('store_admin') or public.has_role('admin')
+    -- customer can cancel their own order while it is still pending
+    or (user_id = auth.uid() and status = 'pending')
+  )
+  with check (
+    public.has_role('store_admin') or public.has_role('admin')
+    or (user_id = auth.uid() and status = 'cancelled')
   );
 
--- orders â”€ delete: owner (e.g. client-side cleanup of a failed order) or staff.
+-- orders – delete: owner cleanup or staff
+drop policy if exists "orders_delete" on public.orders;
 create policy "orders_delete" on public.orders
   for delete using (
     user_id = auth.uid()
@@ -438,33 +456,38 @@ create policy "orders_delete" on public.orders
     or public.has_role('admin')
   );
 
--- order_items â”€ select: via an order the user owns, or staff.
+-- order_items – select: via an order the user owns, or staff
+drop policy if exists "order_items_select" on public.order_items;
 create policy "order_items_select" on public.order_items
   for select using (
     exists (
       select 1 from public.orders o
       where o.id = order_id
-        and (o.user_id = auth.uid() or public.has_role('store_admin') or public.has_role('admin'))
+        and (o.user_id = auth.uid()
+             or public.has_role('store_admin')
+             or public.has_role('admin'))
     )
   );
 
--- order_items â”€ insert: placed as part of your own order, or staff.
+-- order_items – insert: placed as part of your own order, or staff
+drop policy if exists "order_items_insert" on public.order_items;
 create policy "order_items_insert" on public.order_items
   for insert with check (
     exists (
       select 1 from public.orders o
       where o.id = order_id
-        and (o.user_id = auth.uid() or public.has_role('store_admin') or public.has_role('admin'))
+        and (o.user_id = auth.uid()
+             or public.has_role('store_admin')
+             or public.has_role('admin'))
     )
   );
 
--- 6) Realtime: broadcast order changes so customer + staff UIs update live.
+-- 6) Realtime
 do $$
 begin
   begin
     alter publication supabase_realtime add table public.orders;
   exception when others then
-    null; -- already a member of the publication
+    null; -- already a member
   end;
 end $$;
-

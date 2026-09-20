@@ -8,20 +8,24 @@ export type OrderStatus =
   | 'pending'
   | 'preparing'
   | 'out_for_delivery'
+  | 'ready_for_pickup'
   | 'delivered'
   | 'cancelled';
 
 export type PaymentMethod = 'cod' | 'online';
+export type FulfillmentType = 'delivery' | 'pickup';
 
 export interface Order {
   id: string;
   user_id: string;
   customer_name: string;
   phone: string;
+  fulfillment_type: FulfillmentType;
   address: string;
   unit_notes: string;
   latitude: number | null;
   longitude: number | null;
+  scheduled_at: string | null;
   payment_method: PaymentMethod;
   payment_status: 'pending' | 'paid' | 'failed';
   subtotal: number;
@@ -50,10 +54,12 @@ export interface OrderWithItems extends Order {
 export interface NewOrderPayload {
   customer_name: string;
   phone: string;
+  fulfillment_type: FulfillmentType;
   address: string;
   unit_notes: string;
   latitude: number | null;
   longitude: number | null;
+  scheduled_at: string | null;
   payment_method: PaymentMethod;
   payment_status: 'pending' | 'paid';
   subtotal: number;
@@ -62,12 +68,14 @@ export interface NewOrderPayload {
   total: number;
 }
 
-export const STATUS_FLOW: OrderStatus[] = ['pending', 'preparing', 'out_for_delivery', 'delivered'];
+export const STATUS_FLOW_DELIVERY: OrderStatus[] = ['pending', 'preparing', 'out_for_delivery', 'delivered'];
+export const STATUS_FLOW_PICKUP: OrderStatus[] = ['pending', 'preparing', 'ready_for_pickup', 'delivered'];
 
 export const STATUS_LABEL: Record<OrderStatus, string> = {
   pending: 'Pending',
   preparing: 'Preparing',
   out_for_delivery: 'Out for Delivery',
+  ready_for_pickup: 'Ready for Pickup',
   delivered: 'Delivered',
   cancelled: 'Cancelled',
 };
@@ -81,6 +89,7 @@ export const STATUS_BADGE: Record<OrderStatus, string> = {
   pending: 'amber',
   preparing: 'blue',
   out_for_delivery: 'purple',
+  ready_for_pickup: 'teal',
   delivered: 'green',
   cancelled: 'red',
 };
@@ -150,8 +159,12 @@ export class OrdersService {
 
   // ── Read ──────────────────────────────────────────────────────────────────────
 
-  /** The current user's orders, newest first (RLS shows only their own). */
-  async getMyOrders(): Promise<OrderWithItems[]> {
+  /**
+   * Fetches orders from the database, newest first.
+   * RLS automatically scopes the result to the current user's own orders;
+   * staff (with a permissive policy) receive all orders.
+   */
+  async getOrders(): Promise<OrderWithItems[]> {
     const { data, error } = await this.client
       .from('orders')
       .select('*')
@@ -160,14 +173,14 @@ export class OrdersService {
     return this.attachItems((data ?? []) as unknown as Order[]);
   }
 
-  /** All orders (staff only) for the fulfillment dashboard. */
+  /** @deprecated Use getOrders() — RLS scopes the result automatically. */
+  async getMyOrders(): Promise<OrderWithItems[]> {
+    return this.getOrders();
+  }
+
+  /** @deprecated Use getOrders() — RLS scopes the result automatically. */
   async getAllOrders(): Promise<OrderWithItems[]> {
-    const { data, error } = await this.client
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) throw new Error(error.message);
-    return this.attachItems((data ?? []) as unknown as Order[]);
+    return this.getOrders();
   }
 
   async getOrder(orderId: string): Promise<OrderWithItems> {
@@ -210,6 +223,32 @@ export class OrdersService {
   async updateStatus(orderId: string, status: OrderStatus): Promise<void> {
     const { error } = await this.client.from('orders').update({ status }).eq('id', orderId);
     if (error) throw new Error(error.message);
+  }
+
+  // ── Customer cancel (pending orders only) ─────────────────────────────────────
+
+  /**
+   * Allows the order owner to cancel their own order while it is still
+   * in 'pending' status. The RLS policy enforces the same constraint on
+   * the server side, so this is safe even without a cloud function.
+   */
+  async cancelMyOrder(orderId: string): Promise<void> {
+    const { error } = await this.client
+      .from('orders')
+      .update({ status: 'cancelled' })
+      .eq('id', orderId)
+      .eq('status', 'pending'); // belt-and-suspenders guard
+    if (error) throw new Error(error.message);
+  }
+
+  /** Returns the next status step given the order's fulfillment type. */
+  nextStatusFor(order: Order): OrderStatus | null {
+    const flow = order.fulfillment_type === 'pickup'
+      ? STATUS_FLOW_PICKUP
+      : STATUS_FLOW_DELIVERY;
+    const idx = flow.indexOf(order.status);
+    if (idx === -1 || idx >= flow.length - 1) return null;
+    return flow[idx + 1];
   }
 
   // ── Realtime ──────────────────────────────────────────────────────────────────
