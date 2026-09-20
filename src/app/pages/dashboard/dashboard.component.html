@@ -8,7 +8,7 @@
         size="small"
         style="--background: #FF5B35; --background-activated: #E04E2B; --color: #fff; --border-radius: 8px; --padding-start: 14px; --padding-end: 14px; --margin-end: 8px; font-weight: 700; font-size: 0.8rem;"
       >
-        Book Now
+        Order Now
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -31,7 +31,7 @@
         <span class="rating-stars">2,400+ reviews</span>
       </div>
       <ion-button class="bakery-hero__cta" routerLink="/bread-catalog">
-        Book Order
+        Browse Menu
       </ion-button>
     </div>
     <div class="bakery-hero__right">
@@ -118,6 +118,15 @@
             <ion-col size="6" size-md="4" size-lg="3" style="padding: 6px;">
               <ion-card class="bakery-product-card" (click)="openDetail(product)" style="cursor: pointer;">
                 <span class="bakery-product-card__price-tag">{{ formatPrice(product.price) }}</span>
+                @if (isSoldOut(product)) {
+                  <span style="position: absolute; top: 10px; right: 10px; background: #E04E2B; color: #fff; font-family: 'Inter', sans-serif; font-size: 0.66rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; z-index: 2; letter-spacing: 0.4px;">
+                    Sold Out
+                  </span>
+                } @else if (isLowStock(product)) {
+                  <span style="position: absolute; top: 10px; right: 10px; background: rgba(245,166,35,0.95); color: #3D1E16; font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; z-index: 2;">
+                    Only {{ product.stock_quantity }} left
+                  </span>
+                }
                 <div class="bakery-product-card__img-wrap">
                   @if (product.image_url) {
                     <img [src]="product.image_url" [alt]="product.name">
@@ -128,8 +137,8 @@
                 <div class="bakery-product-card__body">
                   <p class="bakery-product-card__name">{{ product.name }}</p>
                   <p class="bakery-product-card__desc">{{ product.description }}</p>
-                  <ion-button class="bakery-product-card__btn" fill="solid" (click)="addToCart(product, $event)">
-                    Buy Now
+                  <ion-button class="bakery-product-card__btn" fill="solid" (click)="addToCart(product, $event)" [disabled]="isSoldOut(product)">
+                    {{ isSoldOut(product) ? 'Sold Out' : 'Buy Now' }}
                   </ion-button>
                 </div>
               </ion-card>

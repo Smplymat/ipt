@@ -34,6 +34,15 @@
     <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'products'" [class.bakery-pill--inactive]="tab() !== 'products'" (click)="tab.set('products')">
       🍞 Products
     </button>
+    <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'inventory'" [class.bakery-pill--inactive]="tab() !== 'inventory'" (click)="tab.set('inventory')">
+      📦 Inventory
+    </button>
+    <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'orders'" [class.bakery-pill--inactive]="tab() !== 'orders'" (click)="tab.set('orders'); loadOrders()">
+      🧾 Orders
+    </button>
+    <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'sales'" [class.bakery-pill--inactive]="tab() !== 'sales'" (click)="tab.set('sales'); loadOrders()">
+      📈 Sales
+    </button>
     <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'categories'" [class.bakery-pill--inactive]="tab() !== 'categories'" (click)="tab.set('categories')">
       🏷️ Categories
     </button>
@@ -96,6 +105,10 @@
               <div style="flex: 1; min-width: 120px;">
                 <label class="admin-field-label">Price (₱)</label>
                 <ion-input type="number" min="0" step="0.01" placeholder="0.00" [value]="createPrice()" (ionInput)="createPrice.set(($event.detail.value ?? '').toString())" class="admin-ion-input"></ion-input>
+              </div>
+              <div style="flex: 1; min-width: 110px;">
+                <label class="admin-field-label">Stock (units)</label>
+                <ion-input type="number" min="0" step="1" placeholder="0" [value]="createStock()" (ionInput)="createStock.set(($event.detail.value ?? '').toString())" class="admin-ion-input"></ion-input>
               </div>
             </div>
 
@@ -217,6 +230,11 @@
                       · <span style="color: #8B6347;">{{ p.extra_info.length }} extra field{{ p.extra_info.length > 1 ? 's' : '' }}</span>
                     }
                   </p>
+                  @if (stockBadge(p); as badge) {
+                    <span style="display: inline-block; margin-top: 6px; background: {{ badge.bg }}; color: {{ badge.color }}; font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; padding: 3px 8px; border-radius: 6px;">
+                      {{ badge.label }}
+                    </span>
+                  }
                 </div>
                 <div style="text-align: right; flex-shrink: 0;">
                   <p style="font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 800; color: #3D1E16; margin: 0 0 8px;">{{ formatPrice(p.price) }}</p>
@@ -269,6 +287,7 @@
                         }
                       </select>
                       <ion-input type="number" min="0" step="0.01" [value]="editPrice()" (ionInput)="editPrice.set(($event.detail.value ?? '').toString())" class="admin-ion-input" style="flex: 1; min-width: 100px;"></ion-input>
+                      <ion-input type="number" min="0" step="1" [value]="editStock()" (ionInput)="editStock.set(($event.detail.value ?? '').toString())" class="admin-ion-input" style="flex: 1; min-width: 100px;" placeholder="Stock"></ion-input>
                     </div>
 
                     <label class="admin-field-label">Short description</label>
@@ -456,6 +475,206 @@
               }
             </div>
           </div>
+        }
+      }
+    </div>
+  }
+
+<!-- ══════════════════════ INVENTORY TAB ═════════════════════════ -->
+  @if (tab() === 'inventory') {
+    <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+      <p class="bakery-section-eyebrow" style="margin-bottom: 6px;">Manage Inventory</p>
+      <p class="bakery-section-subtitle" style="margin-bottom: 14px;">
+        Quick stock adjustments — quantities at or below {{ LOW_STOCK_THRESHOLD }} are flagged as low.
+      </p>
+
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 14px;">
+        <button class="bakery-pill" [class.bakery-pill--active]="inventoryFilter() === 'all'" [class.bakery-pill--inactive]="inventoryFilter() !== 'all'" (click)="inventoryFilter.set('all')">
+          All items
+        </button>
+        <button class="bakery-pill" [class.bakery-pill--active]="inventoryFilter() === 'low'" [class.bakery-pill--inactive]="inventoryFilter() !== 'low'" (click)="inventoryFilter.set('low')">
+          ⚠️ Low stock
+        </button>
+      </div>
+
+      @if (productsError(); as err) {
+        <div style="text-align: center; padding: 36px 20px;">
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #E04E2B; margin: 0 0 12px;">{{ err }}</p>
+          <ion-button fill="outline" (click)="loadProducts()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
+        </div>
+      } @else if (productsLoading()) {
+        <div style="text-align: center; padding: 36px 20px;">
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Loading inventory…</p>
+        </div>
+      } @else {
+        @for (p of products(); track p.id) {
+          @if (inventoryFilter() === 'all' || stockNumber(p) <= LOW_STOCK_THRESHOLD) {
+            <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 160px;">
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.86rem; font-weight: 700; color: #3D1E16; margin: 0;">
+                  {{ p.name }}
+                  <span style="color: #A07850; font-weight: 500; font-size: 0.68rem;">{{ p.category }}</span>
+                </p>
+                <span style="display: inline-block; margin-top: 5px; background: {{ stockBadge(p).bg }}; color: {{ stockBadge(p).color }}; font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; padding: 3px 8px; border-radius: 6px;">
+                  {{ stockBadge(p).label }}
+                </span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                <button (click)="adjustStock(p, -1)" style="width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid #C4A882; background: #FAF3E0; color: #3D1E16; font-size: 1.1rem; font-weight: 700; cursor: pointer;">−</button>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  [value]="stockNumber(p)"
+                  (change)="setStockQuantity(p, $event)"
+                  style="width: 74px; text-align: center; padding: 8px 6px; border: 1.5px solid #EDE0CC; border-radius: 9px; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: #3D1E16; background: #FBF6EE; outline: none;"
+                >
+                <button (click)="adjustStock(p, 1)" style="width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid #C4A882; background: #FAF3E0; color: #3D1E16; font-size: 1.1rem; font-weight: 700; cursor: pointer;">＋</button>
+              </div>
+            </div>
+          }
+        }
+        @if (products().length === 0) {
+          <div style="text-align: center; padding: 36px 20px;">
+            <p style="font-size: 2rem; margin: 0 0 8px;">📦</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">No products in the catalog yet.</p>
+          </div>
+        }
+      }
+    </div>
+  }
+
+  <!-- ══════════════════════ ORDERS TAB ═══════════════════════════ -->
+  @if (tab() === 'orders') {
+    <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+      <p class="bakery-section-eyebrow" style="margin-bottom: 6px;">Manage Orders</p>
+      <p class="bakery-section-subtitle" style="margin-bottom: 14px;">
+        Set any order's status directly — Pending, Preparing, Ready for Pickup, On Delivery, Finished, or Cancelled.
+      </p>
+
+      @if (statusError(); as err) {
+        <div style="background: rgba(255,91,53,0.1); border: 1px solid rgba(255,91,53,0.35); color: #E04E2B; border-radius: 12px; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 12px;">{{ err }}</div>
+      }
+
+      @if (ordersError(); as err) {
+        <div style="text-align: center; padding: 36px 20px;">
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #E04E2B; margin: 0 0 12px;">{{ err }}</p>
+          <ion-button fill="outline" (click)="loadOrders()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
+        </div>
+      } @else if (ordersLoading()) {
+        <div style="text-align: center; padding: 36px 20px;">
+          <div style="width: 30px; height: 30px; border: 3px solid #EDE0CC; border-top-color: #FF5B35; border-radius: 50%; margin: 0 auto 12px; animation: spin 0.8s linear infinite;"></div>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Loading orders…</p>
+        </div>
+      } @else if (orders().length === 0) {
+        <div style="text-align: center; padding: 36px 20px;">
+          <p style="font-size: 2rem; margin: 0 0 8px;">🧾</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">No orders yet.</p>
+        </div>
+      } @else {
+        @for (o of orders(); track o.id) {
+          <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 14px; padding: 12px 14px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 170px;">
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: #3D1E16; margin: 0;">
+                  #{{ shortOrderId(o) }}
+                  @if (o.fulfillment_type === 'pickup') {
+                    <span style="color: #A07850; font-weight: 500; font-size: 0.7rem;">· Pickup</span>
+                  } @else {
+                    <span style="color: #A07850; font-weight: 500; font-size: 0.7rem;">· Delivery</span>
+                  }
+                </p>
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: #8B6347; margin: 3px 0 0;">
+                  {{ o.customer_name }} · {{ o.phone }} · {{ formatOrderDate(o.created_at) }}
+                </p>
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #A07850; margin: 3px 0 0;">
+                  {{ o.items.length }} item{{ o.items.length === 1 ? '' : 's' }} · {{ paymentLabel(o.payment_method) }} · {{ formatPrice(o.total) }}
+                </p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+                <span style="font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 700; padding: 4px 10px; border-radius: 8px; background: {{ statusChipColor(o.status).bg }}; color: {{ statusChipColor(o.status).fg }};">
+                  {{ statusOptionLabel(o.status) }}
+                </span>
+                <select
+                  [value]="o.status"
+                  [disabled]="statusSavingId() === o.id"
+                  (change)="setOrderStatus(o, $any($event.target).value)"
+                  style="background: #FBF6EE; border: 1.5px solid #EDE0CC; border-radius: 8px; padding: 8px 10px; font-family: 'Inter', sans-serif; font-size: 0.76rem; font-weight: 600; color: #3D1E16;"
+                >
+                  @for (s of statuses; track s) {
+                    <option [value]="s">{{ statusOptionLabel(s) }}</option>
+                  }
+                </select>
+                @if (statusSavingId() === o.id) {
+                  <span style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #A07850;">Saving…</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+
+  <!-- ══════════════════════ SALES TAB ════════════════════════════ -->
+  @if (tab() === 'sales') {
+    <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+      <p class="bakery-section-eyebrow" style="margin-bottom: 6px;">Sales Overview</p>
+      <p class="bakery-section-subtitle" style="margin-bottom: 16px;">
+        Live figures computed from real orders. Cancelled orders and their revenue are excluded.
+      </p>
+
+      @if (ordersLoading()) {
+        <div style="text-align: center; padding: 36px 20px;">
+          <div style="width: 30px; height: 30px; border: 3px solid #EDE0CC; border-top-color: #FF5B35; border-radius: 50%; margin: 0 auto 12px; animation: spin 0.8s linear infinite;"></div>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Crunching numbers…</p>
+        </div>
+      } @else {
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px;">
+          <div style="background: #3D1E16; border-radius: 14px; padding: 14px 16px;">
+            <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #FF5B35; margin: 0 0 6px;">Total revenue</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 1.15rem; font-weight: 800; color: #FBF6EE; margin: 0;">{{ formatPrice(salesRevenue()) }}</p>
+          </div>
+          <div style="background: #2B1712; border-radius: 14px; padding: 14px 16px;">
+            <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #FF5B35; margin: 0 0 6px;">Finished orders</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 1.15rem; font-weight: 800; color: #FBF6EE; margin: 0;">{{ formatPrice(salesDeliveredRevenue()) }}</p>
+          </div>
+          <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 14px; padding: 14px 16px;">
+            <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #A07850; margin: 0 0 6px;">Orders</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 1.15rem; font-weight: 800; color: #3D1E16; margin: 0;">{{ salesOrderCount() }} total · {{ salesActiveCount() }} active</p>
+          </div>
+          <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 14px; padding: 14px 16px;">
+            <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #A07850; margin: 0 0 6px;">Payment method</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 800; color: #3D1E16; margin: 0;">
+              {{ salesPaymentSplit().cod }} COD · {{ salesPaymentSplit().online }} online
+            </p>
+          </div>
+        </div>
+
+        <p class="bakery-section-eyebrow" style="margin: 20px 0 8px;">Last 7 days</p>
+        <div style="display: flex; align-items: flex-end; gap: 6px; margin-bottom: 20px; flex-wrap: wrap;">
+          @for (d of salesLast7Days(); track d.label) {
+            <div style="flex: 1; min-width: 52px; text-align: center;">
+              <div style="background: #FF5B35; border-radius: 6px 6px 0 0; height: {{ chartHeight(d.revenue) }}px;"></div>
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.6rem; color: #8B6347; margin: 4px 0 0;">{{ d.label }}</p>
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.6rem; font-weight: 700; color: #3D1E16; margin: 0;">₱{{ d.revenue.toFixed(0) }}</p>
+            </div>
+          }
+        </div>
+
+        <p class="bakery-section-eyebrow" style="margin: 20px 0 8px;">Best sellers</p>
+        @if (salesTopProducts().length === 0) {
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0;">No sales data yet — place some orders to populate this report.</p>
+        } @else {
+          @for (p of salesTopProducts(); track p.name; let i = $index) {
+            <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px;">
+              <span style="width: 26px; height: 26px; border-radius: 50%; background: #FAF3E0; color: #3D1E16; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{ i + 1 }}</span>
+              <div style="flex: 1;">
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.84rem; font-weight: 700; color: #3D1E16; margin: 0;">{{ p.name }}</p>
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #8B6347; margin: 2px 0 0;">{{ p.qty }} unit{{ p.qty === 1 ? '' : 's' }} · {{ formatPrice(p.revenue) }}</p>
+              </div>
+            </div>
+          }
         }
       }
     </div>

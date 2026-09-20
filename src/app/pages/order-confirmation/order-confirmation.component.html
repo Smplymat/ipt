@@ -92,6 +92,14 @@
           <div style="display: flex; justify-content: space-between; padding: 3px 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347;">
             <span>Subtotal</span><span style="color: #3D1E16;">{{ formatPrice(o.subtotal) }}</span>
           </div>
+          @if ((o.discount ?? 0) > 0) {
+            <div style="display: flex; justify-content: space-between; padding: 3px 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #2E7D32;">
+              <span>Discount
+                @if (o.voucher_code) { ({{ o.voucher_code }}) }
+              </span>
+              <span style="color: #2E7D32; font-weight: 700;">− {{ formatPrice(o.discount) }}</span>
+            </div>
+          }
           <div style="display: flex; justify-content: space-between; padding: 3px 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347;">
             <span>Delivery fee</span>
             <span style="color: #3D1E16;">{{ o.delivery_fee === 0 ? 'FREE' : formatPrice(o.delivery_fee) }}</span>

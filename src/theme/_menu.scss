@@ -332,3 +332,19 @@ ion-menu.app-menu {
     --background: rgba(255, 128, 96, 0.08);
   }
 }
+
+// Notification count badge on the menu nav item
+.menu-badge {
+  --background: var(--menu-accent, #FF5B35);
+  --color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 800;
+  min-width: 19px;
+  height: 19px;
+  line-height: 19px;
+  text-align: center;
+  border-radius: 10px;
+  padding: 0 5px;
+  margin-inline-end: 2px;
+}

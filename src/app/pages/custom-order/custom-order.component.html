@@ -1,0 +1,131 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-menu-button slot="start"></ion-menu-button>
+    <ion-title>Custom Order</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- ── Intro ─────────────────────────────────────────────────────────── -->
+  <div class="bakery-section bakery-section--beige" style="padding-bottom: 20px;">
+    <p class="bakery-section-eyebrow">Made Just For You</p>
+    <h2 class="bakery-section-title">Request A Custom Bake</h2>
+    <p class="bakery-section-subtitle">
+      Wedding cakes, party trays, themed designs, or bulk orders — tell us what you
+      need and our bakers will handle the rest. You'll get a reply via your
+      notification inbox.
+    </p>
+  </div>
+
+  <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+    @if (submitted()) {
+      <!-- ── Success state ─────────────────────────────────────────── -->
+      <div class="page-card" style="text-align: center; padding: 36px 20px;">
+        <p style="font-size: 3rem; margin: 0 0 12px;">🎉</p>
+        <h3 style="font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 800; color: #3D1E16; margin: 0 0 8px;">
+          Request sent!
+        </h3>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.84rem; color: #8B6347; margin: 0 0 18px;">
+          Our bakers have received your custom order request. We'll notify you once it's reviewed.
+        </p>
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+          <ion-button routerLink="/bread-catalog" style="--background: #FF5B35; --background-hover: #E04E2B; --color: #fff; --border-radius: 10px; font-weight: 700; font-size: 0.82rem;">
+            Browse the menu
+          </ion-button>
+          <ion-button fill="outline" routerLink="/notifications" style="--color: #FF5B35; --border-color: #FF5B35; --border-radius: 10px; font-weight: 700; font-size: 0.82rem;">
+            Check notifications
+          </ion-button>
+        </div>
+      </div>
+    } @else {
+      <!-- ── Form ──────────────────────────────────────────────────── -->
+      <div class="page-card">
+        @if (errorMessage(); as err) {
+          <div style="background: rgba(255,91,53,0.1); border: 1px solid rgba(255,91,53,0.35); color: #E04E2B; border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 14px;">{{ err }}</div>
+        }
+
+        <label class="admin-field-label">Your name</label>
+        <ion-input
+          type="text"
+          placeholder="e.g. Maria Santos"
+          [value]="name()"
+          (ionInput)="name.set(($event.detail.value ?? '').toString())"
+          class="admin-ion-input"
+          style="margin-bottom: 10px;"
+        ></ion-input>
+        @if (errors().name) {
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #E04E2B; margin: -6px 0 10px;">{{ errors().name }}</p>
+        }
+
+        <label class="admin-field-label">Phone number</label>
+        <ion-input
+          type="tel"
+          placeholder="e.g. 09171234567"
+          [value]="phone()"
+          (ionInput)="phone.set(($event.detail.value ?? '').toString())"
+          class="admin-ion-input"
+          style="margin-bottom: 10px;"
+        ></ion-input>
+        @if (errors().phone) {
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #E04E2B; margin: -6px 0 10px;">{{ errors().phone }}</p>
+        }
+
+        <label class="admin-field-label">What would you like us to make?</label>
+        <textarea
+          placeholder="e.g. A 3-tier chocolate wedding cake for 60 guests, with vanilla buttercream and berry toppings…"
+          [value]="description()"
+          (input)="description.set($any($event.target).value)"
+          class="admin-textarea"
+          rows="4"
+        ></textarea>
+        @if (errors().description) {
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #E04E2B; margin: 4px 0 10px;">{{ errors().description }}</p>
+        }
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px;">
+          <div style="flex: 1; min-width: 120px;">
+            <label class="admin-field-label">Quantity</label>
+            <ion-input
+              type="number"
+              min="1"
+              step="1"
+              placeholder="1"
+              [value]="quantity()"
+              (ionInput)="quantity.set(($event.detail.value ?? '').toString())"
+              class="admin-ion-input"
+            ></ion-input>
+            @if (errors().quantity) {
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #E04E2B; margin: 4px 0 0;">{{ errors().quantity }}</p>
+            }
+          </div>
+          <div style="flex: 1; min-width: 150px;">
+            <label class="admin-field-label">Needed by (optional)</label>
+            <input
+              type="date"
+              [value]="deadline()"
+              (change)="deadline.set($any($event.target).value)"
+              style="width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #3D1E16; background: #FBF6EE; outline: none;"
+            >
+          </div>
+        </div>
+
+        @if (!user()) {
+          <div class="notice-box" style="margin-top: 14px;">
+            <strong>Tip:</strong> You're browsing as a guest. Sign in first so we can match the request to your account and alert you by notification.
+          </div>
+        }
+
+        <ion-button
+          expand="block"
+          [disabled]="submitting()"
+          (click)="submit()"
+          style="--background: #FF5B35; --background-hover: #E04E2B; --color: #fff; --border-radius: 10px; --box-shadow: 0 4px 14px rgba(255,91,53,0.3); font-weight: 700; font-size: 0.85rem; height: 44px; margin-top: 18px;"
+        >
+          {{ submitting() ? 'Sending request…' : 'Send Custom Order Request' }}
+        </ion-button>
+      </div>
+    }
+  </div>
+
+</ion-content>

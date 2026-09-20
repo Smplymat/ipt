@@ -13,8 +13,17 @@ import {
 } from '@ionic/angular';
 import { closeOutline, createOutline, imageOutline, trashOutline, addOutline } from 'ionicons/icons';
 import { AppRole, AuthUser, AuthService } from '../../services/auth.service';
-import { Product, ProductsService, toErrorMessage, ExtraInfoItem } from '../../services/products.service';
+import { Product, ProductsService, toErrorMessage, ExtraInfoItem, LOW_STOCK_THRESHOLD } from '../../services/products.service';
 import { CategoriesService, Category } from '../../services/categories.service';
+import {
+  OrderWithItems,
+  OrdersService,
+  OrderStatus,
+  PaymentMethod,
+  STATUS_LABEL,
+} from '../../services/orders.service';
+
+type AdminTab = 'products' | 'categories' | 'users' | 'inventory' | 'orders' | 'sales';
 
 @Component({
   selector: 'app-admin',
@@ -34,6 +43,7 @@ import { CategoriesService, Category } from '../../services/categories.service';
 export class AdminComponent {
   private readonly productsService = inject(ProductsService);
   private readonly categoriesService = inject(CategoriesService);
+  private readonly ordersService = inject(OrdersService);
   private readonly auth = inject(AuthService);
   private readonly alertCtrl = inject(AlertController);
 
@@ -42,8 +52,20 @@ export class AdminComponent {
     this.user()!.role === 'admin' ? 'Admin' : 'Store Admin'
   );
 
-  readonly tab = signal<'products' | 'categories' | 'users'>('products');
+  /** Exposed for the Inventory template's low-stock badge labels. */
+  readonly LOW_STOCK_THRESHOLD = LOW_STOCK_THRESHOLD;
+
+  /** Number helper for the inventory template (templates can't call Number()). */
+  stockNumber(p: Product): number {
+    return Number(p.stock_quantity) || 0;
+  }
+
+  readonly tab = signal<AdminTab>('products');
   readonly canManageUsers = this.auth.isAdmin;
+
+  /** Inventory tab filter: everything vs. only low/out-of-stock items. */
+  readonly inventoryFilter = signal<'all' | 'low'>('all');
+  readonly lowStockFlagShown = computed(() => this.inventoryFilter() === 'low');
 
   // ── Products state ──────────────────────────────────────────────────────────
 
@@ -73,6 +95,7 @@ export class AdminComponent {
   readonly createCategory = signal('Breads');
   readonly createDescription = signal('');
   readonly createPrice = signal('');
+  readonly createStock = signal('0');
   readonly createIngredients = signal('');
   readonly createNutritionalValue = signal('');
   readonly createExtraInfo = signal<ExtraInfoItem[]>([]);
@@ -88,6 +111,7 @@ export class AdminComponent {
   readonly editCategory = signal('');
   readonly editDescription = signal('');
   readonly editPrice = signal('');
+  readonly editStock = signal('0');
   readonly editIngredients = signal('');
   readonly editNutritionalValue = signal('');
   readonly editExtraInfo = signal<ExtraInfoItem[]>([]);
@@ -101,6 +125,90 @@ export class AdminComponent {
   readonly usersLoading = signal(false);
   readonly usersError = signal<string | null>(null);
   readonly roleUpdatingId = signal<string | null>(null);
+
+  // ── Orders state (staff) ────────────────────────────────────────────────────
+
+  readonly orders = signal<OrderWithItems[]>([]);
+  readonly ordersLoading = signal(false);
+  readonly ordersError = signal<string | null>(null);
+  readonly statusSavingId = signal<string | null>(null);
+  readonly statusError = signal<string | null>(null);
+
+  /** All valid statuses staff may set directly on an order. */
+  readonly statuses: OrderStatus[] = [
+    'pending',
+    'preparing',
+    'out_for_delivery',
+    'ready_for_pickup',
+    'delivered',
+    'cancelled',
+  ];
+
+  // ── Sales state (staff) ─────────────────────────────────────────────────────
+
+  /** Total revenue from non-cancelled orders. */
+  readonly salesRevenue = computed(() =>
+    this.orders()
+      .filter((o) => o.status !== 'cancelled')
+      .reduce((sum, o) => sum + Number(o.total), 0)
+  );
+
+  readonly salesDeliveredRevenue = computed(() =>
+    this.orders()
+      .filter((o) => o.status === 'delivered')
+      .reduce((sum, o) => sum + Number(o.total), 0)
+  );
+
+  readonly salesOrderCount = computed(() => this.orders().length);
+  readonly salesActiveCount = computed(
+    () => this.orders().filter((o) => o.status !== 'cancelled').length
+  );
+
+  /** Order count split by payment method. */
+  readonly salesPaymentSplit = computed(() => {
+    const list = this.orders();
+    return {
+      cod: list.filter((o) => o.payment_method === 'cod').length,
+      online: list.filter((o) => o.payment_method === 'online').length,
+    };
+  });
+
+  /** Best-selling products by total units, across non-cancelled orders. */
+  readonly salesTopProducts = computed(() => {
+    const counts = new Map<string, { name: string; qty: number; revenue: number }>();
+    for (const o of this.orders()) {
+      if (o.status === 'cancelled') continue;
+      for (const it of o.items) {
+        const cur = counts.get(it.name) ?? { name: it.name, qty: 0, revenue: 0 };
+        cur.qty += it.quantity;
+        cur.revenue += Number(it.price) * it.quantity;
+        counts.set(it.name, cur);
+      }
+    }
+    return [...counts.values()].sort((a, b) => b.qty - a.qty).slice(0, 5);
+  });
+
+  /** Revenue per day over the last 7 calendar days (non-cancelled orders). */
+  readonly salesLast7Days = computed(() => {
+    const days: { label: string; revenue: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() - i);
+      const next = new Date(d);
+      next.setDate(d.getDate() + 1);
+      const revenue = this.orders()
+        .filter(
+          (o) =>
+            o.status !== 'cancelled' &&
+            new Date(o.created_at).getTime() >= d.getTime() &&
+            new Date(o.created_at).getTime() < next.getTime()
+        )
+        .reduce((sum, o) => sum + Number(o.total), 0);
+      days.push({ label: d.toLocaleDateString('en-PH', { weekday: 'short' }), revenue });
+    }
+    return days;
+  });
 
   constructor() {
     void this.loadProducts();
@@ -148,6 +256,117 @@ export class AdminComponent {
     } finally {
       this.usersLoading.set(false);
     }
+  }
+
+  async loadOrders(): Promise<void> {
+    this.ordersLoading.set(true);
+    this.ordersError.set(null);
+    try {
+      this.orders.set(await this.ordersService.getOrders());
+    } catch (err) {
+      this.ordersError.set(toErrorMessage(err));
+    } finally {
+      this.ordersLoading.set(false);
+    }
+  }
+
+  /** Sets an order's status directly (any state transition, staff only). */
+  async setOrderStatus(order: OrderWithItems, status: OrderStatus): Promise<void> {
+    if (status === order.status) return;
+    this.statusSavingId.set(order.id);
+    this.statusError.set(null);
+    try {
+      await this.ordersService.updateStatus(order.id, status);
+      this.orders.update((list) =>
+        list.map((o) => (o.id === order.id ? { ...o, status } : o))
+      );
+    } catch (err) {
+      this.statusError.set(`Could not update order #${this.shortOrderId(order)}: ${toErrorMessage(err)}`);
+    } finally {
+      this.statusSavingId.set(null);
+    }
+  }
+
+  /** Increments (delta = +1/-1) the stock of a product from inventory. */
+  async adjustStock(p: Product, delta: number): Promise<void> {
+    const next = Math.max(0, (Number(p.stock_quantity) || 0) + delta);
+    try {
+      const updated = await this.productsService.update(p.id, { stock_quantity: next });
+      this.products.update((list) => list.map((x) => (x.id === updated.id ? updated : x)));
+    } catch (err) {
+      this.formError.set(toErrorMessage(err));
+    }
+  }
+
+  /** Sets a product's stock to an explicit value from inventory. */
+  async setStockQuantity(p: Product, event: Event): Promise<void> {
+    const raw = (event.target as HTMLInputElement).value;
+    const n = Math.max(0, Math.round(Number(raw)));
+    if (isNaN(n)) return;
+    try {
+      const updated = await this.productsService.update(p.id, { stock_quantity: n });
+      this.products.update((list) => list.map((x) => (x.id === updated.id ? updated : x)));
+    } catch (err) {
+      this.formError.set(toErrorMessage(err));
+    }
+  }
+
+  /** Colored badge label for a product's current stock level. */
+  stockBadge(p: Product): { label: string; color: string; bg: string } {
+    const stock = Number(p.stock_quantity) || 0;
+    if (stock <= 0) return { label: 'Out of stock', color: '#E04E2B', bg: 'rgba(255,91,53,0.12)' };
+    if (stock <= LOW_STOCK_THRESHOLD) return { label: `Low stock · ${stock}`, color: '#B47A12', bg: 'rgba(245,166,35,0.16)' };
+    return { label: `In stock · ${stock}`, color: '#2F7D46', bg: 'rgba(61,125,85,0.12)' };
+  }
+
+  /** Display name for a status as used on the admin Orders tab. */
+  statusOptionLabel(status: OrderStatus): string {
+    switch (status) {
+      case 'out_for_delivery':
+        return 'On Delivery';
+      case 'delivered':
+        return 'Finished';
+      default:
+        return STATUS_LABEL[status];
+    }
+  }
+
+  /** Color for an order status chip on the admin Orders tab. */
+  statusChipColor(status: OrderStatus): { fg: string; bg: string } {
+    switch (status) {
+      case 'pending':
+        return { fg: '#C85A1F', bg: 'rgba(255,91,53,0.12)' };
+      case 'preparing':
+        return { fg: '#2F6FB3', bg: 'rgba(47,111,179,0.12)' };
+      case 'out_for_delivery':
+        return { fg: '#6B3A2A', bg: 'rgba(107,58,42,0.12)' };
+      case 'ready_for_pickup':
+        return { fg: '#0E7C7B', bg: 'rgba(23,162,184,0.12)' };
+      case 'delivered':
+        return { fg: '#2F7D46', bg: 'rgba(61,125,85,0.14)' };
+      case 'cancelled':
+        return { fg: '#8B6347', bg: 'rgba(196,168,130,0.25)' };
+      default:
+        return { fg: '#3D1E16', bg: 'rgba(196,168,130,0.2)' };
+    }
+  }
+
+  shortOrderId(order: OrderWithItems): string {
+    return order.id.replace(/-/g, '').slice(0, 8).toUpperCase();
+  }
+
+  formatOrderDate(iso: string): string {
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? '' : d.toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  }
+
+  paymentLabel(p: PaymentMethod): string {
+    return p === 'cod' ? 'Cash on Delivery' : 'Online Payment';
+  }
+
+  /** Bar height (px) for the daily revenue chart, clamped 4..120. */
+  chartHeight(revenue: number): number {
+    return Math.max(4, Math.min(120, Math.round(revenue / 200)));
   }
 
   // ── Category management ──────────────────────────────────────────────────────
@@ -293,6 +512,7 @@ export class AdminComponent {
     this.createCategory.set(this.categoryNames()[0] ?? 'Breads');
     this.createDescription.set('');
     this.createPrice.set('');
+    this.createStock.set('0');
     this.createIngredients.set('');
     this.createNutritionalValue.set('');
     this.createExtraInfo.set([]);
@@ -303,9 +523,12 @@ export class AdminComponent {
   async handleCreate(): Promise<void> {
     const name = this.createName().trim();
     const price = Number(this.createPrice());
+    const stock = Number(this.createStock());
     if (!name) return this.formError.set('Please enter a product name.');
     if (this.createPrice() === '' || isNaN(price) || price < 0)
       return this.formError.set('Please enter a valid price.');
+    if (this.createStock() === '' || isNaN(stock) || stock < 0 || !Number.isInteger(stock))
+      return this.formError.set('Please enter a valid stock quantity (a whole number of items).');
     if (!this.createImageFile())
       return this.formError.set('Please choose a product image.');
 
@@ -323,6 +546,7 @@ export class AdminComponent {
         ingredients: this.createIngredients().trim(),
         nutritional_value: this.createNutritionalValue().trim(),
         extra_info: this.createExtraInfo().filter((i) => i.label.trim() || i.value.trim()),
+        stock_quantity: stock,
       });
       this.products.update((list) => [product, ...list]);
       this.resetCreateForm();
@@ -341,6 +565,7 @@ export class AdminComponent {
     this.editCategory.set(p.category);
     this.editDescription.set(p.description);
     this.editPrice.set(String(p.price));
+    this.editStock.set(String(Number(p.stock_quantity) || 0));
     this.editIngredients.set(p.ingredients ?? '');
     this.editNutritionalValue.set(p.nutritional_value ?? '');
     // Ensure each item has a stable client-side id.
@@ -371,9 +596,12 @@ export class AdminComponent {
   async handleUpdate(p: Product): Promise<void> {
     const name = this.editName().trim();
     const price = Number(this.editPrice());
+    const stock = Number(this.editStock());
     if (!name) return this.formError.set('Please enter a product name.');
     if (this.editPrice() === '' || isNaN(price) || price < 0)
       return this.formError.set('Please enter a valid price.');
+    if (this.editStock() === '' || isNaN(stock) || stock < 0 || !Number.isInteger(stock))
+      return this.formError.set('Please enter a valid stock quantity (a whole number of items).');
 
     this.savingEdit.set(true);
     this.formError.set(null);
@@ -393,6 +621,7 @@ export class AdminComponent {
         ingredients: this.editIngredients().trim(),
         nutritional_value: this.editNutritionalValue().trim(),
         extra_info: this.editExtraInfo().filter((i) => i.label.trim() || i.value.trim()),
+        stock_quantity: stock,
       });
       this.products.update((list) => list.map((x) => (x.id === updated.id ? updated : x)));
       this.cancelEdit();

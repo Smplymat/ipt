@@ -22,11 +22,15 @@ export interface Product {
   ingredients: string;
   nutritional_value: string;
   extra_info: ExtraInfoItem[];
+  stock_quantity: number;
   created_at: string;
 }
 
 export type NewProduct = Omit<Product, 'id' | 'created_at'>;
 export type ProductPatch = Partial<Omit<Product, 'id' | 'created_at'>>;
+
+/** Quantities at or below this count are flagged as low stock. */
+export const LOW_STOCK_THRESHOLD = 5;
 
 const PUBLIC_OBJECT_PREFIX = `/storage/v1/object/public/${SUPABASE_STORAGE_BUCKET}/`;
 

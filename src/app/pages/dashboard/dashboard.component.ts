@@ -16,7 +16,8 @@ import {
   ToastController,
 } from '@ionic/angular';
 import { CartService } from '../../services/cart.service';
-import { Product, ProductsService, toErrorMessage } from '../../services/products.service';
+import { LOW_STOCK_THRESHOLD, Product, ProductsService, toErrorMessage } from '../../services/products.service';
+import { NewsletterService } from '../../services/newsletter.service';
 import { ProductDetailModalComponent } from '../../components/product-detail-modal/product-detail-modal.component';
 
 const TESTIMONIALS = [
@@ -48,6 +49,7 @@ export class DashboardComponent {
   private readonly productsService = inject(ProductsService);
   private readonly cart = inject(CartService);
   private readonly toast = inject(ToastController);
+  private readonly newsletter = inject(NewsletterService);
 
   readonly testimonials = TESTIMONIALS;
 
@@ -105,11 +107,48 @@ export class DashboardComponent {
   }
 
   handleSubscribe(): void {
-    const email = this.email().trim();
-    if (!email || !email.includes('@')) return;
-    this.subscribed.set(true);
-    this.email.set('');
-    setTimeout(() => this.subscribed.set(false), 3000);
+    void this.subscribe(this.email().trim());
+  }
+
+  private async subscribe(email: string): Promise<void> {
+    if (!email || !email.includes('@')) {
+      const t = await this.toast.create({
+        message: 'Please enter a valid email address.',
+        duration: 2000,
+        position: 'bottom',
+      });
+      await t.present();
+      return;
+    }
+    try {
+      const { alreadySubscribed } = await this.newsletter.subscribe(email);
+      this.email.set('');
+      const message = alreadySubscribed
+        ? 'You are already on our list!'
+        : 'Subscribed — welcome to the Knead to Know family!';
+      this.subscribed.set(true);
+      setTimeout(() => this.subscribed.set(false), 3000);
+      const t = await this.toast.create({ message, duration: 2500, position: 'bottom' });
+      await t.present();
+    } catch {
+      const t = await this.toast.create({
+        message: 'Could not subscribe right now. Please try again later.',
+        duration: 2500,
+        position: 'bottom',
+      });
+      await t.present();
+    }
+  }
+
+  /** True when the product has no sellable stock left. */
+  isSoldOut(product: Product): boolean {
+    return (Number(product.stock_quantity) || 0) === 0;
+  }
+
+  /** True when stock is low-but-available (for the "Only X left" hint). */
+  isLowStock(product: Product): boolean {
+    const s = Number(product.stock_quantity) || 0;
+    return s > 0 && s <= LOW_STOCK_THRESHOLD;
   }
 
   openDetail(product: Product): void {
@@ -122,6 +161,7 @@ export class DashboardComponent {
 
   async addToCart(product: Product, event: Event): Promise<void> {
     event.stopPropagation();
+    if (this.isSoldOut(product)) return;
     this.cart.add(product);
     const toast = await this.toast.create({
       message: `${product.name} added to cart 🛒`,

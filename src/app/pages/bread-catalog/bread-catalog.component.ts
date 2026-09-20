@@ -15,7 +15,7 @@ import {
   ToastController,
 } from '@ionic/angular';
 import { CartService } from '../../services/cart.service';
-import { Product, ProductsService, toErrorMessage } from '../../services/products.service';
+import { LOW_STOCK_THRESHOLD, Product, ProductsService, toErrorMessage } from '../../services/products.service';
 import { ProductDetailModalComponent } from '../../components/product-detail-modal/product-detail-modal.component';
 
 export type SortKey = 'default' | 'price_asc' | 'price_desc' | 'rating_desc';
@@ -203,8 +203,20 @@ export class BreadCatalogComponent {
 
   // ── Cart ──────────────────────────────────────────────────────────────────
 
+  /** True when the product has no sellable stock left. */
+  isSoldOut(product: Product): boolean {
+    return (Number(product.stock_quantity) || 0) === 0;
+  }
+
+  /** True when stock is low-but-available (for the "Only X left" hint). */
+  isLowStock(product: Product): boolean {
+    const s = Number(product.stock_quantity) || 0;
+    return s > 0 && s <= LOW_STOCK_THRESHOLD;
+  }
+
   async addToCart(product: Product, event: Event): Promise<void> {
     event.stopPropagation(); // don't open the detail modal
+    if (this.isSoldOut(product)) return;
     this.cart.add(product);
     const t = await this.toast.create({
       message: `${product.name} added to cart 🛒`,

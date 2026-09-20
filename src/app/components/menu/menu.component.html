@@ -44,6 +44,11 @@
                 aria-hidden="true"
               ></ion-icon>
               <ion-label class="menu-nav-label">{{ page.title }}</ion-label>
+              @if (page.url === '/notifications' && unreadCount() > 0) {
+                <ion-badge slot="end" class="menu-badge" [attr.aria-label]="unreadCount() + ' unread notifications'">
+                  {{ unreadCount() }}
+                </ion-badge>
+              }
             </ion-item>
           </ion-menu-toggle>
         }

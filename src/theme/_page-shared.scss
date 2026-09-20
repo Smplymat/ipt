@@ -714,6 +714,41 @@ ion-toolbar {
   letter-spacing: 0.05em;
 }
 
+.promo-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.promo-card__chip {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(61, 30, 22, 0.06);
+  color: $text-secondary;
+  border: 1px solid rgba(61, 30, 22, 0.1);
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.notice-box {
+  background: rgba(255, 91, 53, 0.1);
+  border: 1px solid rgba(255, 91, 53, 0.35);
+  color: #9C3D24;
+  font-size: 0.8rem;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+
+  &--error {
+    background: rgba(211, 47, 47, 0.08);
+    border-color: rgba(211, 47, 47, 0.35);
+    color: #B3261E;
+  }
+}
+
 // ── Orders Page ───────────────────────────────────────────────────────────────
 
 .orders-stat-row {
@@ -1590,20 +1625,72 @@ ion-item.menu-nav-item {
 // ── Print ────────────────────────────────────────────────────────────────────
 
 @media print {
+  // Hide everything that shouldn't appear on paper
   .no-print {
     display: none !important;
   }
 
-  // Flatten Ionic's scroll containers so the whole receipt can print.
-  ion-app,
-  ion-router-outlet,
-  ion-content,
-  ion-content .inner-scroll {
+  // ── Ionic shadow DOM teardown ──────────────────────────────────────────────
+  // ion-content hides its children inside a shadow-DOM scroll div.
+  // We must flatten every layer so the browser print engine can see the DOM.
+
+  ion-app {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    position: static !important;
+    contain: none !important;
+  }
+
+  ion-router-outlet {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    position: static !important;
+    contain: none !important;
+  }
+
+  // The host element
+  ion-content {
+    display: block !important;
     height: auto !important;
     overflow: visible !important;
     contain: none !important;
     position: static !important;
-    display: block !important;
+    // CSS custom property that Ionic reads to set overflow on its inner scroll
+    --overflow: visible !important;
+  }
+
+  // The shadow-DOM scroll container Ionic creates (.inner-scroll / ::part(scroll))
+  ion-content::part(scroll) {
+    overflow: visible !important;
+    height: auto !important;
+    position: static !important;
+    contain: none !important;
+  }
+
+  // Fallback for browsers that don't support ::part() — target the class directly
+  ion-content .inner-scroll {
+    overflow: visible !important;
+    height: auto !important;
+    position: static !important;
+    contain: none !important;
+  }
+
+  ion-header,
+  ion-toolbar,
+  ion-menu,
+  ion-menu-button,
+  ion-split-pane > *:first-child {
+    display: none !important;
+  }
+
+  // ── Page chrome ────────────────────────────────────────────────────────────
+
+  body, html {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
   }
 
   .page-content {
@@ -1611,17 +1698,32 @@ ion-item.menu-nav-item {
     background: #fff !important;
   }
 
+  // ── Receipt block ──────────────────────────────────────────────────────────
+  // Make everything EXCEPT the receipt invisible, then pull the receipt
+  // into normal flow at the top of the page.
+
+  body * {
+    visibility: hidden;
+  }
+
   .receipt-print,
   .receipt-print * {
-    visibility: visible;
+    visibility: visible !important;
   }
 
   .receipt-print {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 8mm !important;
+    box-sizing: border-box !important;
+    background: #fff !important;
+
+    // Ensure coloured backgrounds print (browser default is to strip them)
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
 

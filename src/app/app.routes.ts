@@ -47,6 +47,22 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/feedback/feedback.component').then((m) => m.FeedbackComponent),
   },
   {
+    path: 'custom-order',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/custom-order/custom-order.component').then((m) => m.CustomOrderComponent),
+  },
+  {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/profile/profile.component').then((m) => m.ProfileComponent),
+  },
+  {
+    path: 'notifications',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/notifications/notifications.component').then((m) => m.NotificationsComponent),
+  },
+  {
     path: 'about',
     loadComponent: () => import('./pages/about/about.component').then((m) => m.AboutComponent),
   },

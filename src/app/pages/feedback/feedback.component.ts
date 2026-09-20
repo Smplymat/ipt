@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   IonButton,
@@ -12,26 +12,10 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
-
-// ─── Data ─────────────────────────────────────────────────────────────────────
-
-const REVIEWS = [
-  { id: 1, stars: 5, text: "Hands down the best sourdough I've ever had. The crust is perfectly crackling and the crumb is wonderfully airy. I order every single week!", author: 'Maria Santos', role: 'Loyal Customer · 12 orders', avatar: 'https://i.pravatar.cc/80?img=5', product: 'Classic Sourdough', date: 'Sep 10, 2026' },
-  { id: 2, stars: 5, text: "The Choco Fudge Cake was the star of my daughter's birthday. Moist layers, rich ganache — everyone kept asking where it came from!", author: 'James Reyes', role: 'Happy Dad · 7 orders', avatar: 'https://i.pravatar.cc/80?img=12', product: 'Choco Fudge Cake', date: 'Sep 8, 2026' },
-  { id: 3, stars: 4, text: 'Blueberry muffins are incredibly fresh. Packed with real blueberries and the tops have just the right amount of crunch. Will definitely reorder.', author: 'Leila Cruz', role: 'Regular Customer · 5 orders', avatar: 'https://i.pravatar.cc/80?img=9', product: 'Blueberry Muffins', date: 'Sep 5, 2026' },
-  { id: 4, stars: 5, text: "The cinnamon rolls are unreal — pillowy soft with the perfect cream cheese glaze. Paired with coffee in the morning? Absolute heaven.", author: 'Ryan Ocampo', role: 'Coffee Enthusiast · 9 orders', avatar: 'https://i.pravatar.cc/80?img=33', product: 'Cinnamon Roll', date: 'Sep 2, 2026' },
-];
-
-const RATING_SUMMARY = [
-  { stars: 5, count: 124 },
-  { stars: 4, count: 38 },
-  { stars: 3, count: 12 },
-  { stars: 2, count: 3 },
-  { stars: 1, count: 1 },
-];
-
-const TOTAL_REVIEWS = RATING_SUMMARY.reduce((s, r) => s + r.count, 0);
-const AVG_RATING = (RATING_SUMMARY.reduce((s, r) => s + r.stars * r.count, 0) / TOTAL_REVIEWS).toFixed(1);
+import { AuthService } from '../../services/auth.service';
+import { toErrorMessage } from '../../services/orders.service';
+import { Product, ProductsService } from '../../services/products.service';
+import { ReviewWithProduct, ReviewsService } from '../../services/reviews.service';
 
 @Component({
   selector: 'app-feedback',
@@ -51,33 +35,106 @@ const AVG_RATING = (RATING_SUMMARY.reduce((s, r) => s + r.stars * r.count, 0) / 
   templateUrl: './feedback.component.html',
 })
 export class FeedbackComponent {
-  readonly reviews = REVIEWS;
-  readonly ratingSummary = RATING_SUMMARY;
-  readonly totalReviews = TOTAL_REVIEWS;
-  readonly avgRating = AVG_RATING;
+  private readonly reviewsService = inject(ReviewsService);
+  private readonly productsService = inject(ProductsService);
+  private readonly auth = inject(AuthService);
 
+  readonly user = this.auth.user;
+
+  readonly products = signal<Product[]>([]);
+  readonly reviews = signal<ReviewWithProduct[]>([]);
+  readonly loading = signal(true);
+  readonly errorMessage = signal<string | null>(null);
+
+  // Write form
+  readonly productId = signal('');
   readonly hovered = signal(0);
   readonly selected = signal(0);
-  readonly reviewText = signal('');
-  readonly submitted = signal(false);
+  readonly comment = signal('');
+  readonly submitting = signal(false);
+  readonly formError = signal<string | null>(null);
+  readonly formMessage = signal<string | null>(null);
 
   readonly starLabel = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent!'];
 
+  readonly totalReviews = computed(() => this.reviews().length);
+  readonly avgRating = computed(() =>
+    this.totalReviews() > 0
+      ? this.reviews().reduce((s, r) => s + r.rating, 0) / this.totalReviews()
+      : 0
+  );
+  readonly ratingSummary = computed(() =>
+    [5, 4, 3, 2, 1].map((stars) => ({
+      stars,
+      count: this.reviews().filter((r) => r.rating === stars).length,
+    }))
+  );
+
+  readonly selectedProductLabel = computed(
+    () => this.products().find((p) => p.id === this.productId())?.name ?? ''
+  );
+
+  constructor() {
+    void this.load();
+  }
+
+  async load(): Promise<void> {
+    this.loading.set(true);
+    this.errorMessage.set(null);
+    try {
+      const [products, reviews] = await Promise.all([
+        this.productsService.list(),
+        this.reviewsService.list(),
+      ]);
+      this.products.set(products);
+      this.reviews.set(reviews);
+      if (!this.productId() && products.length > 0) this.productId.set(products[0].id);
+    } catch (err) {
+      this.errorMessage.set(toErrorMessage(err));
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
   ratingPct(r: { stars: number; count: number }): number {
-    return Math.round((r.count / TOTAL_REVIEWS) * 100);
+    return this.totalReviews() > 0 ? Math.round((r.count / this.totalReviews()) * 100) : 0;
+  }
+
+  formatPrice(n: number): string {
+    return `₱${(Number(n) || 0).toFixed(2)}`;
   }
 
   starsString(stars: number): string {
-    return '★'.repeat(stars) + '☆'.repeat(5 - stars);
+    return '★'.repeat(Math.round(stars)) + '☆'.repeat(5 - Math.round(stars));
   }
 
-  handleSubmit(): void {
-    if (this.selected() === 0 || this.reviewText().trim() === '') return;
-    this.submitted.set(true);
-    setTimeout(() => {
-      this.submitted.set(false);
+  formatDate(iso: string): string {
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  async handleSubmit(): Promise<void> {
+    if (this.submitting()) return;
+    if (!this.user()) return this.formError.set('Please sign in to leave a review.');
+    if (!this.productId()) return this.formError.set('Choose a product to review.');
+    if (this.selected() < 1 || this.selected() > 5)
+      return this.formError.set('Pick a star rating (1–5).');
+    if (this.comment().trim().length < 5)
+      return this.formError.set('Tell us a bit more about your order (at least 5 characters).');
+
+    this.submitting.set(true);
+    this.formError.set(null);
+    this.formMessage.set(null);
+    try {
+      await this.reviewsService.save(this.productId(), this.selected(), this.comment().trim());
+      this.formMessage.set('Thanks for the review — it is now live on this page!');
+      this.comment.set('');
       this.selected.set(0);
-      this.reviewText.set('');
-    }, 3000);
+      await this.load();
+    } catch (err) {
+      this.formError.set(toErrorMessage(err));
+    } finally {
+      this.submitting.set(false);
+    }
   }
 }

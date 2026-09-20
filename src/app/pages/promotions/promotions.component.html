@@ -22,7 +22,7 @@
         Save Big on Every<br>Bite 🎉
       </h1>
       <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: rgba(251,246,238,0.7); margin: 0;">
-        Tap a promo code to copy it instantly.
+        Tap <strong>Claim</strong> to save an offer to your account, then use it at checkout.
       </p>
     </div>
   </div>
@@ -30,11 +30,11 @@
   <!-- ── Stats strip ─────────────────────────────────────────────────── -->
   <div style="background: #FF5B35; display: flex; justify-content: space-around; padding: 14px 16px;">
     <div style="text-align: center;">
-      <p style="font-family: 'Inter', sans-serif; font-weight: 900; font-size: 0.95rem; color: #fff; margin: 0 0 2px; line-height: 1;">5</p>
+      <p style="font-family: 'Inter', sans-serif; font-weight: 900; font-size: 0.95rem; color: #fff; margin: 0 0 2px; line-height: 1;">{{ activeCount() }}</p>
       <p style="font-family: 'Inter', sans-serif; font-size: 0.65rem; color: rgba(255,255,255,0.8); margin: 0; letter-spacing: 0.03em;">Active Deals</p>
     </div>
     <div style="text-align: center;">
-      <p style="font-family: 'Inter', sans-serif; font-weight: 900; font-size: 0.95rem; color: #fff; margin: 0 0 2px; line-height: 1;">Up to 20%</p>
+      <p style="font-family: 'Inter', sans-serif; font-weight: 900; font-size: 0.95rem; color: #fff; margin: 0 0 2px; line-height: 1;">Up to {{ maxDiscountPct() }}%</p>
       <p style="font-family: 'Inter', sans-serif; font-size: 0.65rem; color: rgba(255,255,255,0.8); margin: 0; letter-spacing: 0.03em;">Max Discount</p>
     </div>
     <div style="text-align: center;">
@@ -45,35 +45,92 @@
 
   <!-- ── Promo cards ─────────────────────────────────────────────────── -->
   <div style="background: #FBF6EE; padding: 24px 16px 40px;">
-    <p class="bakery-section-eyebrow">Current Offers</p>
+    <p class="bakery-section-eyebrow">Claim Once, Use Any Time</p>
     <h2 class="bakery-section-title" style="margin-bottom: 20px;">
       Promotions &amp; Deals
     </h2>
 
-    @for (promo of promos; track promo.id) {
-      <div class="promo-card">
-        <div [class]="'promo-card__accent promo-card__accent--' + promo.accent"></div>
-        <div class="promo-card__body">
-          <span class="promo-card__badge">{{ promo.badge }}</span>
-          <p class="promo-card__title">{{ promo.title }}</p>
-          <p class="promo-card__desc">{{ promo.desc }}</p>
-          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <button
-              class="promo-card__code"
-              (click)="handleCopy(promo.code)"
-              title="Click to copy"
-              style="cursor: pointer; background: none; border: none; padding: 0;"
-            >
-              <span class="promo-card__code" style="cursor: pointer;">
-                {{ copied() === promo.code ? '✓ Copied!' : promo.code }}
+    @if (loading()) {
+      <div style="display: flex; justify-content: center; padding: 40px 0;">
+        <ion-spinner name="crescent" color="medium"></ion-spinner>
+      </div>
+    } @else if (loadError(); as err) {
+      <div class="notice-box notice-box--error">
+        {{ err }}
+      </div>
+    } @else {
+      @if (notice(); as msg) {
+        <div class="notice-box">
+          {{ msg }}
+        </div>
+      }
+
+      @for (promo of cards(); track promo.id) {
+        <div class="promo-card">
+          <div [class]="'promo-card__accent promo-card__accent--' + promo.accent"></div>
+          <div class="promo-card__body">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <span class="promo-card__badge">{{ badgeFor(promo) }}</span>
+              <span style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #A07850; flex-shrink: 0;">
+                {{ expiryFor(promo) }}
               </span>
-            </button>
-            <span style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #A07850; margin-left: auto;">
-              {{ promo.expiry }}
-            </span>
+            </div>
+            <p class="promo-card__title">{{ promo.title }}</p>
+            <p class="promo-card__desc">{{ promo.description }}</p>
+
+            <div class="promo-card__meta">
+              <span class="promo-card__chip">{{ discountFor(promo) }}</span>
+              <span class="promo-card__chip">{{ eligibilityFor(promo) }}</span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
+              <button
+                class="promo-card__code"
+                (click)="handleCopy(promo.code)"
+                title="Click to copy"
+                style="cursor: pointer; background: none; border: none; padding: 0;"
+              >
+                <span style="cursor: pointer;">
+                  {{ copied() === promo.code ? '✓ Copied!' : promo.code }}
+                </span>
+              </button>
+
+              @if (isClaimed(promo.id)) {
+                <ion-button
+                  size="small"
+                  disabled
+                  style="--border-radius: 10px; --background: #2E7D32; --color: #fff; font-weight: 700;"
+                >
+                  ✓ Claimed
+                </ion-button>
+              } @else {
+                <ion-button
+                  size="small"
+                  (click)="handleClaim(promo)"
+                  [disabled]="isBusy(promo.id)"
+                  style="--border-radius: 10px; --background: #FF5B35; --background-activated: #E24E2C; --color: #fff; font-weight: 700; margin-left: auto;"
+                >
+                  {{ isBusy(promo.id) ? 'Claiming…' : 'Claim' }}
+                </ion-button>
+              }
+            </div>
           </div>
         </div>
-      </div>
+      }
+
+      @if (!user()) {
+        <div style="text-align: center; padding: 8px 0 0;">
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.78rem; color: #7A5830; margin: 0 0 12px;">
+            You are browsing as a guest. <strong>Sign in</strong> to claim offers to your account.
+          </p>
+          <ion-button
+            routerLink="/login"
+            style="--border-radius: 10px; --background: #3D1E16; --background-activated: #2B1712; --color: #FBF6EE; font-weight: 700; font-size: 0.875rem;"
+          >
+            Sign In to Claim
+          </ion-button>
+        </div>
+      }
     }
   </div>
 

@@ -32,7 +32,11 @@ export interface Order {
   delivery_fee: number;
   tax: number;
   total: number;
+  discount: number;
+  voucher_code: string | null;
+  voucher_id: string | null;
   status: OrderStatus;
+  stock_restored: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -51,7 +55,8 @@ export interface OrderWithItems extends Order {
   items: OrderItem[];
 }
 
-export interface NewOrderPayload {
+/** One cart line sent to the server (the server reads price/stock itself). */
+export interface PlaceOrderParams {
   customer_name: string;
   phone: string;
   fulfillment_type: FulfillmentType;
@@ -61,11 +66,16 @@ export interface NewOrderPayload {
   longitude: number | null;
   scheduled_at: string | null;
   payment_method: PaymentMethod;
-  payment_status: 'pending' | 'paid';
-  subtotal: number;
-  delivery_fee: number;
-  tax: number;
-  total: number;
+  promo_code?: string | null;
+}
+
+export interface NewCustomOrderPayload {
+  name: string;
+  phone: string;
+  description: string;
+  quantity: number;
+  /** ISO date string, or null when no deadline was given. */
+  deadline: string | null;
 }
 
 export const STATUS_FLOW_DELIVERY: OrderStatus[] = ['pending', 'preparing', 'out_for_delivery', 'delivered'];
@@ -115,46 +125,28 @@ export class OrdersService {
   // ── Create ────────────────────────────────────────────────────────────────────
 
   /**
-   * Inserts the order row then its line items, best-effort removing the
-   * order if the items insert fails (keeps the DB free of orphan orders).
+   * Places an order by calling the SECURITY DEFINER `place_order` database
+   * function. The client only sends cart lines (product_id + quantity) and the
+   * address/fulfillment details — prices, stock, totals, tax, discounts and
+   * voucher redemption are all computed and validated server-side inside one
+   * transaction. The function returns the created order.
    */
-  async placeOrder(payload: NewOrderPayload, lines: CartLine[]): Promise<Order> {
-    // RLS insert policy requires user_id = auth.uid(), so attach the caller.
-    const {
-      data: { user },
-    } = await this.client.auth.getUser();
-    if (!user) throw new Error('You must be signed in to place an order.');
-    const orderPayload = { ...payload, user_id: user.id };
-
-    let order: Order;
-
-    try {
-      const { data, error } = await this.client
-        .from('orders')
-        .insert(orderPayload)
-        .select()
-        .single<Order>();
-      if (error) throw new Error(error.message);
-      order = data;
-
-      const items = lines.map((l) => ({
-        order_id: order.id,
-        product_id: l.product.id,
-        name: l.product.name,
-        price: l.product.price,
-        quantity: l.quantity,
-        image_url: l.product.image_url ?? '',
-      }));
-      const { error: itemError } = await this.client.from('order_items').insert(items);
-      if (itemError) {
-        await this.client.from('orders').delete().eq('id', order.id);
-        throw new Error(`Order items could not be saved: ${itemError.message}`);
-      }
-    } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Could not place your order.');
-    }
-
-    return order;
+  async placeOrder(params: PlaceOrderParams, lines: CartLine[]): Promise<Order> {
+    const { data, error } = await this.client.rpc('place_order', {
+      p_customer_name: params.customer_name,
+      p_phone: params.phone,
+      p_fulfillment_type: params.fulfillment_type,
+      p_address: params.address,
+      p_unit_notes: params.unit_notes,
+      p_latitude: params.latitude,
+      p_longitude: params.longitude,
+      p_scheduled_at: params.scheduled_at,
+      p_payment_method: params.payment_method,
+      p_cart: lines.map((l) => ({ product_id: l.product.id, quantity: l.quantity })),
+      p_promo_code: params.promo_code ?? null,
+    });
+    if (error) throw new Error(error.message);
+    return data as unknown as Order;
   }
 
   // ── Read ──────────────────────────────────────────────────────────────────────
@@ -216,6 +208,21 @@ export class OrdersService {
       byOrder.set(it.order_id, list);
     }
     return orders.map((o) => ({ ...o, items: byOrder.get(o.id) ?? [] }));
+  }
+
+  /**
+   * Submits a custom / bespoke order request (wedding cakes, bulk bakes, etc.).
+   * The row is tied to the caller; staff get a notification via DB trigger.
+   */
+  async placeCustomOrder(payload: NewCustomOrderPayload): Promise<void> {
+    const {
+      data: { user },
+    } = await this.client.auth.getUser();
+    if (!user) throw new Error('You must be signed in to send a custom order request.');
+    const { error } = await this.client
+      .from('custom_orders')
+      .insert({ ...payload, user_id: user.id });
+    if (error) throw new Error(error.message);
   }
 
   // ── Status updates (staff) ────────────────────────────────────────────────────

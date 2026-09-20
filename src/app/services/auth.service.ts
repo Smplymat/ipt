@@ -197,4 +197,32 @@ export class AuthService {
     const { error } = await this.db.client.from('user_roles').update({ role }).eq('user_id', userId);
     if (error) throw new Error(error.message);
   }
+
+  // ── Profile / account (signed-in user) ────────────────────────────────────
+
+  /**
+   * Updates the signed-in user's display name in both the auth metadata
+   * (drives AuthUser.displayName) and the public profiles row, then refreshes
+   * the cached user signal so the UI reflects the change immediately.
+   */
+  async updateDisplayName(displayName: string): Promise<void> {
+    const name = displayName.trim();
+    if (!name) throw new Error('Display name cannot be empty.');
+
+    const { data: meta, error: metaErr } = await this.db.client.auth.updateUser({
+      data: { display_name: name },
+    });
+    if (metaErr) throw new Error(metaErr.message);
+    if (!meta.user) throw new Error('Could not update your profile.');
+
+    await this.db.client.from('profiles').update({ display_name: name }).eq('id', meta.user.id);
+
+    await this.syncSession({ user: meta.user } as Session);
+  }
+
+  /** Changes the signed-in user's password (session stays valid). */
+  async changePassword(newPassword: string): Promise<void> {
+    const { error } = await this.db.client.auth.updateUser({ password: newPassword });
+    if (error) throw new Error(error.message);
+  }
 }

@@ -227,6 +227,16 @@
                     {{ product.category }}
                   </span>
 
+                  @if (isSoldOut(product)) {
+                    <span style="position: absolute; top: 10px; right: 10px; background: #E04E2B; color: #fff; font-family: 'Inter', sans-serif; font-size: 0.66rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; z-index: 2; letter-spacing: 0.4px;">
+                      Sold Out
+                    </span>
+                  } @else if (isLowStock(product)) {
+                    <span style="position: absolute; top: 10px; right: 10px; background: rgba(245,166,35,0.95); color: #3D1E16; font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; z-index: 2;">
+                      Only {{ product.stock_quantity }} left
+                    </span>
+                  }
+
                   @if (product.ingredients || product.nutritional_value || product.extra_info?.length) {
                     <span style="position: absolute; bottom: 44px; left: 10px; background: rgba(255,91,53,0.15); color: #E04E2B; font-family: 'Inter', sans-serif; font-size: 0.58rem; font-weight: 700; padding: 2px 6px; border-radius: 5px; z-index: 2; line-height: 1.4; border: 1px solid rgba(255,91,53,0.3);">
                       ℹ Details
@@ -251,8 +261,11 @@
                       class="bakery-product-card__btn"
                       fill="solid"
                       (click)="addToCart(product, $event)"
+                      [disabled]="isSoldOut(product)"
+                      [style.--background]="isSoldOut(product) ? '#C9C2B4' : undefined"
+                      [style.--color]="isSoldOut(product) ? '#5A4638' : undefined"
                     >
-                      {{ formatPrice(product.price) }} · Add
+                      @if (isSoldOut(product)) { Sold Out } @else { {{ formatPrice(product.price) }} · Add }
                     </ion-button>
                   </div>
 
@@ -282,7 +295,7 @@
       <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 800; color: #FBF6EE; margin: 0 0 4px; line-height: 1.2;">Can't find what you want?</p>
       <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: rgba(251,246,238,0.65); margin: 0;">We take custom orders for any occasion.</p>
     </div>
-    <ion-button routerLink="/orders" style="--background: #FF5B35; --background-activated: #E04E2B; --color: #fff; --border-radius: 10px; --padding-start: 20px; --padding-end: 20px; --box-shadow: 0 4px 14px rgba(255,91,53,0.35); font-weight: 700; font-size: 0.85rem; flex-shrink: 0;">
+    <ion-button routerLink="/custom-order" style="--background: #FF5B35; --background-activated: #E04E2B; --color: #fff; --border-radius: 10px; --padding-start: 20px; --padding-end: 20px; --box-shadow: 0 4px 14px rgba(255,91,53,0.35); font-weight: 700; font-size: 0.85rem; flex-shrink: 0;">
       Custom Order
     </ion-button>
   </div>

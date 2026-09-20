@@ -7,138 +7,161 @@
 
 <ion-content class="page-content" [scrollY]="true">
 
-  <!-- ── Rating summary banner ───────────────────────────────────────── -->
-  <div class="bakery-section bakery-section--beige" style="padding-bottom: 24px;">
-    <p class="bakery-section-eyebrow">Customer Feedback</p>
+  <!-- ── Summary header ─────────────────────────────────────────────── -->
+  <div class="bakery-section bakery-section--beige" style="padding-bottom: 22px;">
+    <p class="bakery-section-eyebrow">Ratings &amp; Reviews</p>
     <h2 class="bakery-section-title">What Our Customers Say</h2>
-
-    <div style="background: #fff; border-radius: 16px; padding: 20px; border: 1px solid #EDE0CC; display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
-      <!-- Big average -->
-      <div style="text-align: center; min-width: 80px;">
-        <p style="font-family: 'Inter', sans-serif; font-size: 3rem; font-weight: 900; color: #3D1E16; margin: 0; line-height: 1;">{{ avgRating }}</p>
-        <p style="color: #F5A623; font-size: 1rem; margin: 4px 0 2px; letter-spacing: 2px;">★★★★★</p>
-        <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: #8B6347; margin: 0;">{{ totalReviews }} reviews</p>
-      </div>
-
-      <!-- Bar breakdown -->
-      <div style="flex: 1; min-width: 160px;">
-        @for (r of ratingSummary; track r.stars) {
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
-            <span style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: #3D1E16; font-weight: 600; width: 12px; text-align: right; flex-shrink: 0;">{{ r.stars }}</span>
-            <span style="color: #F5A623; font-size: 0.65rem; flex-shrink: 0;">★</span>
-            <div style="flex: 1; height: 7px; background: #EDE0CC; border-radius: 4px; overflow: hidden;">
-              <div [style.width.%]="ratingPct(r)" [style.height.%]="100" [style.border-radius]="'4px'" [style.transition]="'width 0.4s ease'" [style.background]="r.stars >= 4 ? '#FF5B35' : r.stars === 3 ? '#F5A623' : '#C0A080'"></div>
-            </div>
-            <span style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #8B6347; width: 28px; flex-shrink: 0;">{{ ratingPct(r) }}%</span>
-          </div>
-        }
-      </div>
-    </div>
+    <p class="bakery-section-subtitle">
+      Real ratings from real orders — pick an item you've tried, rate it, and share the experience.
+    </p>
   </div>
 
-  <!-- ── Review cards ────────────────────────────────────────────────── -->
-  <div class="bakery-testimonial-section" style="padding-top: 28px;">
-    <p class="bakery-section-eyebrow">Recent Reviews</p>
-    <ion-grid style="padding: 0;">
-      <ion-row>
-        @for (review of reviews; track review.id) {
-          <ion-col size="12" size-md="6" style="padding: 6px;">
-            <div class="bakery-testimonial-card">
-              <!-- stars -->
-              <div class="bakery-testimonial-card__stars">
-                {{ starsString(review.stars) }}
-              </div>
+  <div style="background: #FBF6EE; padding: 0 16px 40px;">
 
-              <!-- product tag -->
-              <span style="display: inline-block; background: rgba(255,91,53,0.1); color: #FF5B35; font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-bottom: 8px;">
-                {{ review.product }}
-              </span>
-
-              <p class="bakery-testimonial-card__text">"{{ review.text }}"</p>
-
-              <div class="bakery-testimonial-card__author">
-                <img [src]="review.avatar" [alt]="review.author">
-                <div style="flex: 1; min-width: 0;">
-                  <p class="author-name">{{ review.author }}</p>
-                  <p class="author-role">{{ review.role }}</p>
-                </div>
-                <span style="font-family: 'Inter', sans-serif; font-size: 0.65rem; color: #A07850; flex-shrink: 0;">
-                  {{ review.date }}
-                </span>
-              </div>
-            </div>
-          </ion-col>
-        }
-      </ion-row>
-    </ion-grid>
-  </div>
-
-  <!-- ── Submit review form ──────────────────────────────────────────── -->
-  <div style="background: #FAF3E0; padding: 32px 20px 48px;">
-    <p class="bakery-section-eyebrow">Share Your Experience</p>
-    <h2 class="bakery-section-title" style="margin-bottom: 20px;">
-      Leave a Review
-    </h2>
-
-    @if (submitted()) {
-      <div style="background: #fff; border-radius: 16px; padding: 32px 24px; text-align: center; border: 1px solid #EDE0CC;">
-        <p style="font-size: 2.5rem; margin: 0 0 12px;">🎉</p>
-        <p style="font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.05rem; color: #3D1E16; margin: 0 0 6px;">
-          Thank you for your feedback!
-        </p>
-        <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">
-          Your review helps us bake even better for you.
-        </p>
+    @if (errorMessage(); as err) {
+      <div style="text-align: center; padding: 40px 20px;">
+        <p style="font-size: 2rem; margin: 0 0 10px;">⚠️</p>
+        <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">Could not load reviews</p>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0 0 14px;">{{ err }}</p>
+        <ion-button fill="outline" (click)="load()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
+      </div>
+    } @else if (loading()) {
+      <div style="text-align: center; padding: 48px 20px;">
+        <div style="width: 34px; height: 34px; border: 3px solid #EDE0CC; border-top-color: #FF5B35; border-radius: 50%; margin: 0 auto 14px; animation: spin 0.8s linear infinite;"></div>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Loading reviews…</p>
       </div>
     } @else {
-      <div class="feedback-form-card">
 
-        <!-- Star picker -->
-        <label class="feedback-form-label">Your Rating</label>
-        <div class="feedback-star-row">
-          @for (n of [1, 2, 3, 4, 5]; track n) {
-            <span
-              class="feedback-star"
-              [class.feedback-star--active]="n <= (hovered() || selected())"
-              (mouseenter)="hovered.set(n)"
-              (mouseleave)="hovered.set(0)"
-              (click)="selected.set(n)"
-              role="button"
-              [attr.aria-label]="n + ' star' + (n !== 1 ? 's' : '')"
-            >
-              ★
-            </span>
-          }
+      <!-- ── Rating bars + write form row ─────────────────────────── -->
+      <ion-grid style="padding: 0; margin-top: 18px;">
+        <ion-row class="ion-align-items-start">
+
+          <!-- Rating summary -->
+          <ion-col size="12" size-md="5" style="padding: 6px;">
+            <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 16px; padding: 18px 18px 14px; box-shadow: 0 1px 5px rgba(61,30,22,0.05);">
+              <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px;">
+                <p style="font-family: 'Inter', sans-serif; font-size: 2.3rem; font-weight: 800; color: #3D1E16; margin: 0;">{{ avgRating().toFixed(1) }}</p>
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #F5A623; margin: 0; letter-spacing: 1px;">{{ starsString(avgRating()) }}</p>
+              </div>
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.74rem; color: #8B6347; margin: 0 0 12px;">
+                Based on {{ totalReviews() }} review{{ totalReviews() === 1 ? '' : 's' }}
+              </p>
+              @for (r of ratingSummary(); track r.stars) {
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
+                  <span style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #3D1E16; width: 52px; flex-shrink: 0;">{{ r.stars }} ★</span>
+                  <div style="flex: 1; height: 8px; border-radius: 6px; background: #FAF3E0; overflow: hidden;">
+                    <div style="height: 100%; width: {{ ratingPct(r) }}%; background: #F5A623; border-radius: 6px;"></div>
+                  </div>
+                  <span style="font-family: 'Inter', sans-serif; font-size: 0.66rem; color: #A07850; width: 30px; text-align: right;">{{ r.count }}</span>
+                </div>
+              }
+            </div>
+          </ion-col>
+
+          <!-- Write a review -->
+          <ion-col size="12" size-md="7" style="padding: 6px;">
+            <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 16px; padding: 18px; box-shadow: 0 1px 5px rgba(61,30,22,0.05);">
+              <p class="bakery-section-eyebrow" style="margin-bottom: 10px;">Leave a review</p>
+
+              @if (!user()) {
+                <div class="notice-box">
+                  <strong>Sign in required.</strong> Please log in to share your honest review of our bakes.
+                  <ion-button fill="clear" routerLink="/login" style="--color: #FF5B35; font-size: 0.78rem; font-weight: 700; margin: 0; --padding-start: 4px;">Log in →</ion-button>
+                </div>
+              }
+
+              <label class="admin-field-label">Product</label>
+              <select
+                [value]="productId()"
+                (change)="productId.set($any($event.target).value)"
+                class="admin-select"
+                style="width: 100%; margin-bottom: 12px;"
+              >
+                @for (p of products(); track p.id) {
+                  <option [value]="p.id">{{ p.name }} ({{ formatPrice(p.price) }})</option>
+                }
+              </select>
+
+              <label class="admin-field-label">Rating</label>
+              <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                @for (star of [1, 2, 3, 4, 5]; track star) {
+                  <button
+                    (mouseenter)="hovered.set(star)"
+                    (mouseleave)="hovered.set(0)"
+                    (click)="selected.set(star)"
+                    style="background: none; border: none; font-size: 1.6rem; cursor: pointer; padding: 0; line-height: 1;"
+                    [attr.aria-label]="star + ' star'"
+                  >
+                    {{ star <= (hovered() || selected()) ? '★' : '☆' }}
+                  </button>
+                }
+              </div>
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: #F5A623; margin: 0 0 12px; min-height: 16px;">
+                @if (selected() > 0) { {{ selected() }}/5 · {{ starLabel[selected()] }} }
+              </p>
+
+              <label class="admin-field-label">Your review</label>
+              <ion-textarea
+                placeholder="How was it? Crumb, flavor, delivery experience…"
+                [value]="comment()"
+                (ionInput)="comment.set($event.detail.value ?? '')"
+                rows="4"
+                style="--background: #FBF6EE; --border-radius: 10px; border: 1px solid #EDE0CC; margin-bottom: 12px;"
+              ></ion-textarea>
+
+              @if (formError(); as err) {
+                <div style="background: rgba(255,91,53,0.1); border: 1px solid rgba(255,91,53,0.35); color: #E04E2B; border-radius: 10px; padding: 10px 12px; font-family: 'Inter', sans-serif; font-size: 0.76rem; margin-bottom: 10px;">{{ err }}</div>
+              }
+              @if (formMessage(); as msg) {
+                <div style="background: rgba(61,125,85,0.1); border: 1px solid rgba(61,125,85,0.35); color: #2F7D46; border-radius: 10px; padding: 10px 12px; font-family: 'Inter', sans-serif; font-size: 0.76rem; margin-bottom: 10px;">{{ msg }}</div>
+              }
+
+              <ion-button expand="block" [disabled]="submitting()" (click)="handleSubmit()" style="--background: #FF5B35; --background-hover: #E04E2B; --color: #fff; --border-radius: 10px; font-weight: 700; font-size: 0.84rem; height: 42px;">
+                {{ submitting() ? 'Publishing…' : 'Post Review' }}
+              </ion-button>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <!-- ── Review list ──────────────────────────────────────────── -->
+      @if (totalReviews() === 0) {
+        <div style="text-align: center; padding: 36px 20px;">
+          <p style="font-size: 2.5rem; margin: 0 0 12px;">🍞</p>
+          <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">No reviews yet</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Be the first to review one of our bakes!</p>
         </div>
-        @if (selected() > 0) {
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.78rem; color: #FF5B35; font-weight: 600; text-align: center; margin: -8px 0 16px;">
-            {{ starLabel[selected()] }}
-          </p>
+      } @else {
+        @for (review of reviews(); track review.id) {
+          <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 16px; padding: 16px 18px; margin-top: 10px; box-shadow: 0 1px 5px rgba(61,30,22,0.05);">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;">
+              <div style="width: 38px; height: 38px; border-radius: 50%; background: #FAF3E0; color: #3D1E16; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; text-transform: uppercase; flex-shrink: 0;">
+                {{ (review.author || '?')[0] }}
+              </div>
+              <div style="flex: 1; min-width: 140px;">
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: #3D1E16; margin: 0;">
+                  {{ review.author }}
+                  @if (review.product) {
+                    <span style="background: rgba(255,91,53,0.1); color: #FF5B35; font-size: 0.62rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; margin-left: 6px; vertical-align: middle;">
+                      {{ review.product.name }}
+                    </span>
+                  }
+                </p>
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #A07850; margin: 2px 0 0;">
+                  {{ formatDate(review.created_at) }}
+                </p>
+              </div>
+              <span style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #F5A623; letter-spacing: 1px; flex-shrink: 0;">
+                {{ starsString(review.rating) }}
+              </span>
+            </div>
+            @if (review.comment) {
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.84rem; color: #5A3A28; margin: 6px 0 0; line-height: 1.5;">"{{ review.comment }}"</p>
+            }
+          </div>
         }
-
-        <!-- Text area -->
-        <label class="feedback-form-label" style="margin-top: 8px;">
-          Your Review
-        </label>
-        <ion-textarea
-          [rows]="4"
-          placeholder="Tell us about your experience — what did you order and what did you love?"
-          [value]="reviewText()"
-          (ionInput)="reviewText.set($event.detail.value ?? '')"
-          style="--background: #FBF6EE; --color: #3D1E16; --placeholder-color: #C4A882; --border-radius: 10px; --padding-start: 14px; --padding-end: 14px; --padding-top: 12px; --padding-bottom: 12px; border: 1.5px solid #EDE0CC; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.875rem; margin-bottom: 16px; display: block;"
-        ></ion-textarea>
-
-        <ion-button
-          expand="block"
-          class="feedback-submit-btn"
-          [disabled]="selected() === 0 || reviewText().trim() === ''"
-          (click)="handleSubmit()"
-        >
-          Submit Review
-        </ion-button>
-      </div>
+      }
     }
-
   </div>
 
 </ion-content>

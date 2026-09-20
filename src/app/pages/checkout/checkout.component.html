@@ -327,11 +327,101 @@
   <!-- ── Summary + place order ─────────────────────────────────────── -->
   <div style="background: #3D1E16; padding: 24px 20px 40px;">
 
+    <!-- ── Apply Discount / Voucher ───────────────────────────────── -->
+    <div style="background: #2B1712; border-radius: 16px; border: 1px solid rgba(251,246,238,0.14); padding: 16px 18px; margin-bottom: 12px;">
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 800; color: #FBF6EE; margin: 0 0 10px;">
+        🏷️ Apply Discount / Voucher
+      </p>
+
+      <!-- ── Promo code entry ─────────────────────────────────────── -->
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; align-items: center;">
+        <input
+          type="text"
+          placeholder="Enter promo code, e.g. BREADLOVER"
+          [value]="promoCode()"
+          (input)="promoCode.set($any($event.target).value); clearPromoMessages()"
+          style="
+            flex: 1; min-width: 0; padding: 10px 12px; border: 1.5px solid rgba(251,246,238,0.2);
+            border-radius: 10px; background: rgba(251,246,238,0.08); color: #FBF6EE;
+            font-family: 'Inter', sans-serif; font-size: 0.8rem; letter-spacing: 1px;
+            text-transform: uppercase; outline: none;
+          "
+        >
+        <ion-button
+          size="small"
+          [disabled]="promoApplying()"
+          (click)="applyPromoCode()"
+          style="--background: #FF5B35; --color: #fff; --border-radius: 10px; --padding-start: 14px; --padding-end: 14px; font-weight: 700; font-size: 0.74rem; height: 38px; flex-shrink: 0;"
+        >
+          {{ promoApplying() ? '…' : 'Apply' }}
+        </ion-button>
+      </div>
+
+      @if (promoMessage(); as msg) {
+        <p style="margin: 0 0 12px; font-size: 0.76rem; font-family: 'Inter', sans-serif; {{ msg.ok ? 'color: #9BE8C4;' : 'color: #FFB3A1;' }}">
+          {{ msg.text }}
+        </p>
+      }
+
+      @if (vouchersLoading()) {
+        <div style="display: flex; align-items: center; gap: 8px; color: rgba(251,246,238,0.7); font-size: 0.8rem;">
+          <ion-spinner name="crescent" color="medium" style="width: 18px; height: 18px;"></ion-spinner>
+          Loading your vouchers…
+        </div>
+      } @else if (vouchersError(); as err) {
+        <p style="color: #FFB3A1; font-size: 0.78rem; margin: 0;">{{ err }}</p>
+      } @else if (claimedVouchers().length === 0) {
+        <p style="color: rgba(251,246,238,0.65); font-size: 0.78rem; margin: 0;">
+          No claimed vouchers yet.
+          <a routerLink="/promotions" style="color: #FF5B35; font-weight: 700; text-decoration: none;">Browse promotions →</a>
+        </p>
+      } @else {
+        <select
+          class="checkout-field__input"
+          [value]="selectedVoucher()?.id ?? ''"
+          (change)="onVoucherChange($any($event.target).value)"
+          style="width: 100%; color: #3D1E16;"
+        >
+          <option value="">No voucher</option>
+          @for (claim of claimedVouchers(); track claim.id) {
+            <option [value]="claim.voucher_id">{{ voucherLabel(claim) }}</option>
+          }
+        </select>
+
+        @if (selectedVoucher(); as v) {
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+            <span style="color: #9BE8C4; font-weight: 700; font-size: 0.78rem;">
+              {{ v.discount_type === 'percent' ? v.discount_value + '% off' : formatPrice(v.discount_value) + ' off' }}
+              @if (v.max_discount != null) { · up to {{ formatPrice(v.max_discount) }} }
+            </span>
+            <button
+              (click)="clearVoucher()"
+              style="background: none; border: none; color: #FFB3A1; font-size: 0.75rem; font-family: 'Inter', sans-serif; cursor: pointer; padding: 0; text-decoration: underline;"
+            >
+              Remove
+            </button>
+          </div>
+          @if (voucherNote(); as note) {
+            <p style="color: #FFB3A1; font-size: 0.75rem; margin: 8px 0 0;">⚠️ {{ note }}</p>
+          }
+        }
+      }
+    </div>
+
     <div style="background: #2B1712; border-radius: 16px; border: 1px solid rgba(251,246,238,0.14); padding: 18px 18px 6px;">
       <div class="summary-row">
         <span>Subtotal ({{ itemCount() }} item{{ itemCount() === 1 ? '' : 's' }})</span>
         <span>{{ formatPrice(subtotal()) }}</span>
       </div>
+      @if (discount() > 0) {
+        <div class="summary-row" style="color: #9BE8C4;">
+          <span>
+            Discount
+            @if (selectedVoucher(); as v) { ({{ v.code }}) }
+          </span>
+          <span style="color: #9BE8C4; font-weight: 700;">− {{ formatPrice(discount()) }}</span>
+        </div>
+      }
       <div class="summary-row">
         <span>
           @if (fulfillment() === 'pickup') { Pickup (no delivery fee) } @else { Delivery fee }

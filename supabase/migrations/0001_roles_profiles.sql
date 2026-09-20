@@ -45,6 +45,21 @@ grant execute on function public.has_role(text) to anon, authenticated, service_
 
 -- 4) Automatic profile + role assignment on signup.
 --    The very FIRST account becomes Admin; every later signup becomes Customer.
+--
+--    ⚠️  IMPORTANT (Admin semantics)
+--    This is a per-database bootstrap rule, not an identity claim about any
+--    particular person:
+--      * On an EMPTY database the first user to sign up gets the 'admin' role.
+--      * The backfill below promotes the OLDEST existing user (lowest
+--        created_at) on any database that already has auth.users when this
+--        script first runs — NOT necessarily the account that originally
+--        bootstrapped the project.
+--      * After that first backfill, new signups only become 'admin' while
+--        user_roles is empty (i.e. never, in practice).
+--    If you need a specific person to be admin, set the role directly:
+--        insert into public.user_roles (user_id, role)
+--        values ('<uuid>', 'admin')
+--        on conflict (user_id) do update set role = 'admin';
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql security definer set search_path = public

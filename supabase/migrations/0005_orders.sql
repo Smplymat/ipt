@@ -8,8 +8,12 @@
 -- exactly as defined below. Safe to re-run any number of times (it wipes any
 -- existing orders).
 --
--- Status flow (driven by staff in the Fulfillment view):
---   pending → preparing → out_for_delivery → delivered     (cancelled anytime)
+-- fulfillment_type: 'delivery' (default) or 'pickup'
+-- scheduled_at:     NULL = ASAP, otherwise requested delivery/pickup datetime
+-- Status flow:
+--   delivery:  pending → preparing → out_for_delivery → delivered
+--   pickup:    pending → preparing → ready_for_pickup → delivered
+--   (cancelled anytime by staff OR by the customer while still 'pending')
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- 0) Reset
@@ -22,10 +26,16 @@ create table public.orders (
   user_id          uuid references auth.users(id) on delete set null,
   customer_name    text not null,
   phone            text not null,
-  address          text not null,
+  -- Fulfillment mode
+  fulfillment_type text not null default 'delivery'
+                   check (fulfillment_type in ('delivery', 'pickup')),
+  -- Address fields are empty for pickup orders
+  address          text not null default '',
   unit_notes       text not null default '',
   latitude         double precision,
   longitude        double precision,
+  -- Schedule: null = ASAP, otherwise the requested datetime
+  scheduled_at     timestamptz,
   payment_method   text not null default 'cod'
                    check (payment_method in ('cod', 'online')),
   payment_status   text not null default 'pending'
@@ -35,7 +45,8 @@ create table public.orders (
   tax              numeric(10,2) not null default 0,
   total            numeric(10,2) not null default 0,
   status           text not null default 'pending'
-                   check (status in ('pending', 'preparing', 'out_for_delivery', 'delivered', 'cancelled')),
+                   check (status in ('pending', 'preparing', 'out_for_delivery',
+                                     'ready_for_pickup', 'delivered', 'cancelled')),
   created_at       timestamptz not null default now(),
   updated_at       timestamptz not null default now()
 );
@@ -53,9 +64,10 @@ create table public.order_items (
 );
 
 -- 3) indexes
-create index if not exists idx_orders_user          on public.orders (user_id);
-create index if not exists idx_orders_status        on public.orders (status);
-create index if not exists idx_order_items_order    on public.order_items (order_id);
+create index if not exists idx_orders_user        on public.orders (user_id);
+create index if not exists idx_orders_status      on public.orders (status);
+create index if not exists idx_orders_scheduled   on public.orders (scheduled_at);
+create index if not exists idx_order_items_order  on public.order_items (order_id);
 
 -- 4) updated_at upkeep
 create or replace function public.set_updated_at()
@@ -83,18 +95,30 @@ create policy "orders_select" on public.orders
 create policy "orders_insert" on public.orders
   for insert with check (user_id = auth.uid());
 
--- orders ─ update: staff only (status / payment tracking).
+-- orders ─ update: staff may update any field;
+--                  customers may only cancel their own PENDING order.
+drop policy if exists "orders_update" on public.orders;
 create policy "orders_update" on public.orders
   for update using (
+    -- staff can update anything
     public.has_role('store_admin') or public.has_role('admin')
+    -- customer can cancel their own order while it is still pending
+    or (user_id = auth.uid() and status = 'pending')
+  )
+  with check (
+    public.has_role('store_admin') or public.has_role('admin')
+    or (user_id = auth.uid() and status = 'cancelled')
   );
 
--- orders ─ delete: owner (e.g. client-side cleanup of a failed order) or staff.
+-- orders ─ delete: staff only. Customers no longer delete their own orders —
+-- the checkout creates orders through the SECURITY DEFINER `place_order`
+-- function (see 0008) which is transactional, so there is no orphan-cleanup
+-- path left, and allowing self-delete would let customers erase their order
+-- history. Deleting a non-cancelled order restores its stock (see 0008).
+drop policy if exists "orders_delete" on public.orders;
 create policy "orders_delete" on public.orders
   for delete using (
-    user_id = auth.uid()
-    or public.has_role('store_admin')
-    or public.has_role('admin')
+    public.has_role('store_admin') or public.has_role('admin')
   );
 
 -- order_items ─ select: via an order the user owns, or staff.

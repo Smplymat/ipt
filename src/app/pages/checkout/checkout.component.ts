@@ -6,13 +6,19 @@ import {
   IonContent,
   IonHeader,
   IonMenuButton,
+  IonSpinner,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { MapsService } from '../../services/maps.service';
-import { FulfillmentType, NewOrderPayload, OrdersService, toErrorMessage } from '../../services/orders.service';
+import { FulfillmentType, OrdersService, PlaceOrderParams, toErrorMessage } from '../../services/orders.service';
+import {
+  UserVoucherWithVoucher,
+  VouchersService,
+  type Voucher,
+} from '../../services/vouchers.service';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -42,6 +48,7 @@ const MIN_SCHEDULE_MINUTES = 30;
     IonContent,
     IonHeader,
     IonMenuButton,
+    IonSpinner,
     IonTitle,
     IonToolbar,
   ],
@@ -52,6 +59,7 @@ export class CheckoutComponent {
   private readonly orders = inject(OrdersService);
   private readonly maps = inject(MapsService);
   private readonly auth = inject(AuthService);
+  private readonly vouchers = inject(VouchersService);
   private readonly router = inject(Router);
 
   readonly form = signal<DeliveryForm>({ ...EMPTY_FORM });
@@ -96,6 +104,87 @@ export class CheckoutComponent {
   readonly total = this.cart.total;
   readonly itemCount = this.cart.itemCount;
 
+  // ── Voucher / discount ───────────────────────────────────────────────
+  readonly selectedVoucher = this.cart.selectedVoucher;
+  readonly discount = this.cart.discount;
+  readonly taxable = this.cart.taxable;
+  readonly voucherNote = this.cart.voucherNote;
+
+  /** The user's claimed (not yet redeemed) vouchers to pick from. */
+  readonly claimedVouchers = signal<UserVoucherWithVoucher[]>([]);
+  readonly vouchersLoading = signal(false);
+  readonly vouchersError = signal<string | null>(null);
+
+  /** Short label for a claimed voucher inside the voucher picker. */
+  voucherLabel(c: UserVoucherWithVoucher): string {
+    const v = c.voucher;
+    const off = v.discount_type === 'percent' ? `${v.discount_value}% off` : `₱${v.discount_value.toFixed(2)} off`;
+    const scope = v.eligible_categories?.length ? v.eligible_categories.join(' or ') : 'any order';
+    return `${v.code} · ${off} on ${scope}`;
+  }
+
+  // ── Promo code entry ────────────────────────────────────────────────────
+  readonly promoCode = signal('');
+  readonly promoApplying = signal(false);
+  readonly promoMessage = signal<{ ok: boolean; text: string } | null>(null);
+
+  /** Looks up a code via findCode and applies it to the cart. */
+  async applyPromoCode(): Promise<void> {
+    const code = this.promoCode().trim();
+    if (!code) {
+      return this.promoMessage.set({ ok: false, text: 'Enter a promo code first.' });
+    }
+    this.promoApplying.set(true);
+    this.promoMessage.set(null);
+    try {
+      const voucher = await this.vouchers.findByCode(code);
+      if (!voucher) {
+        return this.promoMessage.set({ ok: false, text: `"${code}" is not a valid promo code right now.` });
+      }
+      this.cart.applyVoucher(voucher);
+      this.promoCode.set('');
+      const note = this.cart.voucherNote();
+      this.promoMessage.set(
+        note
+          ? { ok: false, text: `Code applied but can't be used yet: ${note}.` }
+          : { ok: true, text: `${voucher.code} applied — enjoy your discount! 🎉` }
+      );
+    } catch (err) {
+      this.promoMessage.set({ ok: false, text: toErrorMessage(err) });
+    } finally {
+      this.promoApplying.set(false);
+    }
+  }
+
+  clearPromoMessages(): void {
+    this.promoMessage.set(null);
+  }
+
+  private async loadClaimedVouchers(): Promise<void> {
+    this.vouchersLoading.set(true);
+    this.vouchersError.set(null);
+    try {
+      const all = await this.vouchers.myClaimed();
+      this.claimedVouchers.set(
+        all.filter((c) => c.status === 'claimed' && c.voucher)
+      );
+    } catch (err) {
+      this.vouchersError.set(toErrorMessage(err));
+    } finally {
+      this.vouchersLoading.set(false);
+    }
+  }
+
+  /** Applies (or clears) the voucher selected in the picker. */
+  onVoucherChange(voucherId: string): void {
+    const found = this.claimedVouchers().find((c) => c.voucher_id === voucherId);
+    this.cart.applyVoucher(found?.voucher ?? null);
+  }
+
+  clearVoucher(): void {
+    this.cart.clearVoucher();
+  }
+
   readonly errors = computed<FormErrors>(() => {
     const f = this.form();
     const errs: FormErrors = {};
@@ -136,6 +225,9 @@ export class CheckoutComponent {
     if (this.mapConfigured) {
       afterNextRender(() => this.initMapTools());
     }
+
+    // Load the user's claimed vouchers so they can apply a discount.
+    void this.loadClaimedVouchers();
   }
 
   // ── Bag quantity helper ─────────────────────────────────────────────────────
@@ -200,16 +292,23 @@ export class CheckoutComponent {
     if (this.scheduleError()) return;
     if (this.placing()) return;
 
+    // A selected voucher must actually apply — surface the reason otherwise.
+    if (this.selectedVoucher() && this.voucherNote()) {
+      this.orderError.set(
+        `The selected voucher cannot be used: ${this.voucherNote()}. Remove it or adjust your order.`
+      );
+      return;
+    }
+
     this.placing.set(true);
     this.orderError.set(null);
     try {
       const f = this.form();
 
       // Online payment: simulated gateway round trip (swap in a real SDK here).
-      let paymentStatus: 'pending' | 'paid' = 'pending';
+      // The server derives payment_status from payment_method (online → paid).
       if (this.payment() === 'online') {
         await this.delay(1200);
-        paymentStatus = 'paid';
       }
 
       // Resolve scheduled_at
@@ -219,8 +318,13 @@ export class CheckoutComponent {
           : null;
 
       const isPickup = this.fulfillment() === 'pickup';
+      const voucher = this.selectedVoucher();
 
-      const payload: NewOrderPayload = {
+      // Only the cart line ids/quantities + contact/schedule info go to the
+      // server. Prices, stock, totals, tax, discount and voucher redemption
+      // are computed by the SECURITY DEFINER `place_order` function (see 0008).
+      // The numbers shown in the summary above are a client-side preview only.
+      const params: PlaceOrderParams = {
         customer_name: f.name.trim(),
         phone: f.phone.trim(),
         fulfillment_type: this.fulfillment(),
@@ -230,16 +334,14 @@ export class CheckoutComponent {
         longitude: isPickup ? null : f.lng,
         scheduled_at: scheduledAt,
         payment_method: this.payment(),
-        payment_status: paymentStatus,
-        subtotal: this.subtotal(),
-        delivery_fee: isPickup ? 0 : this.deliveryFee(),
-        tax: this.tax(),
-        total: isPickup
-          ? this.subtotal() + this.tax()
-          : this.total(),
+        promo_code: voucher ? voucher.code : null,
       };
 
-      const order = await this.orders.placeOrder(payload, this.cart.lines());
+      const order = await this.orders.placeOrder(params, this.cart.lines());
+
+      // The function has already marked the voucher redeemed inside the same
+      // transaction, so the wallet is immediately consistent.
+
       this.cart.clear();
       await this.router.navigate(['/order-confirmation', order.id]);
     } catch (err) {
@@ -260,7 +362,7 @@ export class CheckoutComponent {
   /** Total shown in the summary — adjusts for pickup (no delivery fee). */
   displayTotal = computed(() =>
     this.fulfillment() === 'pickup'
-      ? this.subtotal() + this.tax()
+      ? this.taxable() + this.tax()
       : this.total()
   );
 

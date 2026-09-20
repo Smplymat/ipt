@@ -11,6 +11,12 @@
 npm-debug.log
 yarn-error.log
 
+# Environment / secrets (Supabase URL + anon key live in src/app/config, but
+# never commit real .env values, service-role keys, or supabase CLI secrets)
+.env
+.env.*
+!.env.example
+
 # IDEs and editors
 .idea/
 .project
