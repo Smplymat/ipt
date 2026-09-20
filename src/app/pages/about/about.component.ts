@@ -22,10 +22,10 @@ const STATS = [
 ];
 
 const VALUES = [
-  { emoji: '🌾', title: 'Local Ingredients', body: 'We source every grain, berry, and egg from farms within 50 km of our bakery — fresher produce means better flavour.' },
-  { emoji: '🤲', title: 'Handcrafted Daily', body: 'Nothing is frozen or pre-made. Our bakers arrive before dawn so your order is warm and fresh every single morning.' },
-  { emoji: '♻️', title: 'Zero Waste Goal', body: "Unsold day-old loaves are donated to local shelters. We're committed to making sure great food never goes to waste." },
-  { emoji: '❤️', title: 'Community First', body: 'From school fundraisers to wedding cakes, we show up for the moments that matter most to our neighbours.' },
+  { emoji: '', title: 'Local Ingredients', body: 'We source every grain, berry, and egg from farms within 50 km of our bakery — fresher produce means better flavour.' },
+  { emoji: '', title: 'Handcrafted Daily', body: 'Nothing is frozen or pre-made. Our bakers arrive before dawn so your order is warm and fresh every single morning.' },
+  { emoji: '', title: 'Zero Waste Goal', body: "Unsold day-old loaves are donated to local shelters. We're committed to making sure great food never goes to waste." },
+  { emoji: '', title: 'Community First', body: 'From school fundraisers to wedding cakes, we show up for the moments that matter most to our neighbours.' },
 ];
 
 const MILESTONES = [

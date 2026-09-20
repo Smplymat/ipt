@@ -20,7 +20,7 @@
 
     @if (errorMessage(); as err) {
       <div style="text-align: center; padding: 40px 20px;">
-        <p style="font-size: 2rem; margin: 0 0 10px;">⚠️</p>
+        <p style="font-size: 2rem; margin: 0 0 10px;">(!)</p>
         <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">Could not load reviews</p>
         <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0 0 14px;">{{ err }}</p>
         <ion-button fill="outline" (click)="load()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
@@ -127,7 +127,6 @@
       <!-- ── Review list ──────────────────────────────────────────── -->
       @if (totalReviews() === 0) {
         <div style="text-align: center; padding: 36px 20px;">
-          <p style="font-size: 2.5rem; margin: 0 0 12px;">🍞</p>
           <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">No reviews yet</p>
           <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Be the first to review one of our bakes!</p>
         </div>

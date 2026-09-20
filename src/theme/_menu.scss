@@ -49,6 +49,9 @@ ion-menu.app-menu {
 }
 
 // ── Scrollable Content Area ───────────────────────────────────────────────────
+// scrollY is now enabled. The ion-content scroll container grows to fit all
+// nav items. The footer is position: sticky at the bottom of the scroll
+// container so it is always visible without cutting off the nav list.
 
 .menu-content {
   --background: var(--menu-panel-bg);
@@ -57,13 +60,11 @@ ion-menu.app-menu {
   --padding-top: 0;
   --padding-bottom: 0;
 
-  display: flex;
-  flex-direction: column;
-  height: 100%;
   font-family: var(--menu-font-family);
 }
 
 // ── Inner Flex Wrapper ────────────────────────────────────────────────────────
+// Kept for backward compatibility but no longer used as the scroll host.
 
 .menu-inner {
   display: flex;
@@ -273,11 +274,17 @@ ion-menu.app-menu {
 }
 
 // ── Footer: Log Out Section ───────────────────────────────────────────────────
+// position: sticky keeps the footer pinned to the bottom of the viewport
+// while the nav list above it scrolls freely. It sits at the bottom of the
+// ion-content scroll container, so it never overlaps the nav items.
 
 .menu-footer {
-  margin-top: auto;
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  position: sticky;
+  bottom: 0;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
   background: var(--menu-panel-bg);
+  // Subtle top shadow so the footer reads as separate from the scrolled list
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25);
 
   .menu-divider {
     margin-bottom: 8px;

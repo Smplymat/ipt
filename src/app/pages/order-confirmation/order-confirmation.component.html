@@ -18,7 +18,6 @@
   <!-- ── Error ───────────────────────────────────────────────────────── -->
   @if (!loading() && error()) {
     <div style="text-align: center; padding: 72px 24px;">
-      <p style="font-size: 2.6rem; margin: 0 0 12px;">🙈</p>
       <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; font-size: 1rem; margin: 0 0 6px;">
         We couldn't load this order
       </p>
@@ -35,7 +34,6 @@
     <div class="receipt-print">
 
       <div style="text-align: center; padding: 8px 0 2px;" class="no-print">
-        <p style="font-size: 2.6rem; margin: 0 0 4px;">🎉</p>
         <h1 style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 800; color: #3D1E16; font-size: 1.25rem;">
           Order confirmed! Thank you!
         </h1>
@@ -120,7 +118,7 @@
             @if (o.fulfillment_type === 'pickup') { PICKUP AT } @else { DELIVER TO }
           </p>
           @if (o.fulfillment_type === 'pickup') {
-            <p class="receipt-value">🏪 In-Store Pickup · 123 Banawe St, Quezon City</p>
+            <p class="receipt-value">In-Store Pickup · 123 Banawe St, Quezon City</p>
             <p class="receipt-value">{{ o.customer_name }} · {{ o.phone }}</p>
           } @else {
             <p class="receipt-value">{{ o.customer_name }} · {{ o.phone }}</p>
@@ -129,7 +127,7 @@
               <p class="receipt-value">Notes: {{ o.unit_notes }}</p>
             }
             <p class="receipt-value">
-              📍 {{ coordinates() }}
+              {{ coordinates() }}
               @if (mapUrl()) {
                 · <a [href]="mapUrl()" target="_blank" rel="noopener" class="receipt-link">View on map</a>
               }
@@ -137,9 +135,9 @@
           }
           <p class="receipt-value" style="margin-top: 6px;">
             @if (o.scheduled_at) {
-              📅 Scheduled: {{ formatDate(o.scheduled_at) }}
+              Scheduled: {{ formatDate(o.scheduled_at) }}
             } @else {
-              ⚡ ASAP
+              ASAP
             }
           </p>
         </div>
@@ -156,7 +154,7 @@
       </div>
 
       <p style="text-align: center; margin: 18px 0 0; font-family: 'Inter', sans-serif; font-size: 0.72rem; color: #A07850;">
-        Thank you for supporting Knead to Know — baked with love. 🥐
+        Thank you for supporting Knead to Know — baked with love.
       </p>
     </div>
 
@@ -178,7 +176,7 @@
           min-width: 180px;
         "
       >
-        🖨️ Print / Save as PDF
+        Print / Save as PDF
       </ion-button>
       <ion-button
         routerLink="/orders"

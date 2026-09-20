@@ -147,7 +147,7 @@ export class CheckoutComponent {
       this.promoMessage.set(
         note
           ? { ok: false, text: `Code applied but can't be used yet: ${note}.` }
-          : { ok: true, text: `${voucher.code} applied — enjoy your discount! 🎉` }
+          : { ok: true, text: `${voucher.code} applied — enjoy your discount!` }
       );
     } catch (err) {
       this.promoMessage.set({ ok: false, text: toErrorMessage(err) });

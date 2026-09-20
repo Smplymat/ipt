@@ -67,7 +67,6 @@
         </div>
       } @else if (orders().length === 0) {
         <div style="text-align: center; padding: 48px 24px;">
-          <p style="font-size: 2.5rem; margin: 0 0 12px;">🥖</p>
           <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; font-size: 1rem; margin: 0 0 6px;">
             {{ isStaff() ? 'No orders yet' : 'No orders yet' }}
           </p>
@@ -113,9 +112,9 @@
                   <span style="color: #A07850;">·</span>
                   <span>
                     @if (order.scheduled_at) {
-                      📅 {{ scheduleLabel(order) }}
+                      {{ scheduleLabel(order) }}
                     } @else {
-                      ⚡ ASAP
+                      ASAP
                     }
                   </span>
                 </p>
@@ -133,7 +132,7 @@
                     <p class="fulfill-card__text"><b>Notes:</b> {{ order.unit_notes }}</p>
                   }
                   <p class="fulfill-card__text">
-                    📍 {{ coords(order) }}
+                    {{ coords(order) }}
                     @if (mapUrl(order)) {
                       · <a [href]="mapUrl(order)" target="_blank" rel="noopener" class="fulfill-card__link">Open in Google Maps</a>
                     }
@@ -211,9 +210,9 @@
                   <span style="color: #A07850;">·</span>
                   <span>
                     @if (order.scheduled_at) {
-                      📅 {{ scheduleLabel(order) }}
+                      {{ scheduleLabel(order) }}
                     } @else {
-                      ⚡ ASAP
+                      ASAP
                     }
                   </span>
                 </p>
@@ -268,7 +267,6 @@
 
       @if (lines().length === 0) {
         <div style="text-align: center; padding: 48px 24px;">
-          <p style="font-size: 2.5rem; margin: 0 0 12px;">🛒</p>
           <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; font-size: 1rem; margin: 0 0 6px;">
             Your cart is empty
           </p>
@@ -285,7 +283,7 @@
             @if (line.product.image_url) {
               <img class="order-item__img" [src]="line.product.image_url" [alt]="line.product.name">
             } @else {
-              <div class="order-item__img" style="display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">🍞</div>
+              <div class="order-item__img" style="display: flex; align-items: center; justify-content: center; background:#FAF3E0; font-size:0.75rem; color:#A07850; font-weight:600;">No img</div>
             }
             <div class="order-item__info">
               <p class="order-item__name">{{ line.product.name }}</p>

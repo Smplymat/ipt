@@ -48,3 +48,6 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Dev server runtime log (local only)
+devserver.log

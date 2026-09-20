@@ -219,7 +219,7 @@ export class BreadCatalogComponent {
     if (this.isSoldOut(product)) return;
     this.cart.add(product);
     const t = await this.toast.create({
-      message: `${product.name} added to cart 🛒`,
+      message: `${product.name} added to cart`,
       duration: 1800,
       position: 'bottom',
       color: 'dark',

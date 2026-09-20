@@ -26,15 +26,15 @@ export function notificationIcon(type: NotificationType): string {
   switch (type) {
     case 'order_confirmation':
     case 'order_update':
-      return '📦';
+      return '[order]';
     case 'new_product':
-      return '🍞';
+      return '[new]';
     case 'promotion':
-      return '🏷️';
+      return '[promo]';
     case 'custom_order':
-      return '📝';
+      return '[custom]';
     default:
-      return '🔔';
+      return '[notif]';
   }
 }
 

@@ -17,7 +17,7 @@
 
     <!-- ── Search bar ───────────────────────────────────────────────── -->
     <div style="position: relative; margin-top: 14px;">
-      <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1rem; pointer-events: none; color: #A07850;">🔍</span>
+      <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 0.9rem; pointer-events: none; color: #A07850; font-weight: 700;">Search</span>
       <input
         type="search"
         placeholder="Search breads, cakes, pastries…"
@@ -134,10 +134,10 @@
           </p>
           <div style="display: flex; flex-wrap: wrap; gap: 8px;">
             @for (opt of [
-              { key: 'default',     label: '📅 Newest first' },
-              { key: 'rating_desc', label: '⭐ Most popular' },
-              { key: 'price_asc',   label: '💰 Price: low → high' },
-              { key: 'price_desc',  label: '💰 Price: high → low' }
+              { key: 'default',     label: 'Newest first' },
+              { key: 'rating_desc', label: 'Most popular' },
+              { key: 'price_asc',   label: 'Price: low to high' },
+              { key: 'price_desc',  label: 'Price: high to low' }
             ]; track opt.key) {
               <button
                 (click)="sortKey.set($any(opt.key))"
@@ -187,16 +187,16 @@
       </p>
       @if (sortKey() !== 'default') {
         <span style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: #FF5B35; font-weight: 600;">
-          @if (sortKey() === 'rating_desc') { ⭐ By popularity }
-          @else if (sortKey() === 'price_asc') { 💰 Price ↑ }
-          @else if (sortKey() === 'price_desc') { 💰 Price ↓ }
+          @if (sortKey() === 'rating_desc') { By popularity }
+          @else if (sortKey() === 'price_asc') { Price low-high }
+          @else if (sortKey() === 'price_desc') { Price high-low }
         </span>
       }
     </div>
 
     @if (errorMessage(); as err) {
       <div style="text-align: center; padding: 48px 24px;">
-        <p style="font-size: 2rem; margin: 0 0 10px;">⚠️</p>
+        <p style="font-size: 2rem; margin: 0 0 10px;">(!)</p>
         <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">Could not load the menu</p>
         <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0 0 14px;">{{ err }}</p>
         <ion-button fill="outline" (click)="loadProducts()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
@@ -247,7 +247,7 @@
                     @if (product.image_url) {
                       <img [src]="product.image_url" [alt]="product.name">
                     } @else {
-                      <span style="font-size: 2rem;">🍞</span>
+                      <span style="font-size: 2rem; color:#A07850; font-family:'Inter',sans-serif;">—</span>
                     }
                   </div>
 
@@ -278,7 +278,7 @@
 
       @if (visible().length === 0) {
         <div style="text-align: center; padding: 48px 24px;">
-          <p style="font-size: 2.5rem; margin: 0 0 12px;">🔍</p>
+          <p style="font-size: 2.5rem; margin: 0 0 12px; color: #A07850; font-family:'Inter',sans-serif; font-weight:700;">?</p>
           <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; font-size: 1rem; margin: 0 0 6px;">No results found</p>
           <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin-bottom: 16px;">
             Try adjusting your search or filters.

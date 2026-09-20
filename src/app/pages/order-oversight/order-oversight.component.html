@@ -20,7 +20,7 @@
 
   <!-- ── Error banner ──────────────────────────────────────────────────── -->
   @if (error(); as err) {
-    <div class="oo-error-banner">⚠️ {{ err }}</div>
+    <div class="oo-error-banner">{{ err }}</div>
   }
 
   <!-- ── Loading spinner ───────────────────────────────────────────────── -->
@@ -41,7 +41,7 @@
       <p class="oo-metric-card__label">Total Orders</p>
       <p class="oo-metric-card__value">{{ totalOrders() }}</p>
       <p class="oo-metric-card__sub">{{ finishedOrders() }} completed</p>
-      <span class="oo-metric-card__icon">📦</span>
+      <span class="oo-metric-card__icon">Orders</span>
     </div>
 
     <!-- Pending Orders -->
@@ -49,7 +49,7 @@
       <p class="oo-metric-card__label">Pending Orders</p>
       <p class="oo-metric-card__value">{{ pendingOrders() }}</p>
       <p class="oo-metric-card__sub">Awaiting confirmation</p>
-      <span class="oo-metric-card__icon">🕐</span>
+      <span class="oo-metric-card__icon">Pending</span>
     </div>
 
     <!-- Processing Orders -->
@@ -57,7 +57,7 @@
       <p class="oo-metric-card__label">Processing Orders</p>
       <p class="oo-metric-card__value">{{ processingOrders() }}</p>
       <p class="oo-metric-card__sub">Preparing / in transit</p>
-      <span class="oo-metric-card__icon">🔄</span>
+      <span class="oo-metric-card__icon">Active</span>
     </div>
 
     <!-- Finished Orders -->
@@ -65,7 +65,7 @@
       <p class="oo-metric-card__label">Finished Orders</p>
       <p class="oo-metric-card__value">{{ finishedOrders() }}</p>
       <p class="oo-metric-card__sub">{{ formatPrice(totalRevenue()) }} revenue</p>
-      <span class="oo-metric-card__icon">✅</span>
+      <span class="oo-metric-card__icon">Done</span>
     </div>
 
   </div>
@@ -224,7 +224,7 @@
                   @if (product.image_url) {
                     <img [src]="product.image_url" [alt]="product.name">
                   } @else {
-                    <span style="font-size:1.1rem;">🍞</span>
+                    <span style="font-size:1.1rem; color:#A07850; font-weight:600; font-family:'Inter',sans-serif;">?</span>
                   }
                 </div>
                 <!-- info -->

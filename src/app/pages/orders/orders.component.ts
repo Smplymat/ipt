@@ -228,7 +228,7 @@ export class OrdersComponent implements OnDestroy {
   }
 
   fulfillmentLabel(order: OrderWithItems): string {
-    return order.fulfillment_type === 'pickup' ? '🏪 Pickup' : '🛵 Delivery';
+    return order.fulfillment_type === 'pickup' ? 'Pickup' : 'Delivery';
   }
 
   scheduleLabel(order: OrderWithItems): string {

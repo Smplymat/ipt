@@ -14,7 +14,7 @@
     @if (product.image_url) {
       <img [src]="product.image_url" [alt]="product.name" class="pdm-img">
     } @else {
-      <span style="font-size: 3.5rem;">🍞</span>
+      <span style="font-family:'Inter',sans-serif; font-size:1rem; color:#A07850; font-weight:600;">No image</span>
     }
   </div>
 
@@ -46,7 +46,7 @@
       <!-- Ingredients -->
       @if (product.ingredients) {
         <div class="pdm-section">
-          <p class="pdm-section-label">🌾 Ingredients</p>
+          <p class="pdm-section-label">Ingredients</p>
           <p class="pdm-section-text">{{ product.ingredients }}</p>
         </div>
       }
@@ -54,7 +54,7 @@
       <!-- Nutritional Value -->
       @if (product.nutritional_value) {
         <div class="pdm-section">
-          <p class="pdm-section-label">📊 Nutritional Value</p>
+          <p class="pdm-section-label">Nutritional Value</p>
           <p class="pdm-section-text">{{ product.nutritional_value }}</p>
         </div>
       }
@@ -78,7 +78,6 @@
       <!-- Empty state when no extra details at all -->
       @if (!product.ingredients && !product.nutritional_value && !product.extra_info?.length) {
         <div style="text-align: center; padding: 28px 16px;">
-          <p style="font-size: 1.8rem; margin: 0 0 8px;">📋</p>
           <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0;">
             No additional details available for this item.
           </p>

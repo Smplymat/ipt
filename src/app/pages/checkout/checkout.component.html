@@ -10,7 +10,6 @@
   <!-- ── Empty bag ───────────────────────────────────────────────────── -->
   @if (lines().length === 0) {
     <div style="text-align: center; padding: 72px 24px;">
-      <p style="font-size: 2.8rem; margin: 0 0 12px;">🛒</p>
       <p style="font-family: 'Inter', sans-serif; font-weight: 800; color: #3D1E16; font-size: 1.05rem; margin: 0 0 6px;">
         Your bag is empty
       </p>
@@ -36,7 +35,7 @@
         @if (line.product.image_url) {
           <img class="order-item__img" [src]="line.product.image_url" [alt]="line.product.name">
         } @else {
-          <div class="order-item__img" style="display:flex;align-items:center;justify-content:center;font-size:1.4rem;">🍞</div>
+          <div class="order-item__img" style="display:flex;align-items:center;justify-content:center;background:#FAF3E0;font-size:0.75rem;color:#A07850;font-weight:600;">No img</div>
         }
         <div class="order-item__info">
           <p class="order-item__name">{{ line.product.name }}</p>
@@ -70,7 +69,7 @@
         (click)="fulfillment.set('delivery')"
       >
         <span style="flex-grow: 1; text-align: left;">
-          <span class="pay-option__title">🛵 Delivery</span>
+          <span class="pay-option__title">Delivery</span>
           <span class="pay-option__sub">We deliver right to your door.
             @if (subtotal() >= 500) { Free delivery on this order! }
             @else { +{{ formatPrice(deliveryFee()) }} delivery fee. }
@@ -86,7 +85,7 @@
         (click)="fulfillment.set('pickup')"
       >
         <span style="flex-grow: 1; text-align: left;">
-          <span class="pay-option__title">🏪 In-Store Pickup</span>
+          <span class="pay-option__title">In-Store Pickup</span>
           <span class="pay-option__sub">Pick up at 123 Banawe St, Quezon City. No delivery fee.</span>
         </span>
         <span class="pay-option__check">✓</span>
@@ -140,7 +139,7 @@
       <!-- Pickup info banner -->
       @if (fulfillment() === 'pickup') {
         <div style="background: #FFF3E0; border: 1.5px solid #FFB35C; border-radius: 12px; padding: 14px 16px;">
-          <p style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.85rem; color: #3D1E16; margin: 0 0 4px;">📍 Pickup Location</p>
+          <p style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.85rem; color: #3D1E16; margin: 0 0 4px;">Pickup Location</p>
           <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0;">
             123 Banawe St, Quezon City · Mon–Sun 7 AM – 6 PM
           </p>
@@ -228,7 +227,7 @@
 
         @if (form().lat != null && form().lng != null) {
           <div class="coords-chip">
-            📍 Pin set: {{ form().lat!.toFixed(6) }}, {{ form().lng!.toFixed(6) }}
+            Pin set: {{ form().lat!.toFixed(6) }}, {{ form().lng!.toFixed(6) }}
           </div>
         }
 
@@ -249,7 +248,7 @@
             style="padding: 12px 16px;"
           >
             <span style="flex-grow: 1; text-align: left;">
-              <span class="pay-option__title">⚡ As Soon As Possible</span>
+              <span class="pay-option__title">As Soon As Possible</span>
               <span class="pay-option__sub">We'll get on it right away.</span>
             </span>
             <span class="pay-option__check">✓</span>
@@ -263,7 +262,7 @@
             style="padding: 12px 16px;"
           >
             <span style="flex-grow: 1; text-align: left;">
-              <span class="pay-option__title">📅 Schedule for Later</span>
+              <span class="pay-option__title">Schedule for Later</span>
               <span class="pay-option__sub">Pick a date and time at least 30 minutes from now.</span>
             </span>
             <span class="pay-option__check">✓</span>
@@ -305,7 +304,7 @@
     <div style="display: grid; gap: 10px;">
       <button class="pay-option" [class.pay-option--active]="payment() === 'cod'" (click)="payment.set('cod')">
         <span style="flex-grow: 1; text-align: left;">
-          <span class="pay-option__title">💵 Cash on Delivery</span>
+          <span class="pay-option__title">Cash on Delivery</span>
           <span class="pay-option__sub">
             @if (fulfillment() === 'pickup') { Pay at the counter when you pick up. }
             @else { Pay the driver when your order arrives. }
@@ -316,7 +315,7 @@
 
       <button class="pay-option" [class.pay-option--active]="payment() === 'online'" (click)="payment.set('online')">
         <span style="flex-grow: 1; text-align: left;">
-          <span class="pay-option__title">💳 Online Payment (Card)</span>
+          <span class="pay-option__title">Online Payment (Card)</span>
           <span class="pay-option__sub">Secure gateway — recorded as paid for this demo build.</span>
         </span>
         <span class="pay-option__check">✓</span>
@@ -330,7 +329,7 @@
     <!-- ── Apply Discount / Voucher ───────────────────────────────── -->
     <div style="background: #2B1712; border-radius: 16px; border: 1px solid rgba(251,246,238,0.14); padding: 16px 18px; margin-bottom: 12px;">
       <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 800; color: #FBF6EE; margin: 0 0 10px;">
-        🏷️ Apply Discount / Voucher
+        Apply Discount / Voucher
       </p>
 
       <!-- ── Promo code entry ─────────────────────────────────────── -->
@@ -402,7 +401,7 @@
             </button>
           </div>
           @if (voucherNote(); as note) {
-            <p style="color: #FFB3A1; font-size: 0.75rem; margin: 8px 0 0;">⚠️ {{ note }}</p>
+            <p style="color: #FFB3A1; font-size: 0.75rem; margin: 8px 0 0;">{{ note }}</p>
           }
         }
       }

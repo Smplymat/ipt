@@ -32,23 +32,23 @@
   <!-- ── Tabs ───────────────────────────────────────────────────────── -->
   <div style="background: #FBF6EE; padding: 16px 16px 0; display: flex; gap: 8px; flex-wrap: wrap;">
     <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'products'" [class.bakery-pill--inactive]="tab() !== 'products'" (click)="tab.set('products')">
-      🍞 Products
+      Products
     </button>
     <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'inventory'" [class.bakery-pill--inactive]="tab() !== 'inventory'" (click)="tab.set('inventory')">
-      📦 Inventory
+      Inventory
     </button>
     <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'orders'" [class.bakery-pill--inactive]="tab() !== 'orders'" (click)="tab.set('orders'); loadOrders()">
-      🧾 Orders
+      Orders
     </button>
     <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'sales'" [class.bakery-pill--inactive]="tab() !== 'sales'" (click)="tab.set('sales'); loadOrders()">
-      📈 Sales
+      Sales
     </button>
     <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'categories'" [class.bakery-pill--inactive]="tab() !== 'categories'" (click)="tab.set('categories')">
-      🏷️ Categories
+      Categories
     </button>
     @if (canManageUsers()) {
       <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'users'" [class.bakery-pill--inactive]="tab() !== 'users'" (click)="tab.set('users')">
-        👥 Users &amp; Roles
+        Users &amp; Roles
       </button>
     }
   </div>
@@ -183,7 +183,7 @@
 
       @if (productsError(); as err) {
         <div style="text-align: center; padding: 40px 20px;">
-          <p style="font-size: 2rem; margin: 0 0 10px;">⚠️</p>
+          <p style="font-size: 2rem; margin: 0 0 10px;">(!)</p>
           <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">Could not load products</p>
           <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0 0 14px;">{{ err }}</p>
           <ion-button fill="outline" (click)="loadProducts()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
@@ -195,7 +195,6 @@
         </div>
       } @else if (products().length === 0) {
         <div style="text-align: center; padding: 48px 20px;">
-          <p style="font-size: 2.5rem; margin: 0 0 12px;">🧺</p>
           <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">No products yet</p>
           <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0;">Use the form above to add your first product.</p>
         </div>
@@ -210,7 +209,7 @@
                   @if (p.image_url) {
                     <img [src]="p.image_url" [alt]="p.name" style="width: 100%; height: 100%; object-fit: cover;">
                   } @else {
-                    <span style="font-size: 1.5rem;">🍞</span>
+                    <span style="font-size: 1.5rem; color:#A07850; font-family:'Inter',sans-serif; font-weight:600;">?</span>
                   }
                 </div>
                 <div style="flex: 1; min-width: 0;">
@@ -221,7 +220,7 @@
                   <p style="font-family: 'Inter', sans-serif; font-size: 0.75rem; color: #8B6347; margin: 3px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ p.description || '—' }}</p>
                   @if (p.ingredients) {
                     <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #A07850; margin: 3px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                      🌾 {{ p.ingredients }}
+                      {{ p.ingredients }}
                     </p>
                   }
                   <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #A07850; margin: 4px 0 0;">
@@ -268,7 +267,7 @@
                     } @else if (p.image_url) {
                       <img [src]="p.image_url" [alt]="p.name" style="width: 110px; height: 110px; border-radius: 12px; object-fit: cover; border: 1px solid #EDE0CC;">
                     } @else {
-                      <div style="width: 110px; height: 110px; border-radius: 12px; background: #FAF3E0; border: 1.5px dashed #C4A882; color: #A07850; display: flex; align-items: center; justify-content: center;">🍞</div>
+                      <div style="width: 110px; height: 110px; border-radius: 12px; background: #FAF3E0; border: 1.5px dashed #C4A882; color: #A07850; display: flex; align-items: center; justify-content: center; font-family:'Inter',sans-serif; font-size:0.8rem;">No image</div>
                     }
                     <input #editFile type="file" accept="image/*" hidden (change)="onEditFileSelected($event)">
                     <ion-button size="small" fill="outline" (click)="editFile.click()" style="--color: #3D1E16; --border-color: #C4A882; font-size: 0.7rem; margin-top: 6px;">Replace image</ion-button>
@@ -404,7 +403,6 @@
         </div>
       } @else if (categories().length === 0) {
         <div style="text-align: center; padding: 32px 20px;">
-          <p style="font-size: 2rem; margin: 0 0 8px;">🏷️</p>
           <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">No categories yet. Add one above.</p>
         </div>
       } @else {
@@ -493,7 +491,7 @@
           All items
         </button>
         <button class="bakery-pill" [class.bakery-pill--active]="inventoryFilter() === 'low'" [class.bakery-pill--inactive]="inventoryFilter() !== 'low'" (click)="inventoryFilter.set('low')">
-          ⚠️ Low stock
+          Low stock
         </button>
       </div>
 
@@ -536,7 +534,6 @@
         }
         @if (products().length === 0) {
           <div style="text-align: center; padding: 36px 20px;">
-            <p style="font-size: 2rem; margin: 0 0 8px;">📦</p>
             <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">No products in the catalog yet.</p>
           </div>
         }
