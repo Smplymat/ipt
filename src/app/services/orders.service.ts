@@ -12,7 +12,7 @@ export type OrderStatus =
   | 'delivered'
   | 'cancelled';
 
-export type PaymentMethod = 'cod' | 'online';
+export type PaymentMethod = 'cod' | 'card' | 'gcash' | 'paymaya' | 'grab_pay' | 'online';
 export type FulfillmentType = 'delivery' | 'pickup';
 
 export interface Order {
@@ -92,6 +92,10 @@ export const STATUS_LABEL: Record<OrderStatus, string> = {
 
 export const PAYMENT_LABEL: Record<PaymentMethod, string> = {
   cod: 'Cash on Delivery',
+  card: 'Credit/Debit Card',
+  gcash: 'GCash',
+  paymaya: 'Maya',
+  grab_pay: 'GrabPay',
   online: 'Online Payment',
 };
 
@@ -142,7 +146,7 @@ export class OrdersService {
       p_longitude: params.longitude,
       p_scheduled_at: params.scheduled_at,
       p_payment_method: params.payment_method,
-      p_cart: lines.map((l) => ({ product_id: l.product.id, quantity: l.quantity })),
+      p_cart: lines.map((l) => ({ product_id: l.product.id, qty: l.quantity })),
       p_promo_code: params.promo_code ?? null,
     });
     if (error) throw new Error(error.message);
@@ -297,6 +301,13 @@ export class OrdersService {
 }
 
 export function toErrorMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
+  if (err instanceof Error) {
+    const msg = err.message;
+    // Network errors (offline, CORS, DNS, etc.) give "Failed to fetch"
+    if (msg === 'Failed to fetch' || msg.startsWith('NetworkError') || msg.includes('fetch')) {
+      return "Can't reach the server. Please check your internet connection and try again.";
+    }
+    return msg;
+  }
   return 'Something went wrong. Please try again.';
 }

@@ -1,48 +1,239 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   variables.css — Ionic theme overrides · Knead to Know Bakery
-   Warm cream / chocolate brown / coral orange palette
+   _variables.scss — Design token system & Ionic overrides · Knead to Know Bakery
+   Palette:
+   - Base / page background:  #F9E6A8
+   - Navigation bar:           #F2A900
+   - Buttons:                  #E5D3AF
+   - Dark brown:               #4D2A00
+   - Burnt orange:             #CC6F00
    ───────────────────────────────────────────────────────────────────────────── */
 
 :root {
-  /* ── Brand Palette ──────────────────────────────────────────────────────── */
-  --bakery-cream:          #FBF6EE;
-  --bakery-cream-deep:     #FAF3E0;
-  --bakery-cream-border:   #EDE0CC;
-  --bakery-brown:          #3D1E16;
-  --bakery-brown-dark:     #2B1712;
-  --bakery-brown-mid:      #6B3A2A;
-  --bakery-coral:          #FF5B35;
-  --bakery-coral-dark:     #E04E2B;
-  --bakery-yellow:         #FFF9A6;
-  --bakery-yellow-mid:     #FFE066;
-  --bakery-beige-card:     #FDF8F0;
-  --bakery-muted:          #A07850;
-  --bakery-text-light:     #F5ECD7;
+  /* ── Brand Palette (foundation — use these everywhere) ───────────────────── */
+  --bakery-base:            #F9E6A8;   /* page background, section bands, scroll area */
+  --bakery-base-rgb:        249, 230, 168;
+  --bakery-navbar:          #F2A900;   /* top nav bar, active tab indicator, stars, price badges */
+  --bakery-navbar-rgb:      242, 169, 0;
+  --bakery-button:          #E5D3AF;   /* ALL buttons (default), unselected chips, input hover */
+  --bakery-button-rgb:      229, 211, 175;
+  --bakery-dark:            #4D2A00;   /* ALL text, button text/borders, icons, sidebar active bg */
+  --bakery-dark-rgb:        77, 42, 0;
+  --bakery-burnt:           #CC6F00;   /* hover/pressed fill, focus rings, links, badges, loader */
+  --bakery-burnt-rgb:       204, 111, 0;
+  --bakery-burnt-shade:     #B35E00;   /* darker burnt — used for fills behind white text (≥4.5:1) */
 
-  /* ── Ionic Colour Overrides ─────────────────────────────────────────────── */
-  --ion-color-primary:           #FF5B35;
-  --ion-color-primary-rgb:       255, 91, 53;
+  /* ── Derived Surfaces (built from the palette) ──────────────────────────── */
+  --bakery-card:            #FFF4D6;   /* card surface (lighter than base so cards stand out) */
+  --bakery-card-rgb:        255, 244, 214;
+  --bakery-card-border:     rgba(77, 42, 0, 0.25);
+  --bakery-card-shadow:     0 4px 0 rgba(77, 42, 0, 0.15);
+  --bakery-base-tint:       #FDF3C4;   /* slightly lighter than base, alternating sections */
+  --bakery-input-bg:        #FFFDF5;   /* white-ish input background */
+  --bakery-input-bg-rgb:    255, 253, 245;
+  --bakery-disabled-bg:     rgba(229, 211, 175, 0.5);
+  --bakery-disabled-border: rgba(77, 42, 0, 0.4);
+
+  /* ── Text Colors (all built from #4D2A00) ──────────────────────────────── */
+  --bakery-text:            #4D2A00;            /* body & heading text */
+  --bakery-text-secondary:  rgba(77, 42, 0, 0.72); /* captions, meta, dates */
+  --bakery-text-muted:      rgba(77, 42, 0, 0.55); /* hints, footnotes */
+  --bakery-text-on-dark:    #F9E6A8;            /* light text on dark/burnt backgrounds */
+
+  /* ── Status Colors (order/stock status tags only) ──────────────────────── */
+  --bakery-status-pending:      #B7791F;
+  --bakery-status-delivery:     #2B6CB0;
+  --bakery-status-finished:     #2E7D4F;
+  --bakery-status-cancelled:    #B3261E;
+  --bakery-status-lowstock:     #CC6F00;
+
+  /* ── Success / Error UI (banners, validation) ───────────────────────────── */
+  --bakery-success:         #2E7D4F;
+  --bakery-success-bg:      rgba(46, 125, 79, 0.1);
+  --bakery-success-border:  rgba(46, 125, 79, 0.35);
+  --bakery-success-light:   #9BE8C4;  /* success text on dark sections */
+  --bakery-error:           #B3261E;
+  --bakery-error-bg:        rgba(179, 38, 30, 0.1);
+  --bakery-error-border:    rgba(179, 38, 30, 0.35);
+  --bakery-error-light:     #FFD2C6;  /* error text on dark sections */
+
+  /* ── Typography ─────────────────────────────────────────────────────────── */
+  --bakery-font:            'Inter', 'SF Pro Display', 'Roboto', sans-serif;
+  --bakery-h1:              40px;
+  --bakery-h2:              28px;
+  --bakery-h3:              20px;
+  --bakery-body:            16px;
+  --bakery-small:           13px;      /* never below this */
+  --bakery-line-height:     1.6;
+
+  /* ── Spacing (8px grid) ─────────────────────────────────────────────────── */
+  --bakery-space-1:         8px;
+  --bakery-space-2:         16px;
+  --bakery-space-3:         24px;
+  --bakery-space-4:         32px;
+  --bakery-space-5:         40px;
+  --bakery-container-max:   1200px;
+
+  /* ── Shape ──────────────────────────────────────────────────────────────── */
+  --bakery-radius-card:     16px;
+  --bakery-radius-button:   12px;
+  --bakery-radius-input:    10px;
+  --bakery-radius-pill:     999px;
+
+  /* ── Button tokens ──────────────────────────────────────────────────────── */
+  --bakery-btn-border:     2px solid var(--bakery-dark);
+  --bakery-btn-shadow:     0 3px 0 var(--bakery-dark);
+  --bakery-btn-min-h:      44px;
+
+  /* ── Animation ──────────────────────────────────────────────────────────── */
+  --bakery-ease:           cubic-bezier(0.22, 0.61, 0.36, 1); /* ease-out */
+  --bakery-dur-fast:       150ms;
+  --bakery-dur:            250ms;
+  --bakery-dur-slow:       400ms;
+
+  /* ── Focus ring ────────────────────────────────────────────────────────── */
+  --bakery-focus-ring:     0 0 0 3px rgba(204, 111, 0, 0.35);
+  --bakery-focus-outline:  3px solid var(--bakery-burnt);
+  --bakery-focus-offset:   2px;
+
+  /* ═════════════════════════════════════════════════════════════════════════
+     Ionic CSS Variable Overrides
+     ═════════════════════════════════════════════════════════════════════════ */
+
+  /* App background → warm base */
+  --ion-background-color:        var(--bakery-base);
+  --ion-background-color-rgb:    var(--bakery-base-rgb);
+
+  /* Text → dark brown */
+  --ion-text-color:              var(--bakery-dark);
+  --ion-text-color-rgb:          var(--bakery-dark-rgb);
+
+  /* Primary → burnt orange (hover/pressed, links, badges, loader) */
+  --ion-color-primary:           var(--bakery-burnt);
+  --ion-color-primary-rgb:       var(--bakery-burnt-rgb);
   --ion-color-primary-contrast:  #ffffff;
-  --ion-color-primary-shade:     #e04e2b;
-  --ion-color-primary-tint:      #ff7254;
+  --ion-color-primary-shade:     #B35E00;
+  --ion-color-primary-tint:      #D48529;
 
-  /* App background → warm cream */
-  --ion-background-color:        #FBF6EE;
-  --ion-background-color-rgb:    251, 246, 238;
+  /* Secondary → navbar gold */
+  --ion-color-secondary:         var(--bakery-navbar);
+  --ion-color-secondary-rgb:     var(--bakery-navbar-rgb);
+  --ion-color-secondary-contrast: var(--bakery-dark);
+  --ion-color-secondary-shade:   #D49500;
+  --ion-color-secondary-tint:    #F4B733;
 
-  /* Text → rich chocolate */
-  --ion-text-color:              #3D1E16;
-  --ion-text-color-rgb:          61, 30, 22;
+  /* Tertiary → button beige */
+  --ion-color-tertiary:          var(--bakery-button);
+  --ion-color-tertiary-rgb:      var(--bakery-button-rgb);
+  --ion-color-tertiary-contrast: var(--bakery-dark);
+  --ion-color-tertiary-shade:    #C9BC9B;
+  --ion-color-tertiary-tint:     #E9DCC0;
 
   /* Fonts */
-  --ion-font-family:             'Inter', 'SF Pro Display', 'Roboto', sans-serif;
+  --ion-font-family:             var(--bakery-font);
 
-  /* Toolbar → chocolate brown */
-  --ion-toolbar-background:      #3D1E16;
-  --ion-toolbar-color:           #FBF6EE;
-  --ion-toolbar-border-color:    #2B1712;
+  /* Toolbar → navbar gold with dark text */
+  --ion-toolbar-background:      var(--bakery-navbar);
+  --ion-toolbar-color:           var(--bakery-dark);
+  --ion-toolbar-border-color:    var(--bakery-dark);
 
-  /* Item */
+  /* Item backgrounds */
   --ion-item-background:         transparent;
-  --ion-item-color:              #3D1E16;
+  --ion-item-color:              var(--bakery-dark);
+
+  /* Button defaults */
+  --ion-button-border-radius:    var(--bakery-radius-button);
+  --ion-button-font-family:      var(--bakery-font);
+  --ion-button-font-weight:      700;
+
+  /* Card defaults */
+  --ion-card-border-radius:      var(--bakery-radius-card);
+
+  /* Input defaults */
+  --ion-input-border-radius:     var(--bakery-radius-input);
+
+  /* Badge defaults */
+  --ion-badge-border-radius:     8px;
+
+  /* Toast */
+  --ion-toast-background:        var(--bakery-dark);
+  --ion-toast-color:             var(--bakery-base);
+  --ion-toast-border-radius:     var(--bakery-radius-button);
+
+  /* Modal */
+  --ion-modal-background:        var(--bakery-base);
+  --ion-modal-border-radius:     24px;
+
+  /* Action Sheet */
+  --ion-action-sheet-background: var(--bakery-card);
+  --ion-action-sheet-color:      var(--bakery-dark);
+
+  /* Popover */
+  --ion-popover-background:      var(--bakery-card);
+  --ion-popover-color:           var(--bakery-dark);
+  --ion-popover-border-radius:   var(--bakery-radius-card);
+  --ion-popover-box-shadow:      0 8px 32px rgba(77, 42, 0, 0.18);
+
+  /* Loading */
+  --ion-loading-background:      var(--bakery-card);
+  --ion-loading-color:           var(--bakery-burnt);
+
+  /* Backdrop */
+  --ion-backdrop-color:          rgba(77, 42, 0, 0.4);
+  --ion-backdrop-opacity:        0.35;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Light theme enforcement — no dark mode.
+   Even if the OS prefers dark, we keep the warm light palette.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ion-background-color:        var(--bakery-base);
+    --ion-background-color-rgb:    var(--bakery-base-rgb);
+    --ion-text-color:              var(--bakery-dark);
+    --ion-text-color-rgb:          var(--bakery-dark-rgb);
+    --ion-toolbar-background:      var(--bakery-navbar);
+    --ion-toolbar-color:           var(--bakery-dark);
+    --ion-color-primary:           var(--bakery-burnt);
+    --ion-color-primary-rgb:       var(--bakery-burnt-rgb);
+    --ion-color-secondary:         var(--bakery-navbar);
+    --ion-color-secondary-rgb:     var(--bakery-navbar-rgb);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Global base styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+body {
+  font-family: var(--bakery-font);
+  font-size: var(--bakery-body);
+  color: var(--bakery-text);
+  line-height: var(--bakery-line-height);
+}
+
+/* Visible keyboard focus on every focusable element */
+*:focus-visible {
+  outline: var(--bakery-focus-outline);
+  outline-offset: var(--bakery-focus-offset);
+  border-radius: 4px;
+}
+
+/* Minimum tap target */
+button,
+[role="button"],
+ion-button,
+a.button {
+  min-height: 44px;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

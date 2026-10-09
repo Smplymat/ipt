@@ -1,74 +1,356 @@
-// ─────────────────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
 // _page-shared.scss — Shared page layout styles · Knead to Know Bakery
-// Warm cream / chocolate brown / coral palette
-// ─────────────────────────────────────────────────────────────────────────────
+// New palette: #F9E6A8 base · #F2A900 navbar · #E5D3AF buttons · #4D2A00 dark · #CC6F00 burnt
+// All colors reference CSS custom properties from _variables.scss — no hard-coded hex.
+// ═════════════════════════════════════════════════════════════════════════════
 
-// ── Design Tokens ─────────────────────────────────────────────────────────────
+$font: var(--bakery-font);
 
-$font:             'Inter', 'SF Pro Display', 'Roboto', sans-serif;
-$cream:            #FBF6EE;
-$cream-deep:       #FAF3E0;
-$cream-border:     #EDE0CC;
-$brown:            #3D1E16;
-$brown-dark:       #2B1712;
-$brown-mid:        #6B3A2A;
-$coral:            #FF5B35;
-$coral-dark:       #E04E2B;
-$yellow:           #FFF9A6;
-$beige-card:       #FDF8F0;
-$muted:            #A07850;
-$text-light:       #F5ECD7;
-$text-secondary:   #8B6347;
-
-// ── Toolbar ───────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 1 · Toolbar / Header (light theme — #F2A900 bar, #4D2A00 text)
+// ═════════════════════════════════════════════════════════════════════════════
 
 ion-toolbar {
-  --background: #{$brown};
-  --color: #{$cream};
-  --border-color: #{$brown-dark};
+  --background: var(--bakery-navbar);
+  --color: var(--bakery-dark);
+  --border-color: var(--bakery-dark);
+  --min-height: 56px;
+
+  &::part(native) {
+    background: var(--bakery-navbar);
+  }
 
   ion-title {
     font-family: $font;
-    font-weight: 600;
-    font-size: 1rem;
+    font-weight: 700;
+    font-size: 1.05rem;
     letter-spacing: -0.01em;
-    color: $cream;
+    color: var(--bakery-dark);
   }
 
   ion-menu-button {
-    --color: #{$cream};
+    --color: var(--bakery-dark);
+
+    &::part(native) {
+      color: var(--bakery-dark);
+    }
   }
 
   ion-buttons ion-button {
-    --color: #{$cream};
+    --color: var(--bakery-dark);
+  }
+
+  ion-back-button {
+    --color: var(--bakery-dark);
   }
 }
 
-// ── Page Content Wrapper ──────────────────────────────────────────────────────
+// Re-assert toolbar colours via shadow-DOM override (wins specificity)
+ion-header ion-toolbar {
+  --background: var(--bakery-navbar);
+  --color: var(--bakery-dark);
+  --border-color: var(--bakery-dark);
+  --min-height: 56px;
 
-.page-content {
-  --background: #{$cream};
-  font-family: $font;
+  &::part(native) {
+    background: var(--bakery-navbar);
+  }
+
+  ion-menu-button,
+  ion-back-button {
+    --color: var(--bakery-dark);
+  }
+  ion-title { color: var(--bakery-dark); }
 }
 
-// ── Section Wrappers ──────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 2 · Page Content Wrapper
+// ═════════════════════════════════════════════════════════════════════════════
+
+.page-content {
+  --background: var(--bakery-base);
+  font-family: $font;
+  color: var(--bakery-text);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 3 · Reusable Component Classes
+// ═════════════════════════════════════════════════════════════════════════════
+
+// ── Page header bar (#F2A900 with title, menu button left) ──────────────────
+.bakery-page-header {
+  display: flex;
+  align-items: center;
+  gap: var(--bakery-space-2);
+  background: var(--bakery-navbar);
+  color: var(--bakery-dark);
+  padding: var(--bakery-space-2) var(--bakery-space-3);
+  min-height: 56px;
+
+  &__title {
+    font-family: $font;
+    font-size: var(--bakery-h3);
+    font-weight: 700;
+    color: var(--bakery-dark);
+    margin: 0;
+    flex: 1;
+  }
+}
+
+// ── Reusable card ─────────────────────────────────────────────────────────────
+.bakery-card,
+.page-card {
+  background: var(--bakery-card);
+  border: 1.5px solid var(--bakery-card-border);
+  border-radius: var(--bakery-radius-card);
+  padding: var(--bakery-space-3);
+  margin-bottom: var(--bakery-space-2);
+  box-shadow: var(--bakery-card-shadow);
+  transition: transform var(--bakery-dur) var(--bakery-ease), box-shadow var(--bakery-dur) var(--bakery-ease);
+}
+
+// ── Reusable button (CSS for non-Ionic buttons) ──────────────────────────────
+.bakery-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--bakery-button);
+  color: var(--bakery-dark);
+  font-family: $font;
+  font-size: 14px;
+  font-weight: 700;
+  border: var(--bakery-btn-border);
+  border-radius: var(--bakery-radius-button);
+  box-shadow: var(--bakery-btn-shadow);
+  min-height: var(--bakery-btn-min-h);
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: transform var(--bakery-dur-fast) var(--bakery-ease), box-shadow var(--bakery-dur-fast) var(--bakery-ease), background var(--bakery-dur-fast) var(--bakery-ease), color var(--bakery-dur-fast) var(--bakery-ease);
+
+  &:hover {
+    transform: translateY(-2px);
+    background: var(--bakery-burnt);
+    color: #fff;
+    box-shadow: 0 5px 0 var(--bakery-dark);
+  }
+
+  &:active {
+    transform: translateY(2px);
+    box-shadow: none;
+  }
+
+  &--outline {
+    background: transparent;
+    border: var(--bakery-btn-border);
+    color: var(--bakery-dark);
+
+    &:hover {
+      background: var(--bakery-burnt);
+      color: #fff;
+    }
+  }
+
+  &--danger {
+    border-color: var(--bakery-error);
+    color: var(--bakery-error);
+
+    &:hover {
+      background: var(--bakery-error);
+      color: #fff;
+    }
+  }
+
+  &--sm {
+    min-height: 36px;
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+}
+
+// ── Reusable badge ───────────────────────────────────────────────────────────
+.bakery-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-family: $font;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+// ── Tabs / pills ──────────────────────────────────────────────────────────────
+.bakery-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bakery-tab {
+  flex-shrink: 0;
+  padding: 8px 18px;
+  border-radius: var(--bakery-radius-pill);
+  font-family: $font;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid var(--bakery-dark);
+  background: var(--bakery-button);
+  color: var(--bakery-dark);
+  transition: all var(--bakery-dur-fast) var(--bakery-ease);
+  white-space: nowrap;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+
+  &--active {
+    background: var(--bakery-burnt-shade);
+    color: #fff;
+    border-color: var(--bakery-dark);
+    font-weight: 700;
+  }
+
+  &--inactive {
+    background: var(--bakery-button);
+    color: var(--bakery-dark);
+  }
+
+  &:hover:not(.bakery-tab--active) {
+    background: var(--bakery-burnt-shade);
+    color: #fff;
+  }
+}
+
+// ── Empty state ──────────────────────────────────────────────────────────────
+.bakery-empty-state {
+  text-align: center;
+  padding: 48px 24px;
+
+  ion-icon,
+  &__icon {
+    font-size: 3rem;
+    color: var(--bakery-text-muted);
+    margin-bottom: 12px;
+  }
+
+  &__title {
+    font-family: $font;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--bakery-dark);
+    margin: 0 0 8px;
+  }
+
+  &__text {
+    font-family: $font;
+    font-size: 0.875rem;
+    color: var(--bakery-text-secondary);
+    margin: 0 0 20px;
+    line-height: 1.6;
+  }
+}
+
+// ── Skeleton shimmer placeholder ──────────────────────────────────────────────
+.bakery-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bakery-button) 25%,
+    var(--bakery-base) 50%,
+    var(--bakery-button) 75%
+  );
+  background-size: 200% 100%;
+  animation: bakery-shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+@keyframes bakery-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.bakery-skeleton-card {
+  background: var(--bakery-card);
+  border: 1.5px solid var(--bakery-card-border);
+  border-radius: var(--bakery-radius-card);
+  padding: var(--bakery-space-2);
+  margin-bottom: var(--bakery-space-2);
+
+  .bakery-skeleton-line {
+    height: 14px;
+    margin-bottom: 8px;
+    @extend .bakery-skeleton;
+  }
+}
+
+// ── Stat card (#FFF4D6 with colored top border) ──────────────────────────────
+.bakery-stat-card {
+  background: var(--bakery-card);
+  border: 1.5px solid var(--bakery-card-border);
+  border-top: 5px solid var(--bakery-burnt);
+  border-radius: var(--bakery-radius-card);
+  padding: var(--bakery-space-2) var(--bakery-space-2);
+  box-shadow: var(--bakery-card-shadow);
+  transition: transform var(--bakery-dur) var(--bakery-ease);
+
+  &:hover { transform: translateY(-2px); }
+
+  &__icon {
+    font-size: 1.5rem;
+    color: var(--bakery-burnt);
+    margin-bottom: 6px;
+  }
+
+  &__value {
+    font-family: $font;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--bakery-dark);
+    margin: 0;
+    line-height: 1;
+  }
+
+  &__label {
+    font-family: $font;
+    font-size: 0.72rem;
+    color: var(--bakery-text-secondary);
+    margin: 4px 0 0;
+    font-weight: 600;
+  }
+
+  // Color variants for the top border
+  &--pending { border-top-color: var(--bakery-status-pending); }
+  &--active  { border-top-color: var(--bakery-burnt); }
+  &--done    { border-top-color: var(--bakery-status-finished); }
+  &--total   { border-top-color: var(--bakery-navbar); }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 4 · Section Wrappers
+// ═════════════════════════════════════════════════════════════════════════════
 
 .bakery-section {
-  padding: 40px 20px;
+  padding: var(--bakery-space-4) var(--bakery-space-2);
+  max-width: var(--bakery-container-max);
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  scroll-margin-top: 72px; /* header height + spacing */
 
-  &--cream    { background: $cream; }
-  &--beige    { background: $cream-deep; }
-  &--brown    { background: $brown; }
-  &--yellow   { background: $yellow; }
+  &--cream    { background: var(--bakery-card); }
+  &--beige    { background: var(--bakery-base-tint); }
+  &--brown    { background: var(--bakery-dark); color: var(--bakery-text-on-dark); }
+  &--yellow   { background: var(--bakery-base); }
 }
 
 .bakery-section-eyebrow {
   font-family: $font;
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: $coral;
+  color: var(--bakery-dark);
   margin: 0 0 8px 0;
 }
 
@@ -76,7 +358,7 @@ ion-toolbar {
   font-family: $font;
   font-size: clamp(1.4rem, 3vw, 2rem);
   font-weight: 800;
-  color: $brown;
+  color: var(--bakery-dark);
   margin: 0 0 8px 0;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -85,22 +367,37 @@ ion-toolbar {
 .bakery-section-subtitle {
   font-family: $font;
   font-size: 0.9rem;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
   margin: 0 0 28px 0;
   line-height: 1.6;
 }
 
-// ── Hero Banner ───────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 5 · Hero Banner (full-width, max-width 1200px container, parallax)
+// ═════════════════════════════════════════════════════════════════════════════
 
 .bakery-hero {
-  background: $cream-deep;
-  padding: 40px 24px;
+  background: var(--bakery-navbar);
+  padding: var(--bakery-space-4) var(--bakery-space-3);
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: var(--bakery-space-3);
   min-height: 260px;
   overflow: hidden;
   position: relative;
+  max-width: var(--bakery-container-max);
+  margin: 0 auto;
+  border-radius: 0;
+
+  // Parallax-friendly background layer
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--bakery-navbar) 0%, var(--bakery-burnt) 100%);
+    opacity: 0.15;
+    z-index: 0;
+  }
 }
 
 .bakery-hero__left {
@@ -111,8 +408,8 @@ ion-toolbar {
 
 .bakery-hero__eyebrow {
   font-size: 0.8rem;
-  font-weight: 600;
-  color: $coral;
+  font-weight: 700;
+  color: var(--bakery-dark);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   margin: 0 0 10px 0;
@@ -122,7 +419,7 @@ ion-toolbar {
   font-family: $font;
   font-size: clamp(1.6rem, 4vw, 2.6rem);
   font-weight: 900;
-  color: $brown;
+  color: var(--bakery-dark);
   line-height: 1.1;
   letter-spacing: -0.03em;
   margin: 0 0 12px 0;
@@ -130,7 +427,8 @@ ion-toolbar {
 
 .bakery-hero__sub {
   font-size: 0.875rem;
-  color: $text-secondary;
+  color: var(--bakery-dark);
+  opacity: 0.8;
   margin: 0 0 20px 0;
   line-height: 1.55;
 }
@@ -145,8 +443,8 @@ ion-toolbar {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: $brown;
-    color: $cream;
+    background: var(--bakery-dark);
+    color: var(--bakery-base);
     font-size: 0.8rem;
     font-weight: 700;
     padding: 5px 12px;
@@ -155,25 +453,31 @@ ion-toolbar {
 
   .rating-stars {
     font-size: 0.8rem;
-    color: $muted;
+    color: var(--bakery-dark);
+    opacity: 0.7;
   }
 }
 
 .bakery-hero__cta {
-  --background: #{$coral};
-  --background-hover: #{$coral-dark};
-  --background-activated: #{$coral-dark};
-  --color: #fff;
-  --border-radius: 10px;
+  --background: var(--bakery-button);
+  --background-hover: var(--bakery-burnt);
+  --background-activated: var(--bakery-burnt);
+  --color: var(--bakery-dark);
+  --color-hover: #ffffff;
+  --color-activated: #ffffff;
+  --border-radius: var(--bakery-radius-button);
   --padding-top: 14px;
   --padding-bottom: 14px;
   --padding-start: 28px;
   --padding-end: 28px;
-  --box-shadow: 0 4px 16px rgba(255, 91, 53, 0.35);
   font-weight: 700;
   font-size: 0.9rem;
-  letter-spacing: 0.01em;
   height: 46px;
+
+  &::part(native) {
+    border: var(--bakery-btn-border);
+    box-shadow: var(--bakery-btn-shadow);
+  }
 }
 
 .bakery-hero__right {
@@ -184,6 +488,8 @@ ion-toolbar {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1;
+  animation: bakery-float 4s ease-in-out infinite;
 
   @media (max-width: 480px) {
     width: 130px;
@@ -194,7 +500,7 @@ ion-toolbar {
 .bakery-hero__splash {
   width: 170px;
   height: 170px;
-  background: rgba(255, 91, 53, 0.12);
+  background: rgba(204, 111, 0, 0.15);
   border-radius: 50%;
   position: absolute;
   top: 50%;
@@ -213,7 +519,7 @@ ion-toolbar {
   object-fit: contain;
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 8px 20px rgba(61, 30, 22, 0.22));
+  filter: drop-shadow(0 8px 20px rgba(77, 42, 0, 0.22));
 
   @media (max-width: 480px) {
     width: 115px;
@@ -221,7 +527,31 @@ ion-toolbar {
   }
 }
 
-// ── Category Pills ────────────────────────────────────────────────────────────
+// ── Catalog Hero variant (full-width bg, centered content, no side image) ──
+.bakery-hero--catalog {
+  background: var(--bakery-base-tint);
+  padding: var(--bakery-space-4) var(--bakery-space-3);
+  min-height: auto;
+  border-radius: 0;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+
+  &::before {
+    display: none;
+  }
+}
+
+.bakery-hero__inner {
+  max-width: var(--bakery-container-max);
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 6 · Category Pills & Circles
+// ═════════════════════════════════════════════════════════════════════════════
 
 .bakery-pills {
   display: flex;
@@ -230,7 +560,7 @@ ion-toolbar {
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  background: $cream;
+  background: var(--bakery-card);
 
   &::-webkit-scrollbar { display: none; }
 }
@@ -238,35 +568,40 @@ ion-toolbar {
 .bakery-pill {
   flex-shrink: 0;
   padding: 8px 18px;
-  border-radius: 24px;
+  border-radius: var(--bakery-radius-pill);
   font-family: $font;
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
-  border: none;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  border: 2px solid var(--bakery-dark);
+  transition: background var(--bakery-dur-fast) var(--bakery-ease), color var(--bakery-dur-fast) var(--bakery-ease), transform var(--bakery-dur-fast) var(--bakery-ease);
   white-space: nowrap;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+
+  &:hover { transform: translateY(-1px); }
 
   &--active {
-    background: $coral;
+    background: var(--bakery-burnt-shade);
     color: #fff;
-    box-shadow: 0 3px 10px rgba(255, 91, 53, 0.3);
+    border-color: var(--bakery-dark);
+    font-weight: 700;
   }
 
   &--inactive {
-    background: #fff;
-    color: $brown;
-    border: 1.5px solid $cream-border;
+    background: var(--bakery-button);
+    color: var(--bakery-dark);
   }
 }
 
-// ── Category Circles ──────────────────────────────────────────────────────────
-
 .bakery-cats {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
+  flex-wrap: wrap;
   padding: 16px 12px 8px;
-  gap: 8px;
+  gap: 32px;
+  background: var(--bakery-card);
 }
 
 .bakery-cat {
@@ -284,13 +619,13 @@ ion-toolbar {
   height: 72px;
   border-radius: 50%;
   overflow: hidden;
-  background: #fff;
-  border: 2.5px solid $cream-border;
+  background: var(--bakery-card);
+  border: 2.5px solid var(--bakery-card-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(61, 30, 22, 0.10);
-  transition: transform 0.18s, box-shadow 0.18s;
+  box-shadow: 0 2px 8px rgba(77, 42, 0, 0.10);
+  transition: transform var(--bakery-dur) var(--bakery-ease), box-shadow var(--bakery-dur) var(--bakery-ease);
 
   img {
     width: 64px;
@@ -299,8 +634,8 @@ ion-toolbar {
   }
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 18px rgba(61, 30, 22, 0.16);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 18px rgba(77, 42, 0, 0.16);
   }
 
   @media (max-width: 400px) {
@@ -316,111 +651,335 @@ ion-toolbar {
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: $brown;
+  color: var(--bakery-dark);
   text-align: center;
 }
 
-// ── Product Grid ──────────────────────────────────────────────────────────────
+/* ── Search Input ────────────────────────────────────────────────────────────── */
+.bakery-search {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+
+  &__input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 16px 11px 44px;
+    border: 2px solid var(--bakery-card-border);
+    border-radius: var(--bakery-radius-input);
+    background: var(--bakery-input-bg);
+    font-family: var(--bakery-font);
+    font-size: 0.875rem;
+    color: var(--bakery-dark);
+    outline: none;
+    transition: border-color var(--bakery-dur-fast) var(--bakery-ease), box-shadow var(--bakery-dur-fast) var(--bakery-ease);
+
+    &::placeholder {
+      color: var(--bakery-text-muted);
+    }
+
+    &:focus {
+      border-color: var(--bakery-burnt);
+      box-shadow: var(--bakery-focus-ring);
+    }
+  }
+
+  &__icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1rem;
+    color: var(--bakery-text-muted);
+    pointer-events: none;
+  }
+
+  &__clear {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--bakery-text-muted);
+    padding: 0;
+    line-height: 1;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 7 · Product Grid & Cards (auto-fill minmax(230px), hover animations)
+// ═════════════════════════════════════════════════════════════════════════════
+
+.bakery-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 20px;
+  padding: var(--bakery-space-1) 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Override Ionic grid when using CSS grid layout */
+ion-grid:has(.bakery-product-grid),
+ion-row.bakery-product-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)) !important;
+  gap: 20px !important;
+  padding: var(--bakery-space-1) 0 !important;
+  width: 100% !important;
+}
+
+ion-row.bakery-product-grid > ion-col,
+ion-grid:has(.bakery-product-grid) > ion-row > ion-col {
+  padding: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+  flex: none !important;
+  --ion-grid-column-padding: 0;
+}
 
 .bakery-product-card {
-  --background: #fff;
-  border-radius: 16px !important;
-  box-shadow: 0 2px 12px rgba(61, 30, 22, 0.09) !important;
+  --background: var(--bakery-card);
+  border-radius: var(--bakery-radius-card) !important;
+  box-shadow: var(--bakery-card-shadow) !important;
   margin: 0 !important;
-  overflow: visible !important;
   position: relative;
+  border: 1.5px solid var(--bakery-card-border);
+  transition: transform var(--bakery-dur) var(--bakery-ease), box-shadow var(--bakery-dur) var(--bakery-ease);
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 0 rgba(77, 42, 0, 0.15) !important;
+  }
+
+  // Image zoom on hover
+  &:hover .bakery-product-card__img-wrap img {
+    transform: scale(1.06);
+  }
 }
 
 .bakery-product-card__price-tag {
   position: absolute;
   top: 10px;
   right: 10px;
-  background: $coral;
-  color: #fff;
+  background: var(--bakery-navbar);
+  color: var(--bakery-dark);
   font-family: $font;
   font-size: 0.7rem;
-  font-weight: 700;
+  font-weight: 800;
   padding: 3px 8px;
   border-radius: 8px;
   z-index: 2;
   line-height: 1.4;
+  white-space: nowrap;
 }
 
 .bakery-product-card__img-wrap {
-  background: $beige-card;
+  background: var(--bakery-base);
   border-radius: 12px 12px 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px 8px 8px;
-  min-height: 120px;
+  min-height: 160px;
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 4 / 3;
 
   img {
-    width: 100px;
-    height: 100px;
-    object-fit: contain;
-    filter: drop-shadow(0 4px 8px rgba(61, 30, 22, 0.15));
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: drop-shadow(0 4px 8px rgba(77, 42, 0, 0.15));
+    transition: transform var(--bakery-dur-slow) var(--bakery-ease);
   }
+
+  /* Fallback for broken images */
+  &::after {
+    content: 'No image';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--bakery-font);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--bakery-text-muted);
+    background: var(--bakery-button);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: drop-shadow(0 4px 8px rgba(77, 42, 0, 0.15));
+    transition: transform var(--bakery-dur-slow) var(--bakery-ease);
+  }
+}
+
+.bakery-product-card__category-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(77, 42, 0, 0.82);
+  color: var(--bakery-card);
+  font-family: $font;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 6px;
+  z-index: 2;
+  line-height: 1.4;
+  white-space: nowrap;
+  max-width: calc(100% - 20px);
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.bakery-product-card__status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: $font;
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  z-index: 2;
+  line-height: 1.4;
+  white-space: nowrap;
+  letter-spacing: 0.4px;
+}
+
+.bakery-product-card__status--sold-out {
+  background: var(--bakery-burnt);
+  color: var(--bakery-base);
+}
+
+.bakery-product-card__status--low-stock {
+  background: rgba(245, 166, 35, 0.95);
+  color: var(--bakery-dark);
 }
 
 .bakery-product-card__body {
   padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .bakery-product-card__name {
   font-family: $font;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   font-weight: 700;
-  color: $brown;
+  color: var(--bakery-dark);
   margin: 0 0 3px 0;
   line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bakery-product-card__stars {
+  font-family: $font;
+  font-size: 0.68rem;
+  color: var(--bakery-navbar);
+  letter-spacing: 1px;
+  margin: 0 0 3px 0;
+  line-height: 1;
 }
 
 .bakery-product-card__desc {
   font-family: $font;
   font-size: 0.72rem;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
   margin: 0 0 10px 0;
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1 1 auto;
+}
+
+.bakery-product-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.bakery-product-card__price {
+  font-family: $font;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--bakery-dark);
+  white-space: nowrap;
 }
 
 .bakery-product-card__btn {
-  --background: #{$brown};
-  --background-hover: #{$brown-dark};
-  --background-activated: #{$brown-dark};
-  --color: #{$cream};
+  --background: var(--bakery-button);
+  --background-hover: var(--bakery-burnt);
+  --background-activated: var(--bakery-burnt);
+  --color: var(--bakery-dark);
+  --color-hover: #fff;
+  --color-activated: #fff;
   --border-radius: 8px;
-  --padding-top: 8px;
-  --padding-bottom: 8px;
-  --padding-start: 12px;
-  --padding-end: 12px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  height: 32px;
-  width: 100%;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  height: 44px;
+  min-width: 96px;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &::part(native) {
+    border: 2px solid var(--bakery-dark);
+    box-shadow: 0 3px 0 var(--bakery-dark);
+  }
 }
 
-// ── Chef Spotlight ────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 8 · Chef Spotlight
+// ═════════════════════════════════════════════════════════════════════════════
 
 .bakery-chef-section {
-  background: $yellow;
+  background: var(--bakery-base-tint);
   padding: 32px 20px;
   margin: 0;
 }
 
 .bakery-chef-card {
-  background: $brown;
-  border-radius: 16px;
+  background: var(--bakery-dark);
+  border-radius: var(--bakery-radius-card);
   overflow: hidden;
   position: relative;
-  min-height: 160px;
+  min-height: 280px;
   display: flex;
   align-items: flex-end;
 
   img.bakery-chef-card__photo {
     width: 100%;
-    height: 200px;
+    height: 100%;
+    min-height: 280px;
     object-fit: cover;
+    object-position: center top;
     display: block;
   }
 
@@ -429,14 +988,14 @@ ion-toolbar {
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, rgba(43,23,18,0.92) 0%, transparent 100%);
+    background: linear-gradient(to top, rgba(77, 42, 0, 0.92) 0%, transparent 100%);
     padding: 16px;
 
     p {
       font-family: $font;
       font-size: 0.8rem;
       font-weight: 700;
-      color: $cream;
+      color: var(--bakery-base);
       margin: 0;
       line-height: 1.3;
       font-style: italic;
@@ -452,14 +1011,14 @@ ion-toolbar {
   font-family: $font;
   font-size: 1rem;
   font-weight: 800;
-  color: $brown;
+  color: var(--bakery-dark);
   margin: 0 0 4px 0;
 }
 
 .bakery-chef-info__bio {
   font-family: $font;
   font-size: 0.82rem;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
   line-height: 1.55;
   margin: 0 0 16px 0;
 }
@@ -473,8 +1032,8 @@ ion-toolbar {
   flex: 1 1 0;
   border-radius: 12px;
   overflow: hidden;
-  background: $beige-card;
-  border: 1.5px solid $cream-border;
+  background: var(--bakery-card);
+  border: 1.5px solid var(--bakery-card-border);
 
   img {
     width: 100%;
@@ -484,33 +1043,39 @@ ion-toolbar {
   }
 }
 
-// ── Testimonials ──────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 9 · Testimonials
+// ═════════════════════════════════════════════════════════════════════════════
 
 .bakery-testimonial-section {
-  background: $cream;
+  background: var(--bakery-card);
   padding: 36px 20px;
 }
 
 .bakery-testimonial-card {
-  background: #fff;
+  background: var(--bakery-base);
   border-radius: 14px;
   padding: 20px;
-  border: 1px solid $cream-border;
-  box-shadow: 0 2px 8px rgba(61, 30, 22, 0.06);
+  border: 1.5px solid var(--bakery-card-border);
+  box-shadow: var(--bakery-card-shadow);
   margin-bottom: 12px;
+  transition: transform var(--bakery-dur) var(--bakery-ease);
+
+  &:hover { transform: translateY(-2px); }
 }
 
 .bakery-testimonial-card__stars {
-  color: #F5A623;
+  color: var(--bakery-navbar);
   font-size: 0.85rem;
   margin-bottom: 8px;
   letter-spacing: 2px;
+  white-space: nowrap;
 }
 
 .bakery-testimonial-card__text {
   font-family: $font;
   font-size: 0.85rem;
-  color: $brown-mid;
+  color: var(--bakery-dark);
   line-height: 1.6;
   margin: 0 0 12px 0;
   font-style: italic;
@@ -531,25 +1096,28 @@ ion-toolbar {
   .author-name {
     font-size: 0.8rem;
     font-weight: 700;
-    color: $brown;
+    color: var(--bakery-dark);
     margin: 0;
   }
 
   .author-role {
     font-size: 0.72rem;
-    color: $text-secondary;
+    color: var(--bakery-text-secondary);
     margin: 0;
   }
 }
 
-// ── Newsletter / CTA Banner ───────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 10 · Newsletter / CTA Banner (dark brown bg, light text)
+// ═════════════════════════════════════════════════════════════════════════════
 
 .bakery-newsletter {
-  background: $brown;
-  padding: 40px 24px;
+  background: var(--bakery-dark);
+  padding: var(--bakery-space-4) var(--bakery-space-3);
   text-align: center;
   position: relative;
   overflow: hidden;
+  color: var(--bakery-base);
 
   &::before {
     content: '';
@@ -559,7 +1127,7 @@ ion-toolbar {
     width: 200px;
     height: 200px;
     border-radius: 50%;
-    background: rgba(255, 91, 53, 0.12);
+    background: rgba(204, 111, 0, 0.12);
     pointer-events: none;
   }
 
@@ -571,17 +1139,17 @@ ion-toolbar {
     width: 240px;
     height: 240px;
     border-radius: 50%;
-    background: rgba(255, 91, 53, 0.08);
+    background: rgba(204, 111, 0, 0.08);
     pointer-events: none;
   }
 }
 
 .bakery-newsletter__eyebrow {
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: $coral;
+  color: var(--bakery-navbar);
   margin: 0 0 8px 0;
 }
 
@@ -589,7 +1157,7 @@ ion-toolbar {
   font-family: $font;
   font-size: clamp(1.3rem, 3.5vw, 1.9rem);
   font-weight: 900;
-  color: $cream;
+  color: var(--bakery-base);
   margin: 0 0 8px 0;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -597,7 +1165,7 @@ ion-toolbar {
 
 .bakery-newsletter__sub {
   font-size: 0.875rem;
-  color: rgba(251, 246, 238, 0.7);
+  color: rgba(249, 230, 168, 0.7);
   margin: 0 0 28px 0;
   line-height: 1.55;
 }
@@ -615,55 +1183,68 @@ ion-toolbar {
 
 .bakery-newsletter__input {
   flex: 1 1 0;
-  --background: rgba(255,255,255,0.1);
-  --color: #{$cream};
-  --placeholder-color: rgba(251, 246, 238, 0.5);
+  --background: rgba(255, 255, 255, 0.1);
+  --color: var(--bakery-base);
+  --placeholder-color: rgba(249, 230, 168, 0.5);
   --padding-start: 16px;
   --padding-end: 16px;
-  --border-radius: 10px;
-  border: 1.5px solid rgba(255,255,255,0.15);
-  border-radius: 10px;
+  --border-radius: var(--bakery-radius-input);
+  border: 1.5px solid rgba(249, 230, 168, 0.18);
+  border-radius: var(--bakery-radius-input);
   font-size: 0.875rem;
   height: 46px;
-  backdrop-filter: blur(4px);
+
+  &::part(native) {
+    border-radius: var(--bakery-radius-input);
+    padding-inline-start: 16px;
+    padding-inline-end: 16px;
+  }
 }
 
 .bakery-newsletter__btn {
-  --background: #{$coral};
-  --background-hover: #{$coral-dark};
-  --background-activated: #{$coral-dark};
+  --background: var(--bakery-burnt);
+  --background-hover: var(--bakery-burnt);
+  --background-activated: #B35E00;
   --color: #fff;
-  --border-radius: 10px;
-  --padding-top: 0;
-  --padding-bottom: 0;
+  --border-radius: var(--bakery-radius-button);
   --padding-start: 22px;
   --padding-end: 22px;
-  --box-shadow: 0 4px 16px rgba(255, 91, 53, 0.4);
   font-weight: 700;
   font-size: 0.875rem;
   height: 46px;
   flex-shrink: 0;
+
+  &::part(native) {
+    border: 2px solid var(--bakery-base);
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3);
+  }
 }
 
-// ── Promotions Page ───────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 11 · Promotions Page
+// ═════════════════════════════════════════════════════════════════════════════
 
 .promo-card {
-  background: #fff;
-  border-radius: 16px;
+  background: var(--bakery-card);
+  border-radius: var(--bakery-radius-card);
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(61, 30, 22, 0.08);
+  box-shadow: var(--bakery-card-shadow);
+  border: 1.5px solid var(--bakery-card-border);
   margin-bottom: 16px;
   display: flex;
   align-items: stretch;
+  transition: transform var(--bakery-dur) var(--bakery-ease);
+
+  &:hover { transform: translateY(-2px); }
 }
 
 .promo-card__accent {
   width: 8px;
   flex-shrink: 0;
-  background: $coral;
+  background: var(--bakery-burnt);
 
-  &--yellow { background: $yellow; }
-  &--brown  { background: $brown-mid; }
+  &--yellow { background: var(--bakery-navbar); }
+  &--brown  { background: var(--bakery-dark); }
 }
 
 .promo-card__body {
@@ -673,8 +1254,8 @@ ion-toolbar {
 
 .promo-card__badge {
   display: inline-block;
-  background: rgba(255, 91, 53, 0.1);
-  color: $coral;
+  background: rgba(204, 111, 0, 0.1);
+  color: var(--bakery-dark);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -688,14 +1269,14 @@ ion-toolbar {
   font-family: $font;
   font-size: 0.95rem;
   font-weight: 700;
-  color: $brown;
+  color: var(--bakery-dark);
   margin: 0 0 4px 0;
 }
 
 .promo-card__desc {
   font-family: $font;
   font-size: 0.8rem;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
   margin: 0 0 12px 0;
   line-height: 1.5;
 }
@@ -704,13 +1285,13 @@ ion-toolbar {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: $cream-deep;
-  border: 1.5px dashed $cream-border;
+  background: var(--bakery-base);
+  border: 1.5px dashed var(--bakery-card-border);
   padding: 5px 12px;
   border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 700;
-  color: $brown;
+  color: var(--bakery-dark);
   letter-spacing: 0.05em;
 }
 
@@ -724,54 +1305,60 @@ ion-toolbar {
 .promo-card__chip {
   display: inline-flex;
   align-items: center;
-  background: rgba(61, 30, 22, 0.06);
-  color: $text-secondary;
-  border: 1px solid rgba(61, 30, 22, 0.1);
+  background: rgba(77, 42, 0, 0.06);
+  color: var(--bakery-text-secondary);
+  border: 1px solid var(--bakery-card-border);
   padding: 3px 9px;
-  border-radius: 999px;
+  border-radius: var(--bakery-radius-pill);
   font-size: 0.7rem;
   font-weight: 600;
 }
 
 .notice-box {
-  background: rgba(255, 91, 53, 0.1);
-  border: 1px solid rgba(255, 91, 53, 0.35);
-  color: #9C3D24;
+  background: var(--bakery-error-bg);
+  border: 1px solid var(--bakery-error-border);
+  color: var(--bakery-error);
   font-size: 0.8rem;
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: var(--bakery-radius-input);
   margin-bottom: 14px;
 
   &--error {
-    background: rgba(211, 47, 47, 0.08);
-    border-color: rgba(211, 47, 47, 0.35);
-    color: #B3261E;
+    background: var(--bakery-error-bg);
+    border-color: var(--bakery-error-border);
+    color: var(--bakery-error);
   }
 }
 
-// ── Orders Page ───────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 12 · Orders Page (stat cards, order items, qty buttons)
+// ═════════════════════════════════════════════════════════════════════════════
 
 .orders-stat-row {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 12px;
   margin-bottom: 24px;
 }
 
 .orders-stat-card {
-  background: #fff;
-  border-radius: 14px;
+  background: var(--bakery-card);
+  border: 1.5px solid var(--bakery-card-border);
+  border-top: 5px solid var(--bakery-burnt);
+  border-radius: var(--bakery-radius-card);
   padding: 18px 14px;
   text-align: center;
-  border: 1px solid $cream-border;
-  box-shadow: 0 1px 6px rgba(61, 30, 22, 0.06);
+  box-shadow: var(--bakery-card-shadow);
+  transition: transform var(--bakery-dur) var(--bakery-ease);
+
+  &:hover { transform: translateY(-2px); }
 }
 
 .orders-stat-card__value {
   font-family: $font;
   font-size: 1.6rem;
-  font-weight: 900;
-  color: $brown;
+  font-weight: 800;
+  color: var(--bakery-dark);
   margin: 0;
   line-height: 1;
 }
@@ -779,21 +1366,21 @@ ion-toolbar {
 .orders-stat-card__label {
   font-family: $font;
   font-size: 0.72rem;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
   margin: 4px 0 0 0;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .order-item {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: #fff;
+  background: var(--bakery-card);
   border-radius: 14px;
   padding: 14px 16px;
   margin-bottom: 10px;
-  border: 1px solid $cream-border;
-  box-shadow: 0 1px 4px rgba(61, 30, 22, 0.05);
+  border: 1.5px solid var(--bakery-card-border);
+  box-shadow: var(--bakery-card-shadow);
 }
 
 .order-item__img {
@@ -801,7 +1388,7 @@ ion-toolbar {
   height: 56px;
   border-radius: 10px;
   object-fit: cover;
-  background: $beige-card;
+  background: var(--bakery-base);
   flex-shrink: 0;
 }
 
@@ -814,30 +1401,208 @@ ion-toolbar {
   font-family: $font;
   font-size: 0.875rem;
   font-weight: 700;
-  color: $brown;
+  color: var(--bakery-dark);
   margin: 0 0 3px 0;
 }
 
 .order-item__meta {
   font-size: 0.75rem;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
   margin: 0;
 }
 
-.order-item__status {
+// ── Qty stepper buttons ──────────────────────────────────────────────────────
+
+.qty-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-family: $font;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--bakery-dur-fast) var(--bakery-ease);
+  min-height: 32px;
+
+  &:active { transform: scale(0.9); }
+
+  &--minus {
+    border: 2px solid var(--bakery-dark);
+    background: var(--bakery-card);
+    color: var(--bakery-dark);
+  }
+
+  &--plus {
+    border: 2px solid var(--bakery-dark);
+    background: var(--bakery-burnt);
+    color: #fff;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 13 · Status Badges (order/stock status with palette status colors)
+// ═════════════════════════════════════════════════════════════════════════════
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--bakery-radius-pill);
   font-family: $font;
   font-size: 0.7rem;
   font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 8px;
-  flex-shrink: 0;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background var(--bakery-dur) var(--bakery-ease), color var(--bakery-dur) var(--bakery-ease);
 
-  &--ready    { background: rgba(34,197,94,0.12);  color: #16a34a; }
-  &--baking   { background: rgba(255,91,53,0.12);  color: $coral-dark; }
-  &--pending  { background: rgba(245,166,35,0.12); color: #b45309; }
+  &--amber {
+    background: rgba(183, 121, 31, 0.12);
+    color: var(--bakery-status-pending);
+    border: 1px solid rgba(183, 121, 31, 0.35);
+  }
+
+  &--blue {
+    background: rgba(43, 108, 176, 0.12);
+    color: var(--bakery-status-delivery);
+    border: 1px solid rgba(43, 108, 176, 0.35);
+  }
+
+  &--purple {
+    background: rgba(109, 63, 168, 0.12);
+    color: #6D3FA8;
+    border: 1px solid rgba(109, 63, 168, 0.35);
+  }
+
+  &--green {
+    background: rgba(46, 125, 79, 0.12);
+    color: var(--bakery-status-finished);
+    border: 1px solid rgba(46, 125, 79, 0.35);
+  }
+
+  &--red {
+    background: rgba(179, 38, 30, 0.12);
+    color: var(--bakery-status-cancelled);
+    border: 1px solid rgba(179, 38, 30, 0.35);
+  }
 }
 
-// ── Feedback Page ─────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 14 · Fulfillment / Order Cards
+// ═════════════════════════════════════════════════════════════════════════════
+
+.fulfill-card {
+  background: var(--bakery-card);
+  border: 1.5px solid var(--bakery-card-border);
+  border-radius: var(--bakery-radius-card);
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--bakery-card-shadow);
+  transition: transform var(--bakery-dur) var(--bakery-ease);
+
+  &:hover { transform: translateY(-2px); }
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  &__order-no {
+    margin: 0;
+    font-family: $font;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--bakery-dark);
+  }
+
+  &__meta {
+    margin: 2px 0 0;
+    font-family: $font;
+    font-size: 0.72rem;
+    color: var(--bakery-text-muted);
+  }
+
+  &__customer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--bakery-base);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+  }
+
+  &__name {
+    margin: 0;
+    font-family: $font;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--bakery-dark);
+  }
+
+  &__tel {
+    font-family: $font;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--bakery-dark);
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  &__block {
+    padding: 8px 0;
+  }
+
+  &__label {
+    margin: 0 0 4px;
+    font-family: $font;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--bakery-text-muted);
+  }
+
+  &__text {
+    margin: 0 0 3px;
+    font-family: $font;
+    font-size: 0.84rem;
+    color: var(--bakery-dark);
+    line-height: 1.45;
+  }
+
+  &__link {
+    color: var(--bakery-burnt);
+    font-weight: 600;
+  }
+
+  &__total {
+    margin: 0;
+    font-family: $font;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--bakery-dark);
+  }
+
+  &__status {
+    font-family: $font;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 15 · Feedback Page
+// ═════════════════════════════════════════════════════════════════════════════
 
 .feedback-star-row {
   display: flex;
@@ -849,19 +1614,19 @@ ion-toolbar {
 .feedback-star {
   font-size: 2rem;
   cursor: pointer;
-  transition: transform 0.15s;
-  color: $cream-border;
+  transition: transform var(--bakery-dur-fast) var(--bakery-ease);
+  color: var(--bakery-card-border);
 
-  &--active { color: #F5A623; }
+  &--active { color: var(--bakery-navbar); }
   &:hover   { transform: scale(1.2); }
 }
 
 .feedback-form-card {
-  background: #fff;
-  border-radius: 16px;
+  background: var(--bakery-card);
+  border-radius: var(--bakery-radius-card);
   padding: 24px;
-  border: 1px solid $cream-border;
-  box-shadow: 0 2px 10px rgba(61, 30, 22, 0.07);
+  border: 1.5px solid var(--bakery-card-border);
+  box-shadow: var(--bakery-card-shadow);
   margin-bottom: 24px;
 }
 
@@ -869,28 +1634,36 @@ ion-toolbar {
   font-family: $font;
   font-size: 0.8rem;
   font-weight: 600;
-  color: $brown;
+  color: var(--bakery-dark);
   margin: 0 0 6px 0;
   display: block;
 }
 
 .feedback-submit-btn {
-  --background: #{$coral};
-  --background-hover: #{$coral-dark};
-  --background-activated: #{$coral-dark};
-  --color: #fff;
-  --border-radius: 12px;
+  --background: var(--bakery-button);
+  --background-hover: var(--bakery-burnt);
+  --background-activated: var(--bakery-burnt);
+  --color: var(--bakery-dark);
+  --color-hover: #fff;
+  --color-activated: #fff;
+  --border-radius: var(--bakery-radius-button);
   --padding-top: 16px;
   --padding-bottom: 16px;
-  --box-shadow: 0 4px 16px rgba(255, 91, 53, 0.3);
   font-weight: 700;
   font-size: 0.9rem;
   width: 100%;
   height: 50px;
   margin-top: 8px;
+
+  &::part(native) {
+    border: var(--bakery-btn-border);
+    box-shadow: var(--bakery-btn-shadow);
+  }
 }
 
-// ── Admin / Developers (retain existing) ──────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 16 · Admin / Developers / Page Hero
+// ═════════════════════════════════════════════════════════════════════════════
 
 .page-hero {
   display: flex;
@@ -898,20 +1671,20 @@ ion-toolbar {
   align-items: flex-start;
   gap: 12px;
   padding: 8px 0 28px;
-  border-bottom: 1px solid $cream-border;
+  border-bottom: 1px solid var(--bakery-card-border);
   margin-bottom: 24px;
 }
 
 .page-hero-icon {
   font-size: 40px;
-  color: $coral;
+  color: var(--bakery-burnt);
 }
 
 .page-title {
   font-family: $font;
   font-size: 1.5rem;
   font-weight: 800;
-  color: $brown;
+  color: var(--bakery-dark);
   margin: 0 0 4px 0;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -921,31 +1694,23 @@ ion-toolbar {
   font-family: $font;
   font-size: 0.875rem;
   font-weight: 400;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
   margin: 0;
   line-height: 1.5;
-}
-
-.page-card {
-  background: #ffffff;
-  border: 1px solid $cream-border;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 16px;
 }
 
 .page-card-heading {
   font-family: $font;
   font-size: 1rem;
-  font-weight: 600;
-  color: $brown;
+  font-weight: 700;
+  color: var(--bakery-dark);
   margin: 0 0 8px 0;
 }
 
 .page-card-body {
   font-family: $font;
   font-size: 0.875rem;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
   margin: 0;
   line-height: 1.6;
 }
@@ -957,9 +1722,10 @@ ion-toolbar {
 }
 
 .dev-card {
-  --background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 1px 6px rgba(61, 30, 22, 0.07);
+  --background: var(--bakery-card);
+  border-radius: var(--bakery-radius-card);
+  box-shadow: var(--bakery-card-shadow);
+  border: 1.5px solid var(--bakery-card-border);
   margin: 0;
 }
 
@@ -976,29 +1742,29 @@ ion-toolbar {
   height: 56px;
   border-radius: 50%;
   margin-bottom: 10px;
-  box-shadow: 0 2px 6px rgba(61, 30, 22, 0.10);
+  box-shadow: 0 2px 6px rgba(77, 42, 0, 0.10);
   img { width: 100%; height: 100%; object-fit: cover; }
 }
 
 .dev-name {
   font-family: $font;
   font-size: 0.875rem;
-  font-weight: 600;
-  color: $brown;
+  font-weight: 700;
+  color: var(--bakery-dark);
   margin: 0 0 4px 0;
 }
 
 .dev-role {
   font-family: $font;
   font-size: 0.75rem;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
   margin: 0;
   line-height: 1.4;
 }
 
 .admin-badge {
   font-size: 0.65rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.03em;
   vertical-align: middle;
   border-radius: 6px;
@@ -1012,293 +1778,28 @@ ion-toolbar {
 }
 
 .admin-module-card {
-  background: #ffffff;
-  border: 1px solid $cream-border;
+  background: var(--bakery-card);
+  border: 1.5px solid var(--bakery-card-border);
   border-radius: 14px;
   padding: 20px 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  box-shadow: 0 1px 4px rgba(61, 30, 22, 0.05);
+  box-shadow: var(--bakery-card-shadow);
 }
 
 .admin-module-label {
   font-family: $font;
   font-size: 0.875rem;
-  font-weight: 500;
-  color: $brown;
-  margin: 0;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// IONIC SHADOW DOM OVERRIDES — applied after all component styles so they win
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ── IonCard — force bakery border-radius & shadow through the shadow DOM ──────
-
-ion-card.bakery-product-card {
-  --background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(61, 30, 22, 0.09);
-  margin: 0;
-  overflow: visible;
-
-  &::part(native) {
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(61, 30, 22, 0.09);
-    overflow: hidden;
-  }
-}
-
-// ── IonButton — product card "Buy Now" / "Add to Cart" ───────────────────────
-
-ion-button.bakery-product-card__btn {
-  --background: #{$brown};
-  --background-hover: #{$brown-dark};
-  --background-activated: #{$brown-dark};
-  --color: #{$cream};
-  --border-radius: 8px;
-  --padding-top: 0;
-  --padding-bottom: 0;
-  --padding-start: 12px;
-  --padding-end: 12px;
-  --box-shadow: none;
-  font-family: $font;
-  font-size: 0.72rem;
   font-weight: 600;
-  height: 32px;
-  width: 100%;
+  color: var(--bakery-dark);
   margin: 0;
 }
 
-// ── IonButton — hero CTA "Book Order" ────────────────────────────────────────
-
-ion-button.bakery-hero__cta {
-  --background: #{$coral};
-  --background-hover: #{$coral-dark};
-  --background-activated: #{$coral-dark};
-  --color: #fff;
-  --border-radius: 10px;
-  --box-shadow: 0 4px 16px rgba(255, 91, 53, 0.35);
-  --padding-start: 28px;
-  --padding-end: 28px;
-  font-family: $font;
-  font-weight: 700;
-  font-size: 0.9rem;
-  height: 46px;
-  margin: 0;
-}
-
-// ── IonButton — newsletter subscribe ─────────────────────────────────────────
-
-ion-button.bakery-newsletter__btn {
-  --background: #{$coral};
-  --background-hover: #{$coral-dark};
-  --background-activated: #{$coral-dark};
-  --color: #fff;
-  --border-radius: 10px;
-  --box-shadow: 0 4px 16px rgba(255, 91, 53, 0.4);
-  --padding-start: 22px;
-  --padding-end: 22px;
-  font-family: $font;
-  font-weight: 700;
-  font-size: 0.875rem;
-  height: 46px;
-  flex-shrink: 0;
-  margin: 0;
-}
-
-// ── IonButton — feedback submit ───────────────────────────────────────────────
-
-ion-button.feedback-submit-btn {
-  --background: #{$coral};
-  --background-hover: #{$coral-dark};
-  --background-activated: #{$coral-dark};
-  --color: #fff;
-  --border-radius: 12px;
-  --box-shadow: 0 4px 16px rgba(255, 91, 53, 0.3);
-  --padding-top: 0;
-  --padding-bottom: 0;
-  font-family: $font;
-  font-weight: 700;
-  font-size: 0.9rem;
-  height: 50px;
-  width: 100%;
-  margin-top: 8px;
-  display: block;
-}
-
-// ── IonInput — newsletter field ───────────────────────────────────────────────
-
-ion-input.bakery-newsletter__input {
-  --background: rgba(255, 255, 255, 0.1);
-  --color: #{$cream};
-  --placeholder-color: rgba(251, 246, 238, 0.5);
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --border-radius: 10px;
-  --highlight-color-focused: #{$coral};
-  border: 1.5px solid rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
-  font-family: $font;
-  font-size: 0.875rem;
-  height: 46px;
-  flex: 1 1 0;
-
-  &::part(native) {
-    border-radius: 10px;
-    padding-inline-start: 16px;
-    padding-inline-end: 16px;
-  }
-}
-
-// ── IonTextarea — feedback form ───────────────────────────────────────────────
-
-ion-textarea {
-  --background: #{$cream};
-  --color: #{$brown};
-  --placeholder-color: #C4A882;
-  --border-radius: 10px;
-  --highlight-color-focused: #{$coral};
-  border: 1.5px solid $cream-border;
-  border-radius: 10px;
-  font-family: $font;
-  font-size: 0.875rem;
-  margin-bottom: 16px;
-  display: block;
-
-  &::part(native) {
-    padding: 12px 14px;
-    border-radius: 10px;
-  }
-
-  &.has-focus {
-    border-color: $coral;
-  }
-}
-
-// ── IonToolbar — ensure menu button & title colour stay on dark bg ────────────
-
-ion-header ion-toolbar {
-  --background: #{$brown};
-  --color: #{$cream};
-  --border-color: #{$brown-dark};
-  --min-height: 56px;
-
-  &::part(native) {
-    background: $brown;
-  }
-
-  ion-menu-button {
-    --color: #{$cream};
-
-    &::part(native) {
-      color: $cream;
-    }
-  }
-
-  ion-title {
-    color: $cream;
-
-    &::part(native) {
-      color: $cream;
-    }
-  }
-
-  // Ensure back-button & icon buttons also get cream colour
-  ion-back-button {
-    --color: #{$cream};
-  }
-}
-
-// ── IonList inside menu — remove default white background ─────────────────────
-
-ion-list.menu-nav-list,
-ion-list.menu-footer-list {
-  --background: transparent;
-  --ion-item-background: transparent;
-  background: transparent;
-}
-
-// ── IonItem inside menu — flatten default Ionic item chrome ──────────────────
-
-ion-item.menu-nav-item {
-  --background: transparent;
-  --inner-border-width: 0;
-  --border-width: 0;
-  --padding-start: 14px;
-  --padding-end: 14px;
-  --min-height: 46px;
-
-  &::part(native) {
-    border-radius: 12px;
-    padding-inline-start: 14px;
-    padding-inline-end: 14px;
-  }
-}
-
-// ── Responsive: single-column newsletter form on narrow screens ───────────────
-
-@media (max-width: 480px) {
-  .bakery-newsletter__form {
-    flex-direction: column;
-  }
-
-  ion-input.bakery-newsletter__input {
-    flex: none;
-    width: 100%;
-  }
-
-  ion-button.bakery-newsletter__btn {
-    width: 100%;
-  }
-}
-
-// ── Scrollbar — global thin bakery-toned scrollbar (WebKit) ──────────────────
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.spinner {
-  width: 34px;
-  height: 34px;
-  border: 3px solid $cream-border;
-  border-top-color: $coral;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-// ── Generic qty stepper buttons (cart / checkout) ────────────────────────────
-
-.qty-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-family: $font;
-  font-size: 1.1rem;
-  font-weight: 700;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &--minus {
-    border: 1.5px solid $cream-border;
-    background: #fff;
-    color: $brown;
-  }
-
-  &--plus {
-    border: none;
-    background: $coral;
-    color: #fff;
-  }
-}
-
-// ── Checkout ─────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 17 · Checkout
+// ═════════════════════════════════════════════════════════════════════════════
 
 .checkout-field {
   display: flex;
@@ -1311,35 +1812,35 @@ ion-item.menu-nav-item {
     font-weight: 700;
     letter-spacing: 0.3px;
     text-transform: uppercase;
-    color: $brown-mid;
+    color: var(--bakery-dark);
   }
 
   &__hint {
     font-family: $font;
     font-size: 0.72rem;
-    color: $muted;
+    color: var(--bakery-text-muted);
     margin: 0;
   }
 
   &__input {
     font-family: $font;
     font-size: 0.92rem;
-    color: $brown;
+    color: var(--bakery-dark);
     padding: 12px 14px;
-    border: 1.5px solid $cream-border;
-    border-radius: 12px;
-    background: #fff;
+    border: 2px solid var(--bakery-dark);
+    border-radius: var(--bakery-radius-input);
+    background: var(--bakery-input-bg);
     outline: none;
     width: 100%;
-    transition: border-color 0.18s;
+    transition: border-color var(--bakery-dur-fast) var(--bakery-ease), box-shadow var(--bakery-dur-fast) var(--bakery-ease);
 
     &:focus {
-      border-color: $coral;
+      border-color: var(--bakery-burnt);
+      box-shadow: var(--bakery-focus-ring);
     }
 
     &::placeholder {
-      color: $muted;
-      opacity: 0.75;
+      color: var(--bakery-text-muted);
     }
   }
 
@@ -1347,7 +1848,7 @@ ion-item.menu-nav-item {
     font-family: $font;
     font-size: 0.75rem;
     font-weight: 600;
-    color: $coral-dark;
+    color: var(--bakery-error);
     margin: 0;
   }
 }
@@ -1357,8 +1858,8 @@ ion-item.menu-nav-item {
   width: 100%;
   border-radius: 14px;
   overflow: hidden;
-  border: 1.5px solid $cream-border;
-  background: $cream-deep;
+  border: 2px solid var(--bakery-dark);
+  background: var(--bakery-base);
 }
 
 .coords-chip {
@@ -1366,10 +1867,10 @@ ion-item.menu-nav-item {
   align-items: center;
   gap: 6px;
   align-self: flex-start;
-  background: #EAF6EE;
-  color: #227A4B;
-  border: 1px solid #BFE3CE;
-  border-radius: 999px;
+  background: rgba(46, 125, 79, 0.1);
+  color: var(--bakery-status-finished);
+  border: 1px solid rgba(46, 125, 79, 0.35);
+  border-radius: var(--bakery-radius-pill);
   padding: 6px 12px;
   font-family: $font;
   font-size: 0.76rem;
@@ -1383,17 +1884,18 @@ ion-item.menu-nav-item {
   gap: 12px;
   width: 100%;
   text-align: left;
-  background: #fff;
-  border: 1.5px solid $cream-border;
+  background: var(--bakery-card);
+  border: 2px solid var(--bakery-dark);
   border-radius: 14px;
   padding: 14px 16px;
   cursor: pointer;
-  transition: border-color 0.18s, box-shadow 0.18s;
+  transition: border-color var(--bakery-dur-fast) var(--bakery-ease), box-shadow var(--bakery-dur-fast) var(--bakery-ease);
   font-family: inherit;
+  min-height: 44px;
 
   &--active {
-    border-color: $coral;
-    box-shadow: 0 0 0 3px rgba(255, 91, 53, 0.14);
+    border-color: var(--bakery-burnt);
+    box-shadow: var(--bakery-focus-ring);
   }
 
   &__title {
@@ -1401,7 +1903,7 @@ ion-item.menu-nav-item {
     font-family: $font;
     font-weight: 700;
     font-size: 0.9rem;
-    color: $brown;
+    color: var(--bakery-dark);
     margin-bottom: 2px;
   }
 
@@ -1409,26 +1911,26 @@ ion-item.menu-nav-item {
     display: block;
     font-family: $font;
     font-size: 0.75rem;
-    color: $muted;
+    color: var(--bakery-text-muted);
   }
 
   &__check {
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    border: 1.5px solid $cream-border;
+    border: 2px solid var(--bakery-dark);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.72rem;
     color: transparent;
-    transition: all 0.18s;
+    transition: all var(--bakery-dur-fast) var(--bakery-ease);
     flex-shrink: 0;
   }
 
   &--active &__check {
-    background: $coral;
-    border-color: $coral;
+    background: var(--bakery-burnt);
+    border-color: var(--bakery-burnt);
     color: #fff;
   }
 }
@@ -1440,163 +1942,34 @@ ion-item.menu-nav-item {
   padding: 4px 0;
   font-family: $font;
   font-size: 0.85rem;
-  color: rgba(251, 246, 238, 0.82);
+  color: rgba(249, 230, 168, 0.82);
 
   span:last-child {
-    color: #fff;
+    color: var(--bakery-base);
     font-weight: 600;
   }
 }
 
-// ── Status badges ────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 18 · Spinner / Loading
+// ═════════════════════════════════════════════════════════════════════════════
 
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-family: $font;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  white-space: nowrap;
-
-  &--amber {
-    background: #FFF4D6;
-    color: #A9700A;
-    border: 1px solid #F2DCA0;
-  }
-
-  &--blue {
-    background: #E3EDFB;
-    color: #1F5FA8;
-    border: 1px solid #BFD5F0;
-  }
-
-  &--purple {
-    background: #F0E7FB;
-    color: #6D3FA8;
-    border: 1px solid #D9C6F0;
-  }
-
-  &--green {
-    background: #EAF6EE;
-    color: #227A4B;
-    border: 1px solid #BFE3CE;
-  }
-
-  &--red {
-    background: #FDE8E6;
-    color: #B03A2A;
-    border: 1px solid #F2C6C0;
-  }
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-// ── Fulfillment / order cards ────────────────────────────────────────────────
-
-.fulfill-card {
-  background: #fff;
-  border: 1px solid $cream-border;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 2px 10px rgba(61, 30, 22, 0.04);
-
-  &__head {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 10px;
-  }
-
-  &__order-no {
-    margin: 0;
-    font-family: $font;
-    font-weight: 800;
-    font-size: 0.95rem;
-    color: $brown;
-  }
-
-  &__meta {
-    margin: 2px 0 0;
-    font-family: $font;
-    font-size: 0.72rem;
-    color: $muted;
-  }
-
-  &__customer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    background: $cream-deep;
-    border-radius: 10px;
-    padding: 8px 12px;
-    margin-bottom: 10px;
-  }
-
-  &__name {
-    margin: 0;
-    font-family: $font;
-    font-weight: 700;
-    font-size: 0.88rem;
-    color: $brown;
-  }
-
-  &__tel {
-    font-family: $font;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: $coral;
-    text-decoration: none;
-  }
-
-  &__block {
-    padding: 8px 0;
-  }
-
-  &__label {
-    margin: 0 0 4px;
-    font-family: $font;
-    font-size: 0.66rem;
-    font-weight: 800;
-    letter-spacing: 1px;
-    color: $muted;
-  }
-
-  &__text {
-    margin: 0 0 3px;
-    font-family: $font;
-    font-size: 0.84rem;
-    color: $brown;
-    line-height: 1.45;
-  }
-
-  &__link {
-    color: #1F5FA8;
-    font-weight: 600;
-  }
-
-  &__total {
-    margin: 0;
-    font-family: $font;
-    font-weight: 800;
-    font-size: 1rem;
-    color: $coral;
-  }
-
-  &__status {
-    font-family: $font;
-    font-size: 0.75rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-  }
+.spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--bakery-card-border);
+  border-top-color: var(--bakery-burnt);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-// ── Printable receipt ────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 19 · Printable Receipt
+// ═════════════════════════════════════════════════════════════════════════════
 
 .receipt-label {
   margin: 0 0 5px;
@@ -1604,7 +1977,7 @@ ion-item.menu-nav-item {
   font-size: 0.66rem;
   font-weight: 800;
   letter-spacing: 1px;
-  color: $muted;
+  color: var(--bakery-text-muted);
 }
 
 .receipt-value {
@@ -1612,169 +1985,72 @@ ion-item.menu-nav-item {
   font-family: $font;
   font-size: 0.88rem;
   font-weight: 600;
-  color: $brown;
+  color: var(--bakery-dark);
   line-height: 1.5;
 }
 
 .receipt-link {
-  color: #1F5FA8;
+  color: var(--bakery-burnt);
   font-weight: 600;
   text-decoration: none;
 }
 
-// ── Print ────────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 20 · Catalog Category Headers
+// ═════════════════════════════════════════════════════════════════════════════
 
-@media print {
-  // Hide everything that shouldn't appear on paper
-  .no-print {
-    display: none !important;
+.catalog-category-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 6px 6px;
+  border-bottom: 2px solid var(--bakery-card-border);
+  margin-bottom: 8px;
+
+  &__label {
+    font-family: $font;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--bakery-dark);
+    letter-spacing: -0.01em;
   }
 
-  // ── Ionic shadow DOM teardown ──────────────────────────────────────────────
-  // ion-content hides its children inside a shadow-DOM scroll div.
-  // We must flatten every layer so the browser print engine can see the DOM.
-
-  ion-app {
-    display: block !important;
-    overflow: visible !important;
-    height: auto !important;
-    position: static !important;
-    contain: none !important;
-  }
-
-  ion-router-outlet {
-    display: block !important;
-    overflow: visible !important;
-    height: auto !important;
-    position: static !important;
-    contain: none !important;
-  }
-
-  // The host element
-  ion-content {
-    display: block !important;
-    height: auto !important;
-    overflow: visible !important;
-    contain: none !important;
-    position: static !important;
-    // CSS custom property that Ionic reads to set overflow on its inner scroll
-    --overflow: visible !important;
-  }
-
-  // The shadow-DOM scroll container Ionic creates (.inner-scroll / ::part(scroll))
-  ion-content::part(scroll) {
-    overflow: visible !important;
-    height: auto !important;
-    position: static !important;
-    contain: none !important;
-  }
-
-  // Fallback for browsers that don't support ::part() — target the class directly
-  ion-content .inner-scroll {
-    overflow: visible !important;
-    height: auto !important;
-    position: static !important;
-    contain: none !important;
-  }
-
-  ion-header,
-  ion-toolbar,
-  ion-menu,
-  ion-menu-button,
-  ion-split-pane > *:first-child {
-    display: none !important;
-  }
-
-  // ── Page chrome ────────────────────────────────────────────────────────────
-
-  body, html {
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #fff !important;
-  }
-
-  .page-content {
-    --background: #fff;
-    background: #fff !important;
-  }
-
-  // ── Receipt block ──────────────────────────────────────────────────────────
-  // Make everything EXCEPT the receipt invisible, then pull the receipt
-  // into normal flow at the top of the page.
-
-  body * {
-    visibility: hidden;
-  }
-
-  .receipt-print,
-  .receipt-print * {
-    visibility: visible !important;
-  }
-
-  .receipt-print {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 8mm !important;
-    box-sizing: border-box !important;
-    background: #fff !important;
-
-    // Ensure coloured backgrounds print (browser default is to strip them)
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+  &__count {
+    font-family: $font;
+    font-size: 0.72rem;
+    color: var(--bakery-text-secondary);
+    font-weight: 500;
   }
 }
 
-// ── Scrollbar — global thin bakery-toned scrollbar (WebKit) ──────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 21 · Product Detail Modal
+// ═════════════════════════════════════════════════════════════════════════════
 
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: $cream-deep;
-}
-
-::-webkit-scrollbar-thumb {
-  background: $brown-mid;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: $brown;
-}
-
-
-// ── Product Detail Modal ──────────────────────────────────────────────────────
-
-// Backdrop
 .pdm-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(43, 23, 18, 0.6);
+  background: rgba(77, 42, 0, 0.55);
   z-index: 1000;
   backdrop-filter: blur(3px);
   animation: pdm-fade-in 0.2s ease;
 }
 
-// Bottom sheet container
 .pdm-sheet {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 1001;
-  background: $cream;
+  background: var(--bakery-card);
   border-radius: 24px 24px 0 0;
   max-height: 92vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 -8px 40px rgba(43, 23, 18, 0.28);
-  animation: pdm-slide-up 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  box-shadow: 0 -8px 40px rgba(77, 42, 0, 0.28);
+  animation: pdm-slide-up 0.28s var(--bakery-ease);
 
   @media (min-width: 640px) {
     max-width: 540px;
@@ -1794,32 +2070,31 @@ ion-item.menu-nav-item {
   to   { transform: translateY(0); }
 }
 
-// Close button
 .pdm-close {
   position: absolute;
   top: 14px;
   right: 14px;
   z-index: 10;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: none;
-  background: rgba(61, 30, 22, 0.12);
-  color: $brown;
+  border: 2px solid var(--bakery-dark);
+  background: var(--bakery-button);
+  color: var(--bakery-dark);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 1.1rem;
-  transition: background 0.15s;
+  transition: background var(--bakery-dur-fast) var(--bakery-ease), transform var(--bakery-dur-fast) var(--bakery-ease);
+  min-height: 36px;
 
-  &:hover { background: rgba(61, 30, 22, 0.22); }
+  &:hover { background: var(--bakery-burnt); color: #fff; transform: rotate(90deg); }
 }
 
-// Product image at the top
 .pdm-img-wrap {
   width: 100%;
-  background: $cream-deep;
+  background: var(--bakery-base);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1831,8 +2106,8 @@ ion-item.menu-nav-item {
   width: 180px;
   height: 180px;
   object-fit: contain;
-  border-radius: 16px;
-  filter: drop-shadow(0 6px 18px rgba(61, 30, 22, 0.18));
+  border-radius: var(--bakery-radius-card);
+  filter: drop-shadow(0 6px 18px rgba(77, 42, 0, 0.18));
 
   @media (max-width: 420px) {
     width: 140px;
@@ -1840,7 +2115,6 @@ ion-item.menu-nav-item {
   }
 }
 
-// Scrollable body below the image
 .pdm-body {
   flex: 1;
   overflow-y: auto;
@@ -1852,8 +2126,8 @@ ion-item.menu-nav-item {
 
 .pdm-category-badge {
   display: inline-block;
-  background: rgba(255, 91, 53, 0.1);
-  color: $coral;
+  background: rgba(204, 111, 0, 0.1);
+  color: var(--bakery-dark);
   font-family: $font;
   font-size: 0.65rem;
   font-weight: 700;
@@ -1862,14 +2136,14 @@ ion-item.menu-nav-item {
   padding: 3px 8px;
   border-radius: 6px;
   margin-bottom: 6px;
-  border: 1px solid rgba(255, 91, 53, 0.25);
+  border: 1px solid var(--bakery-card-border);
 }
 
 .pdm-name {
   font-family: $font;
   font-size: 1.3rem;
   font-weight: 900;
-  color: $brown;
+  color: var(--bakery-dark);
   margin: 0 0 4px 0;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -1877,7 +2151,7 @@ ion-item.menu-nav-item {
 
 .pdm-stars {
   font-size: 0.85rem;
-  color: #F5A623;
+  color: var(--bakery-navbar);
   letter-spacing: 2px;
   margin: 0 0 6px 0;
 }
@@ -1886,25 +2160,24 @@ ion-item.menu-nav-item {
   font-family: $font;
   font-size: 1.3rem;
   font-weight: 900;
-  color: $coral;
+  color: var(--bakery-burnt);
   white-space: nowrap;
 }
 
 .pdm-description {
   font-family: $font;
   font-size: 0.88rem;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
   line-height: 1.6;
   margin: 6px 0 0;
 }
 
 .pdm-divider {
   height: 1px;
-  background: $cream-border;
+  background: var(--bakery-card-border);
   margin: 0 20px;
 }
 
-// Details section
 .pdm-details {
   padding: 16px 20px 0;
 }
@@ -1919,86 +2192,95 @@ ion-item.menu-nav-item {
   font-weight: 800;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: $brown;
+  color: var(--bakery-dark);
   margin: 0 0 6px 0;
 }
 
 .pdm-section-text {
   font-family: $font;
   font-size: 0.875rem;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
   line-height: 1.65;
   margin: 0;
   white-space: pre-line;
 }
 
-// ── Admin form helpers ────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 22 · Admin Form Helpers
+// ═════════════════════════════════════════════════════════════════════════════
 
 .admin-field-label {
   font-family: $font;
   font-size: 0.8rem;
   font-weight: 600;
-  color: $brown;
+  color: var(--bakery-dark);
   display: block;
   margin-bottom: 6px;
 }
 
 .admin-ion-input {
-  --background: #{$cream};
-  --border-radius: 10px;
+  --background: var(--bakery-input-bg);
+  --border-radius: var(--bakery-radius-input);
   --padding-start: 14px;
   --padding-end: 14px;
-  border: 1.5px solid $cream-border;
-  border-radius: 10px;
+  --color: var(--bakery-dark);
+  --placeholder-color: var(--bakery-text-muted);
+  border: 2px solid var(--bakery-dark);
+  border-radius: var(--bakery-radius-input);
   font-family: $font;
   font-size: 0.875rem;
   display: block;
+
+  &::part(native) {
+    border-radius: var(--bakery-radius-input);
+  }
 }
 
 .admin-select {
   width: 100%;
-  background: $cream;
-  border: 1.5px solid $cream-border;
-  border-radius: 10px;
+  background: var(--bakery-input-bg);
+  border: 2px solid var(--bakery-dark);
+  border-radius: var(--bakery-radius-input);
   padding: 12px 14px;
   font-family: $font;
   font-size: 0.875rem;
-  color: $brown;
+  color: var(--bakery-dark);
   cursor: pointer;
 
   &:focus {
     outline: none;
-    border-color: $coral;
+    border-color: var(--bakery-burnt);
+    box-shadow: var(--bakery-focus-ring);
   }
 }
 
 .admin-textarea {
   width: 100%;
-  background: $cream;
-  border: 1.5px solid $cream-border;
-  border-radius: 10px;
+  background: var(--bakery-input-bg);
+  border: 2px solid var(--bakery-dark);
+  border-radius: var(--bakery-radius-input);
   padding: 10px 14px;
   font-family: $font;
   font-size: 0.875rem;
-  color: $brown;
+  color: var(--bakery-dark);
   resize: vertical;
   line-height: 1.55;
   box-sizing: border-box;
   display: block;
   margin-bottom: 0;
-  transition: border-color 0.18s;
+  transition: border-color var(--bakery-dur-fast) var(--bakery-ease);
 
-  &::placeholder { color: $muted; opacity: 0.75; }
-  &:focus { outline: none; border-color: $coral; }
+  &::placeholder { color: var(--bakery-text-muted); }
+  &:focus { outline: none; border-color: var(--bakery-burnt); box-shadow: var(--bakery-focus-ring); }
 }
 
 .admin-add-info-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: rgba(255, 91, 53, 0.08);
-  color: $coral;
-  border: 1.5px solid rgba(255, 91, 53, 0.3);
+  background: rgba(204, 111, 0, 0.08);
+  color: var(--bakery-dark);
+  border: 1.5px solid var(--bakery-card-border);
   border-radius: 8px;
   padding: 5px 12px;
   font-family: $font;
@@ -2006,61 +2288,34 @@ ion-item.menu-nav-item {
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background var(--bakery-dur-fast) var(--bakery-ease), border-color var(--bakery-dur-fast) var(--bakery-ease);
 
   &:hover {
-    background: rgba(255, 91, 53, 0.15);
-    border-color: rgba(255, 91, 53, 0.55);
+    background: rgba(204, 111, 0, 0.15);
+    border-color: rgba(204, 111, 0, 0.55);
   }
 }
 
-// ── Catalog category group headers ────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 23 · Order Oversight Page (oo-* classes)
+// ═════════════════════════════════════════════════════════════════════════════
 
-.catalog-category-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 18px 6px 8px;
-  border-bottom: 2px solid $cream-border;
-  margin-bottom: 4px;
-
-  &__label {
-    font-family: $font;
-    font-size: 1rem;
-    font-weight: 800;
-    color: $brown;
-    letter-spacing: -0.01em;
-  }
-
-  &__count {
-    font-family: $font;
-    font-size: 0.72rem;
-    color: $text-secondary;
-    font-weight: 500;
-  }
-}
-
-
-// ── Order Oversight Page ──────────────────────────────────────────────────────
-
-// Page header
 .oo-page-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   padding: 24px 20px 16px;
-  background: $cream-deep;
-  border-bottom: 1px solid $cream-border;
+  background: var(--bakery-base-tint);
+  border-bottom: 1px solid var(--bakery-card-border);
   flex-wrap: wrap;
 }
 
 .oo-page-title {
   font-family: $font;
   font-size: 1.5rem;
-  font-weight: 900;
-  color: $brown;
+  font-weight: 800;
+  color: var(--bakery-dark);
   margin: 0 0 4px;
   letter-spacing: -0.02em;
 }
@@ -2068,31 +2323,38 @@ ion-item.menu-nav-item {
 .oo-page-sub {
   font-family: $font;
   font-size: 0.82rem;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
   margin: 0;
   line-height: 1.5;
 }
 
 .oo-reload-btn {
   flex-shrink: 0;
-  background: $coral;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
+  background: var(--bakery-button);
+  color: var(--bakery-dark);
+  border: 2px solid var(--bakery-dark);
+  border-radius: var(--bakery-radius-button);
   padding: 8px 18px;
   font-family: $font;
   font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s;
-  &:hover { background: $coral-dark; }
+  box-shadow: var(--bakery-btn-shadow);
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--bakery-dur-fast) var(--bakery-ease), transform var(--bakery-dur-fast) var(--bakery-ease);
+
+  &:hover { background: var(--bakery-burnt); color: #fff; }
+  &:active { transform: translateY(2px); box-shadow: none; }
 }
 
 .oo-error-banner {
-  background: rgba(255,91,53,0.1);
-  border: 1px solid rgba(255,91,53,0.35);
-  color: $coral-dark;
-  border-radius: 12px;
+  background: var(--bakery-error-bg);
+  border: 1px solid var(--bakery-error-border);
+  color: var(--bakery-error);
+  border-radius: var(--bakery-radius-input);
   padding: 12px 20px;
   font-family: $font;
   font-size: 0.82rem;
@@ -2108,12 +2370,12 @@ ion-item.menu-nav-item {
   p {
     font-family: $font;
     font-size: 0.85rem;
-    color: $text-secondary;
+    color: var(--bakery-text-secondary);
     margin: 0;
   }
 }
 
-// ── Metric cards row ─────────────────────────────────────────────────────────
+// ── Metric cards (#FFF4D6 with colored top border) ───────────────────────────
 
 .oo-metrics-row {
   display: grid;
@@ -2127,15 +2389,22 @@ ion-item.menu-nav-item {
 
 .oo-metric-card {
   position: relative;
-  border-radius: 16px;
+  border-radius: var(--bakery-radius-card);
   padding: 20px 18px 16px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(61,30,22,0.08);
+  background: var(--bakery-card);
+  border: 1.5px solid var(--bakery-card-border);
+  border-top: 5px solid var(--bakery-burnt);
+  box-shadow: var(--bakery-card-shadow);
+  color: var(--bakery-dark);
+  transition: transform var(--bakery-dur) var(--bakery-ease);
 
-  &--coral  { background: $coral;       color: #fff; }
-  &--amber  { background: #F5A623;      color: #fff; }
-  &--brown  { background: $brown;       color: $cream; }
-  &--green  { background: #3D7A55;      color: #fff; }
+  &:hover { transform: translateY(-2px); }
+
+  &--coral  { border-top-color: var(--bakery-burnt); }
+  &--amber  { border-top-color: var(--bakery-status-pending); }
+  &--brown  { border-top-color: var(--bakery-dark); }
+  &--green  { border-top-color: var(--bakery-status-finished); }
 
   &__label {
     font-family: $font;
@@ -2143,14 +2412,15 @@ ion-item.menu-nav-item {
     font-weight: 700;
     letter-spacing: 0.07em;
     text-transform: uppercase;
-    opacity: 0.85;
+    color: var(--bakery-text-secondary);
     margin: 0 0 8px;
   }
 
   &__value {
     font-family: $font;
     font-size: 2rem;
-    font-weight: 900;
+    font-weight: 800;
+    color: var(--bakery-dark);
     margin: 0 0 4px;
     line-height: 1;
     letter-spacing: -0.03em;
@@ -2159,7 +2429,7 @@ ion-item.menu-nav-item {
   &__sub {
     font-family: $font;
     font-size: 0.72rem;
-    opacity: 0.75;
+    color: var(--bakery-text-muted);
     margin: 0;
   }
 
@@ -2170,10 +2440,11 @@ ion-item.menu-nav-item {
     font-size: 1.8rem;
     opacity: 0.22;
     pointer-events: none;
+    color: var(--bakery-dark);
   }
 }
 
-// ── Main two-column row ───────────────────────────────────────────────────────
+// ── Main two-column row ──────────────────────────────────────────────────────
 
 .oo-main-row {
   display: grid;
@@ -2189,11 +2460,11 @@ ion-item.menu-nav-item {
 // ── Order table card ─────────────────────────────────────────────────────────
 
 .oo-table-card {
-  background: #fff;
-  border: 1px solid $cream-border;
+  background: var(--bakery-card);
+  border: 1.5px solid var(--bakery-card-border);
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(61,30,22,0.06);
+  box-shadow: var(--bakery-card-shadow);
   display: flex;
   flex-direction: column;
 }
@@ -2203,7 +2474,7 @@ ion-item.menu-nav-item {
   align-items: center;
   justify-content: space-between;
   padding: 18px 20px 12px;
-  border-bottom: 1px solid $cream-border;
+  border-bottom: 1px solid var(--bakery-card-border);
   gap: 10px;
 }
 
@@ -2211,15 +2482,15 @@ ion-item.menu-nav-item {
   font-family: $font;
   font-size: 1rem;
   font-weight: 800;
-  color: $brown;
+  color: var(--bakery-dark);
   margin: 0;
 }
 
 .oo-table-card__count {
   font-family: $font;
   font-size: 0.75rem;
-  color: $text-secondary;
-  background: $cream-deep;
+  color: var(--bakery-text-secondary);
+  background: var(--bakery-base);
   padding: 3px 10px;
   border-radius: 20px;
   white-space: nowrap;
@@ -2230,7 +2501,7 @@ ion-item.menu-nav-item {
   display: flex;
   gap: 4px;
   padding: 12px 20px 0;
-  border-bottom: 2px solid $cream-border;
+  border-bottom: 2px solid var(--bakery-card-border);
   overflow-x: auto;
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
@@ -2244,18 +2515,19 @@ ion-item.menu-nav-item {
   font-family: $font;
   font-size: 0.8rem;
   font-weight: 600;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
   cursor: pointer;
-  border-bottom: 2.5px solid transparent;
+  border-bottom: 3px solid transparent;
   margin-bottom: -2px;
   border-radius: 4px 4px 0 0;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color var(--bakery-dur-fast) var(--bakery-ease), border-color var(--bakery-dur-fast) var(--bakery-ease);
 
-  &:hover { color: $brown; }
+  &:hover { color: var(--bakery-dark); }
 
   &--active {
-    color: $coral;
-    border-bottom-color: $coral;
+    color: var(--bakery-dark);
+    border-bottom-color: var(--bakery-burnt);
+    font-weight: 800;
   }
 }
 
@@ -2264,7 +2536,7 @@ ion-item.menu-nav-item {
   overflow-x: auto;
   flex: 1;
   scrollbar-width: thin;
-  scrollbar-color: $brown-mid $cream-deep;
+  scrollbar-color: var(--bakery-text-muted) var(--bakery-base);
 }
 
 .oo-table {
@@ -2278,46 +2550,51 @@ ion-item.menu-nav-item {
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: $muted;
-    background: $cream-deep;
+    color: var(--bakery-dark);
+    background: var(--bakery-dark);
     text-align: left;
     white-space: nowrap;
-    border-bottom: 1px solid $cream-border;
+    border-bottom: 1px solid var(--bakery-card-border);
   }
+
+  th, td { color: var(--bakery-dark); }
+
+  // table headers use light text on dark bg
+  th { color: var(--bakery-base); }
 
   td {
     padding: 13px 16px;
     font-size: 0.82rem;
-    color: $brown;
-    border-bottom: 1px solid rgba(237,224,204,0.5);
+    color: var(--bakery-dark);
+    border-bottom: 1px solid var(--bakery-card-border);
     vertical-align: middle;
     white-space: nowrap;
   }
 
   &__row:last-child td { border-bottom: none; }
 
-  &__row:hover td { background: $cream-deep; }
+  &__row:hover td { background: var(--bakery-base); }
 
   &__id {
     font-weight: 700;
-    color: $coral;
+    color: var(--bakery-burnt);
     font-size: 0.78rem;
     letter-spacing: 0.04em;
   }
 
   &__customer { font-weight: 600; }
 
-  &__date { color: $text-secondary; }
+  &__date { color: var(--bakery-text-secondary); }
 
   &__amount {
     font-weight: 800;
-    color: $brown;
+    color: var(--bakery-dark);
   }
 
   &__empty {
     text-align: center;
     padding: 48px 20px !important;
-    color: $text-secondary;
+    color: var(--bakery-text-secondary);
     font-size: 0.85rem;
   }
 }
@@ -2331,24 +2608,24 @@ ion-item.menu-nav-item {
 }
 
 .oo-widget-card {
-  background: #fff;
-  border: 1px solid $cream-border;
+  background: var(--bakery-card);
+  border: 1.5px solid var(--bakery-card-border);
   border-radius: 18px;
   padding: 18px 18px 14px;
-  box-shadow: 0 2px 10px rgba(61,30,22,0.06);
+  box-shadow: var(--bakery-card-shadow);
 
   &__title {
     font-family: $font;
     font-size: 0.95rem;
     font-weight: 800;
-    color: $brown;
+    color: var(--bakery-dark);
     margin: 0 0 3px;
   }
 
   &__sub {
     font-family: $font;
     font-size: 0.72rem;
-    color: $text-secondary;
+    color: var(--bakery-text-secondary);
     margin: 0 0 14px;
   }
 }
@@ -2358,7 +2635,7 @@ ion-item.menu-nav-item {
   padding: 20px 0;
   font-family: $font;
   font-size: 0.82rem;
-  color: $text-secondary;
+  color: var(--bakery-text-secondary);
 }
 
 // Donut chart
@@ -2395,7 +2672,7 @@ ion-item.menu-nav-item {
 .oo-donut-legend__label {
   font-family: $font;
   font-size: 0.75rem;
-  color: $brown;
+  color: var(--bakery-dark);
   font-weight: 600;
   flex: 0 0 100px;
   white-space: nowrap;
@@ -2404,7 +2681,7 @@ ion-item.menu-nav-item {
 .oo-donut-legend__bar-wrap {
   flex: 1;
   height: 6px;
-  background: $cream-deep;
+  background: var(--bakery-base);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -2413,14 +2690,14 @@ ion-item.menu-nav-item {
   display: block;
   height: 100%;
   border-radius: 4px;
-  transition: width 0.4s ease;
+  transition: width var(--bakery-dur-slow) var(--bakery-ease);
 }
 
 .oo-donut-legend__count {
   font-family: $font;
   font-size: 0.75rem;
   font-weight: 700;
-  color: $brown;
+  color: var(--bakery-dark);
   flex-shrink: 0;
   min-width: 18px;
   text-align: right;
@@ -2443,7 +2720,7 @@ ion-item.menu-nav-item {
     height: 40px;
     border-radius: 8px;
     overflow: hidden;
-    background: $cream-deep;
+    background: var(--bakery-base);
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -2462,7 +2739,7 @@ ion-item.menu-nav-item {
     font-family: $font;
     font-size: 0.8rem;
     font-weight: 700;
-    color: $brown;
+    color: var(--bakery-dark);
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -2472,20 +2749,581 @@ ion-item.menu-nav-item {
   &__cat {
     font-family: $font;
     font-size: 0.68rem;
-    color: $text-secondary;
+    color: var(--bakery-text-secondary);
     margin: 2px 0 0;
   }
 }
 
 .oo-alert-badge {
   flex-shrink: 0;
-  background: rgba(255,91,53,0.1);
-  color: $coral-dark;
-  border: 1px solid rgba(255,91,53,0.25);
+  background: rgba(204, 111, 0, 0.1);
+  color: var(--bakery-burnt);
+  border: 1px solid rgba(204, 111, 0, 0.25);
   font-family: $font;
   font-size: 0.62rem;
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 6px;
   white-space: nowrap;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 24 · Ionic Shadow DOM Overrides — Global Button & Input Styling
+// ═════════════════════════════════════════════════════════════════════════════
+
+// ── Global ion-button: border + shadow + min-height + hover lift ──────────────
+ion-button {
+  --background: var(--bakery-button);
+  --background-hover: var(--bakery-burnt);
+  --background-activated: var(--bakery-burnt);
+  --background-focused: var(--bakery-burnt);
+  --color: var(--bakery-dark);
+  --color-hover: #ffffff;
+  --color-activated: #ffffff;
+  --color-focused: #ffffff;
+  --border-radius: var(--bakery-radius-button);
+  --box-shadow: none;
+  --ripple-color: rgba(255, 255, 255, 0.25);
+  font-family: $font;
+  font-weight: 700;
+  font-size: 14px;
+  min-height: var(--bakery-btn-min-h);
+
+  &::part(native) {
+    border: var(--bakery-btn-border);
+    box-shadow: var(--bakery-btn-shadow);
+    min-height: var(--bakery-btn-min-h);
+    transition: transform var(--bakery-dur-fast) var(--bakery-ease), box-shadow var(--bakery-dur-fast) var(--bakery-ease);
+  }
+
+  // Hover: lift 2px
+  &:hover::part(native) {
+    transform: translateY(-2px);
+  }
+
+  // Pressed/activated: sink 2px, remove shadow
+  &:active::part(native),
+  &.ion-activated::part(native) {
+    transform: translateY(2px);
+    box-shadow: none;
+  }
+
+  // Outline variant
+  &[fill="outline"] {
+    --background: transparent;
+    --background-hover: var(--bakery-burnt);
+    --color: var(--bakery-burnt);
+    --color-hover: #fff;
+
+    &::part(native) {
+      border: 2px solid var(--bakery-burnt);
+      box-shadow: 0 2px 0 var(--bakery-dark);
+    }
+  }
+
+  // Disabled state
+  &[disabled] {
+    opacity: 0.6;
+
+    &::part(native) {
+      border-style: dashed;
+      box-shadow: none;
+    }
+  }
+}
+
+// ── Global ion-input: white-ish bg, dark border, focus ring ───────────────────
+ion-input {
+  --background: var(--bakery-input-bg);
+  --color: var(--bakery-dark);
+  --placeholder-color: var(--bakery-text-muted);
+  --highlight-color-focused: var(--bakery-burnt);
+  font-family: $font;
+  font-size: 0.875rem;
+
+  &::part(native) {
+    padding: 12px 14px;
+  }
+}
+
+// ── Global ion-textarea ──────────────────────────────────────────────────────
+ion-textarea {
+  --background: var(--bakery-input-bg);
+  --color: var(--bakery-dark);
+  --placeholder-color: var(--bakery-text-muted);
+  --border-radius: var(--bakery-radius-input);
+  --highlight-color-focused: var(--bakery-burnt);
+  border: 2px solid var(--bakery-dark);
+  border-radius: var(--bakery-radius-input);
+  font-family: $font;
+  font-size: 0.875rem;
+  margin-bottom: 16px;
+  display: block;
+
+  &::part(native) {
+    padding: 12px 14px;
+    border-radius: var(--bakery-radius-input);
+  }
+
+  &.has-focus,
+  &:focus-within {
+    border-color: var(--bakery-burnt);
+    box-shadow: var(--bakery-focus-ring);
+  }
+}
+
+// ── IonList inside menu ──────────────────────────────────────────────────────
+ion-list.menu-nav-list,
+ion-list.menu-footer-list {
+  --background: transparent;
+  --ion-item-background: transparent;
+  background: transparent;
+}
+
+// ── IonItem inside menu ─────────────────────────────────────────────────────
+ion-item.menu-nav-item {
+  --background: transparent;
+  --inner-border-width: 0;
+  --border-width: 0;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --min-height: 46px;
+
+  &::part(native) {
+    border-radius: 12px;
+    padding-inline-start: 14px;
+    padding-inline-end: 14px;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 25 · Animations (keyframes for immersive motion)
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Floating animation for hero decorative elements
+@keyframes bakery-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+// Staggered fade-up entrance for cards / list items
+@keyframes bakery-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bakery-fade-up {
+  animation: bakery-fade-up var(--bakery-dur) var(--bakery-ease) both;
+}
+
+// Cart badge bounce
+@keyframes bakery-badge-bounce {
+  0%, 100% { transform: scale(1); }
+  30%      { transform: scale(1.3); }
+  60%      { transform: scale(0.9); }
+}
+
+.bakery-badge-bounce {
+  animation: bakery-badge-bounce var(--bakery-dur) var(--bakery-ease);
+}
+
+// Form shake on invalid submit
+@keyframes bakery-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.bakery-shake {
+  animation: bakery-shake 0.4s var(--bakery-ease);
+}
+
+// Success checkmark pop
+@keyframes bakery-check-pop {
+  0%   { transform: scale(0); opacity: 0; }
+  50%  { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.bakery-check {
+  animation: bakery-check-pop var(--bakery-dur) var(--bakery-ease);
+}
+
+// "+" button wiggle on card hover
+@keyframes bakery-wiggle {
+  0%, 100% { transform: rotate(0); }
+  25%      { transform: rotate(-8deg); }
+  75%      { transform: rotate(8deg); }
+}
+
+// Favorite heart pop
+@keyframes bakery-heart-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+.bakery-heart-pop {
+  animation: bakery-heart-pop var(--bakery-dur-fast) var(--bakery-ease);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 26 · Scrollbar (bakery-toned)
+// ═════════════════════════════════════════════════════════════════════════════
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bakery-base-tint);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bakery-text-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bakery-dark);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 27 · Print Styles
+// ═════════════════════════════════════════════════════════════════════════════
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  ion-app,
+  ion-router-outlet,
+  ion-content {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    position: static !important;
+    contain: none !important;
+  }
+
+  ion-content {
+    --overflow: visible !important;
+  }
+
+  ion-content::part(scroll),
+  ion-content .inner-scroll {
+    overflow: visible !important;
+    height: auto !important;
+    position: static !important;
+    contain: none !important;
+  }
+
+  ion-header,
+  ion-toolbar,
+  ion-menu,
+  ion-menu-button,
+  ion-split-pane > *:first-child {
+    display: none !important;
+  }
+
+  body, html {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .page-content {
+    --background: #fff;
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .receipt-print,
+  .receipt-print * {
+    visibility: visible !important;
+  }
+
+  .receipt-print {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 8mm !important;
+    box-sizing: border-box !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 28 · Responsive
+// ═════════════════════════════════════════════════════════════════════════════
+
+@media (max-width: 480px) {
+  .bakery-newsletter__form {
+    flex-direction: column;
+  }
+
+  ion-input.bakery-newsletter__input {
+    flex: none;
+    width: 100%;
+  }
+
+  ion-button.bakery-newsletter__btn {
+    width: 100%;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 29 · Notification Icon Circle & Image Fallbacks
+// ═════════════════════════════════════════════════════════════════════════════
+
+// ── Notification icon circle (#E5D3AF circle, #4D2A00 border) ──────────────────
+.notif-icon-circle {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  background: var(--bakery-button);
+  border: 2px solid var(--bakery-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ion-icon {
+    font-size: 22px;
+    color: var(--bakery-dark);
+  }
+}
+
+// ── Image fallback: "No image" text behind every product/category image ───────
+// When an image loads it covers this text; when it breaks (error handler hides
+// the <img>) the fallback text becomes visible again.
+.bakery-product-card__img-wrap,
+.bakery-cat__circle,
+.bakery-chef-thumb,
+.pdm-img-wrap,
+.oo-alert-row__img {
+  position: relative;
+
+  &::after {
+    content: 'No image';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--bakery-font);
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--bakery-text-muted);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  img {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Chef card photo & dev avatar fallback
+.bakery-chef-card,
+.dev-avatar {
+  position: relative;
+
+  &::after {
+    content: 'No image';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--bakery-font);
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--bakery-text-muted);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  img {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Order item image fallback (cart/checkout)
+.order-item__img {
+  position: relative;
+
+  &::after {
+    content: 'No img';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--bakery-font);
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--bakery-text-muted);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  &[src], img {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 30 · Product Grid Override (auto-fill minmax(230px))
+// Overrides Ionic's flex-based ion-row to use CSS grid for product cards
+// ═════════════════════════════════════════════════════════════════════════════
+
+ion-row.bakery-product-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+  padding: 0;
+
+  ion-col {
+    max-width: none !important;
+    flex: none !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECTION 31 · Product Category Cards (About Our Products page)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+.product-category-card {
+  background: var(--bakery-card);
+  border: 1.5px solid var(--bakery-card-border);
+  border-radius: var(--bakery-radius-card);
+  overflow: hidden;
+  box-shadow: var(--bakery-card-shadow);
+  transition: transform var(--bakery-dur) var(--bakery-ease), box-shadow var(--bakery-dur) var(--bakery-ease);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(77, 42, 0, 0.18);
+  }
+
+  @media (min-width: 600px) {
+    grid-template-columns: 280px 1fr;
+    align-items: stretch;
+  }
+}
+
+.product-category-card__image {
+  position: relative;
+  background: var(--bakery-base);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  @media (min-width: 600px) {
+    min-height: auto;
+    height: 100%;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--bakery-dur-slow) var(--bakery-ease);
+  }
+
+  .product-category-card:hover & img {
+    transform: scale(1.05);
+  }
+
+  .product-category-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(77, 42, 0, 0.7), transparent);
+  }
+
+  .product-category-card__label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 16px;
+    color: var(--bakery-base);
+    font-family: var(--bakery-font);
+    font-size: 1.1rem;
+    font-weight: 800;
+    z-index: 1;
+  }
+}
+
+.product-category-card__content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+
+.product-category-card__description {
+  font-family: var(--bakery-font);
+  font-size: 0.9rem;
+  color: var(--bakery-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.product-category-card__highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.highlight-tag {
+  background: var(--bakery-button);
+  border: 1.5px solid var(--bakery-card-border);
+  color: var(--bakery-dark);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-family: var(--bakery-font);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.promise-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--bakery-navbar);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 1.5rem;
 }

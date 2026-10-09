@@ -1,0 +1,91 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-menu-button slot="start"></ion-menu-button>
+    <ion-title>About Our Products</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- Hero -->
+  <div class="bakery-hero bakery-hero--catalog">
+    <div class="bakery-hero__inner">
+      <p class="bakery-section-eyebrow">Our Craft</p>
+      <h2 class="bakery-section-title">Every Bake Tells<br>a Story</h2>
+      <p class="bakery-section-subtitle">
+        No shortcuts, no premixes, no compromises. Just honest ingredients,
+        time-honored techniques, and bakers who care.
+      </p>
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <div class="bakery-section bakery-section--cream" style="padding-top: 32px;">
+    <p class="bakery-section-eyebrow">Product Families</p>
+    <h2 class="bakery-section-title">What We Bake</h2>
+    <div style="display: grid; gap: 20px; padding: 0 12px;">
+      @for (cat of categories; track cat.name) {
+        <div class="product-category-card">
+          <div class="product-category-card__image">
+            <img [src]="cat.image" [alt]="cat.name" (error)="$any($event.target).style.display='none'">
+            <div class="product-category-card__overlay"></div>
+            <div class="product-category-card__label">{{ cat.name }}</div>
+          </div>
+          <div class="product-category-card__content">
+            <p class="product-category-card__description">{{ cat.description }}</p>
+            <div class="product-category-card__highlights">
+              @for (h of cat.highlights; track h) {
+                <span class="highlight-tag">{{ h }}</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Ingredient Philosophy -->
+  <div class="bakery-section bakery-section--beige" style="padding-top: 32px; padding-bottom: 48px;">
+    <p class="bakery-section-eyebrow">Ingredient Standards</p>
+    <h2 class="bakery-section-title">What Goes Inside Matters</h2>
+    <p class="bakery-section-subtitle" style="max-width: 700px; margin: 0 auto 32px;">We trace every ingredient. Here's why our bakes taste different.</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; padding: 0 12px;">
+      @for (ing of ingredients; track ing.title) {
+        <div class="bakery-card" style="text-align: center; padding: 28px 20px;">
+          <div style="font-size: 2.5rem; margin-bottom: 16px;">{{ ing.icon }}</div>
+          <h3 style="font-family: var(--bakery-font); font-size: 1rem; font-weight: 800; color: var(--bakery-dark); margin: 0 0 8px;">{{ ing.title }}</h3>
+          <p style="font-family: var(--bakery-font); font-size: 0.85rem; color: var(--bakery-text-secondary); line-height: 1.6; margin: 0;">{{ ing.detail }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Process Promise -->
+  <div class="bakery-section bakery-section--brown" style="padding-top: 48px; padding-bottom: 48px;">
+    <p class="bakery-section-eyebrow" style="color: var(--bakery-navbar);">Our Promise</p>
+    <h2 class="bakery-section-title" style="color: var(--bakery-base);">The Knead to Know Standard</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto; padding: 0 12px;">
+      <div style="text-align: center;">
+        <div class="promise-icon" style="background: rgba(242,169,0,0.15);">⏱</div>
+        <h3 style="font-family: var(--bakery-font); font-size: 1rem; font-weight: 800; color: var(--bakery-base); margin: 0 0 8px;">Time-Honored Process</h3>
+        <p style="font-family: var(--bakery-font); font-size: 0.85rem; color: rgba(249,230,168,0.8); margin: 0; line-height: 1.6;">We never rush fermentation. Our sourdough rests 18+ hours. Croissants laminate over 2 days. Flavor takes time.</p>
+      </div>
+      <div style="text-align: center;">
+        <div class="promise-icon" style="background: rgba(242,169,0,0.15);">👨‍🍳</div>
+        <h3 style="font-family: var(--bakery-font); font-size: 1rem; font-weight: 800; color: var(--bakery-base); margin: 0 0 8px;">Baker's Hands</h3>
+        <p style="font-family: var(--bakery-font); font-size: 0.85rem; color: rgba(249,230,168,0.8); margin: 0; line-height: 1.6;">No industrial mixers for shaping. Every loaf is folded, scored, and loaded by hand. You taste the care.</p>
+      </div>
+      <div style="text-align: center;">
+        <div class="promise-icon" style="background: rgba(242,169,0,0.15);">🌅</div>
+        <h3 style="font-family: var(--bakery-font); font-size: 1rem; font-weight: 800; color: var(--bakery-base); margin: 0 0 8px;">Fresh Daily</h3>
+        <p style="font-family: var(--bakery-font); font-size: 0.85rem; color: rgba(249,230,168,0.8); margin: 0; line-height: 1.6;">What you buy today was baked before dawn. Unsold items are donated — we never sell yesterday's bread.</p>
+      </div>
+      <div style="text-align: center;">
+        <div class="promise-icon" style="background: rgba(242,169,0,0.15);">🔍</div>
+        <h3 style="font-family: var(--bakery-font); font-size: 1rem; font-weight: 800; color: var(--bakery-base); margin: 0 0 8px;">Full Transparency</h3>
+        <p style="font-family: var(--bakery-font); font-size: 0.85rem; color: rgba(249,230,168,0.8); margin: 0; line-height: 1.6;">Allergens listed. Ingredients named. No hidden preservatives, dough conditioners, or artificial flavors.</p>
+      </div>
+    </div>
+  </div>
+
+</ion-content>

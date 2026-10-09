@@ -1,75 +1,35 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // _menu.scss — Knead to Know · Bakery App Side Menu
-// Warm Chocolate Brown Theme
+// Light sidebar theme: #FFF4D6 panel, #4D2A00 text, #CC6F00 active accent
 // ─────────────────────────────────────────────────────────────────────────────
-
-// ── Design Tokens ─────────────────────────────────────────────────────────────
-
-:root {
-  // Colors — dark chocolate panel
-  --menu-panel-bg:          #2B1712;
-  --menu-panel-surface:     #3D1E16;
-  --menu-backdrop-color:    rgba(43, 23, 18, 0.55);
-  --menu-accent:            #FF5B35;
-  --menu-active-pill-bg:    rgba(255, 91, 53, 0.15);
-  --menu-active-pill-border:rgba(255, 91, 53, 0.35);
-  --menu-text-primary:      #FBF6EE;
-  --menu-text-secondary:    #C4A882;
-  --menu-nav-label-color:   #D9C4A8;
-  --menu-divider-color:     rgba(255, 255, 255, 0.08);
-  --menu-logout-color:      #FF8060;
-
-  // Dimensions
-  --menu-width:             280px;
-  --menu-padding-x:         24px;
-  --menu-item-radius:       12px;
-  --menu-avatar-size:       64px;
-
-  // Typography
-  --menu-font-family:       'Inter', 'SF Pro Display', 'Roboto', sans-serif;
-  --menu-profile-name-size: 1.05rem;
-  --menu-nav-label-size:    0.9375rem;
-  --menu-secondary-size:    0.8125rem;
-}
 
 // ── Menu Host Override ────────────────────────────────────────────────────────
 
 ion-menu.app-menu {
-  --width: var(--menu-width);
-  --background: var(--menu-panel-bg);
-  --ion-background-color: var(--menu-panel-bg);
+  --width: 280px;
+  --background: var(--bakery-card);
+  --ion-background-color: var(--bakery-card);
+  border-right: 2px solid var(--bakery-dark);
 
   &::part(backdrop) {
-    background-color: var(--menu-backdrop-color);
+    background-color: rgba(77, 42, 0, 0.45);
   }
 
   &::part(container) {
-    box-shadow: 6px 0 32px rgba(0, 0, 0, 0.35);
+    box-shadow: 6px 0 32px rgba(77, 42, 0, 0.2);
   }
 }
 
 // ── Scrollable Content Area ───────────────────────────────────────────────────
-// scrollY is now enabled. The ion-content scroll container grows to fit all
-// nav items. The footer is position: sticky at the bottom of the scroll
-// container so it is always visible without cutting off the nav list.
 
 .menu-content {
-  --background: var(--menu-panel-bg);
+  --background: var(--bakery-card);
   --padding-start: 0;
   --padding-end: 0;
   --padding-top: 0;
   --padding-bottom: 0;
 
-  font-family: var(--menu-font-family);
-}
-
-// ── Inner Flex Wrapper ────────────────────────────────────────────────────────
-// Kept for backward compatibility but no longer used as the scroll host.
-
-.menu-inner {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
+  font-family: var(--bakery-font);
 }
 
 // ── Brand Logo Strip ──────────────────────────────────────────────────────────
@@ -78,122 +38,63 @@ ion-menu.app-menu {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: calc(env(safe-area-inset-top, 0px) + 28px) var(--menu-padding-x) 20px;
+  padding: calc(env(safe-area-inset-top, 0px) + 24px) 24px 18px;
 
   .menu-brand-icon {
-    width: 36px;
-    height: 36px;
-    background: var(--menu-accent);
+    width: 38px;
+    height: 38px;
     border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
     flex-shrink: 0;
-
-    ion-icon {
-      font-size: 20px;
-      color: #fff;
-    }
+    border: 2px solid var(--bakery-dark);
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 10px;
       display: block;
     }
   }
 
   .menu-brand-name {
     font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--menu-text-primary);
+    font-weight: 800;
+    color: var(--bakery-dark);
     letter-spacing: -0.01em;
     margin: 0;
     line-height: 1.2;
 
     span {
       display: block;
-      font-size: 0.65rem;
-      font-weight: 400;
-      color: var(--menu-text-secondary);
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--bakery-text-muted);
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      margin-top: 1px;
+      margin-top: 2px;
     }
   }
-}
-
-// ── Header: User Profile Block ────────────────────────────────────────────────
-
-.menu-header {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 4px var(--menu-padding-x) 20px;
-  background: var(--menu-panel-surface);
-  margin: 0 12px 8px;
-  border-radius: 14px;
-}
-
-.menu-avatar {
-  width: var(--menu-avatar-size);
-  height: var(--menu-avatar-size);
-  border-radius: 50%;
-  margin-bottom: 10px;
-  margin-top: 16px;
-  overflow: hidden;
-  flex-shrink: 0;
-  box-shadow: 0 0 0 3px rgba(255, 91, 53, 0.4);
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-}
-
-.menu-profile-name {
-  font-family: var(--menu-font-family);
-  font-size: var(--menu-profile-name-size);
-  font-weight: 600;
-  color: var(--menu-text-primary);
-  margin: 0 0 3px 0;
-  line-height: 1.3;
-}
-
-.menu-profile-email {
-  font-family: var(--menu-font-family);
-  font-size: var(--menu-secondary-size);
-  font-weight: 400;
-  color: var(--menu-text-secondary);
-  margin: 0;
-  line-height: 1.4;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: calc(var(--menu-width) - (var(--menu-padding-x) * 2));
 }
 
 // ── Divider ───────────────────────────────────────────────────────────────────
 
 .menu-divider {
   height: 1px;
-  background-color: var(--menu-divider-color);
-  margin: 0 var(--menu-padding-x);
+  background-color: var(--bakery-card-border);
+  margin: 0 24px;
 }
 
-// ── Section Label ─────────────────────────────────────────────────────────────
+// ── Group Label (Shop / Account / Info / Admin) ───────────────────────────────
 
 .menu-section-label {
-  font-family: var(--menu-font-family);
-  font-size: 0.65rem;
-  font-weight: 600;
+  font-family: var(--bakery-font);
+  font-size: 0.62rem;
+  font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--menu-text-secondary);
-  padding: 16px 28px 6px;
+  color: var(--bakery-dark);
+  opacity: 0.7;
+  padding: 16px 24px 6px;
   margin: 0;
 }
 
@@ -214,90 +115,180 @@ ion-menu.app-menu {
 
 .menu-nav-item {
   --background: transparent;
-  --background-hover: rgba(255, 91, 53, 0.07);
-  --background-activated: var(--menu-active-pill-bg);
-  --background-focused: var(--menu-active-pill-bg);
-  --color: var(--menu-nav-label-color);
+  --background-hover: var(--bakery-button);
+  --background-activated: var(--bakery-button);
+  --background-focused: var(--bakery-button);
+  --color: var(--bakery-dark);
   --padding-start: 14px;
   --padding-end: 14px;
   --padding-top: 11px;
   --padding-bottom: 11px;
   --inner-padding-end: 0;
-  --border-radius: var(--menu-item-radius);
-  --ripple-color: rgba(255, 91, 53, 0.15);
+  --border-radius: 12px;
+  --ripple-color: rgba(204, 111, 0, 0.15);
   --min-height: 46px;
 
-  border-radius: var(--menu-item-radius);
+  border-radius: 12px;
   margin-bottom: 3px;
-  transition: background 0.18s ease, color 0.18s ease;
+  transition: background var(--bakery-dur-fast) var(--bakery-ease), color var(--bakery-dur-fast) var(--bakery-ease);
   cursor: pointer;
 
   &:last-child { margin-bottom: 0; }
 }
 
-// ── Active State ──────────────────────────────────────────────────────────────
+// ── Active State (#4D2A00 bg, #F9E6A8 text, #CC6F00 left bar) ─────────────────
 
 .menu-nav-item.active-item {
-  --background: var(--menu-active-pill-bg);
-  --color: var(--menu-accent);
-  border: 1px solid var(--menu-active-pill-border);
+  --background: var(--bakery-dark);
+  --color: var(--bakery-base);
+  --background-hover: var(--bakery-dark);
+  --background-activated: var(--bakery-dark);
+  position: relative;
+
+  &::part(native) {
+    position: relative;
+  }
+
+  // #CC6F00 left bar via box-shadow on the item
+  box-shadow: inset 3px 0 0 var(--bakery-burnt);
 
   .menu-nav-icon {
-    color: var(--menu-accent);
+    color: var(--bakery-base);
   }
 
   .menu-nav-label {
-    color: var(--menu-accent);
-    font-weight: 600;
+    color: var(--bakery-base);
+    font-weight: 700;
   }
 }
 
 // ── Nav Icon ──────────────────────────────────────────────────────────────────
 
 .menu-nav-icon {
-  font-size: 19px;
-  color: var(--menu-text-secondary);
+  font-size: 20px;
+  color: var(--bakery-dark);
   margin-inline-end: 12px;
   flex-shrink: 0;
-  transition: color 0.18s ease;
+  transition: color var(--bakery-dur-fast) var(--bakery-ease);
 }
 
 // ── Nav Label ─────────────────────────────────────────────────────────────────
 
 .menu-nav-label {
-  font-family: var(--menu-font-family);
-  font-size: var(--menu-nav-label-size);
+  font-family: var(--bakery-font);
+  font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--menu-nav-label-color);
+  color: var(--bakery-dark);
   line-height: 1.4;
-  transition: color 0.18s ease;
+  transition: color var(--bakery-dur-fast) var(--bakery-ease);
 }
 
 // ── Footer: Log Out Section ───────────────────────────────────────────────────
-// position: sticky keeps the footer pinned to the bottom of the viewport
-// while the nav list above it scrolls freely. It sits at the bottom of the
-// ion-content scroll container, so it never overlaps the nav items.
 
 .menu-footer {
   position: sticky;
   bottom: 0;
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
-  background: var(--menu-panel-bg);
-  // Subtle top shadow so the footer reads as separate from the scrolled list
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25);
+  background: var(--bakery-card);
+  box-shadow: 0 -4px 16px rgba(77, 42, 0, 0.1);
 
   .menu-divider {
     margin-bottom: 8px;
   }
 }
 
-.menu-user-chip {
-  margin: 0 24px 12px;
-  padding: 10px 14px;
-  background: var(--menu-panel-surface);
-  border: 1px solid rgba(255, 91, 53, 0.25);
-  border-radius: 12px;
+// ── User Profile Header ──────────────────────────────────────────────────────────
+
+.menu-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 20px 16px;
+  padding: 12px 16px;
+  background: var(--bakery-base);
+  border: 1px solid var(--bakery-card-border);
+  border-radius: 14px;
   min-width: 0;
+
+  &.guest {
+    opacity: 0.6;
+  }
+}
+
+.menu-user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid var(--bakery-dark);
+  background: var(--bakery-button);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .avatar-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon {
+      font-size: 1.5rem;
+      color: var(--bakery-dark);
+      opacity: 0.5;
+    }
+  }
+}
+
+.menu-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.menu-user-name {
+  font-family: var(--bakery-font);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--bakery-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-user-role {
+  font-family: var(--bakery-font);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--bakery-burnt);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.menu-user-phone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--bakery-font);
+  font-size: 0.7rem;
+  color: var(--bakery-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  ion-icon {
+    font-size: 0.85rem;
+    color: var(--bakery-burnt);
+    flex-shrink: 0;
+  }
 }
 
 .menu-footer-list {
@@ -305,11 +296,14 @@ ion-menu.app-menu {
   background: transparent;
 }
 
-// ── Log Out Item ──────────────────────────────────────────────────────────────
+// ── Log Out Item (danger button) ──────────────────────────────────────────────
 
 .menu-logout-item {
-  --background-hover: rgba(255, 128, 96, 0.08);
-  --background-activated: rgba(255, 128, 96, 0.14);
+  --background: transparent;
+  --background-hover: var(--bakery-error-bg);
+  --background-activated: var(--bakery-error-bg);
+  border: 2px solid var(--bakery-error);
+  border-radius: 12px;
 
   &.logging-out {
     opacity: 0.6;
@@ -317,11 +311,12 @@ ion-menu.app-menu {
   }
 
   .logout-icon {
-    color: var(--menu-logout-color);
+    color: var(--bakery-error);
   }
 
   .logout-label {
-    color: var(--menu-logout-color);
+    color: var(--bakery-error);
+    font-weight: 700;
   }
 }
 
@@ -329,22 +324,40 @@ ion-menu.app-menu {
 
 @media (hover: hover) {
   .menu-nav-item:not(.active-item):hover {
-    --background: rgba(255, 91, 53, 0.07);
+    --background: var(--bakery-button);
 
-    .menu-nav-icon { color: var(--menu-accent); }
-    .menu-nav-label { color: var(--menu-text-primary); }
+    .menu-nav-icon { color: var(--bakery-burnt); }
+    .menu-nav-label { color: var(--bakery-dark); font-weight: 600; }
   }
 
   .menu-logout-item:hover {
-    --background: rgba(255, 128, 96, 0.08);
+    --background: var(--bakery-error-bg);
+
+    .logout-icon { color: var(--bakery-error); }
+    .logout-label { color: var(--bakery-error); }
   }
 }
 
-// Notification count badge on the menu nav item
+// ── Cart badge on menu nav item ──────────────────────────────────────────────────
+
+.menu-badge.cart-badge {
+  --background: var(--bakery-navbar);
+  --color: var(--bakery-dark);
+  animation: cart-badge-pop 0.3s var(--bakery-ease);
+}
+
+@keyframes cart-badge-pop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+// ── Notification count badge on the menu nav item ──────────────────────────────
+
 .menu-badge {
-  --background: var(--menu-accent, #FF5B35);
+  --background: var(--bakery-burnt);
   --color: #fff;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--bakery-font);
   font-size: 0.62rem;
   font-weight: 800;
   min-width: 19px;

@@ -1,0 +1,178 @@
+<!-- Floating Action Button (FAB) -->
+<ion-fab
+  vertical="bottom"
+  horizontal="end"
+  slot="fixed"
+  class="floating-cart-fab"
+  [class.bump]="bumpTrigger() > 0"
+  (animationend)="bumpTrigger.set(0)">
+  
+  @if (!isHidden()) {
+    <ion-fab-button 
+      size="large" 
+      (click)="onFabClick()"
+      aria-label="Open cart"
+      class="fab-button">
+      <ion-icon name="cart-outline" slot="icon-only" aria-hidden="true" style="font-size: 28px; color: #4D2A00;"></ion-icon>
+      
+      <!-- Badge with item count -->
+      @if (itemCount() > 0) {
+        <ion-badge 
+          class="cart-badge"
+          color="danger">
+          {{ itemCount() > 99 ? '99+' : itemCount() }}
+        </ion-badge>
+      }
+    </ion-fab-button>
+  }
+</ion-fab>
+
+<!-- Popover Cart Panel -->
+@if (!isHidden()) {
+  <ion-popover
+    [isOpen]="isOpen()"
+    (ionPopoverDidPresent)="onPopoverDidPresent()"
+    (ionPopoverDidDismiss)="onPopoverDidDismiss()"
+    side="bottom"
+    alignment="end"
+    size="auto"
+    showBackdrop="true"
+    backdropDismiss="true"
+    class="cart-popover">
+    
+    <ng-template>
+      <div class="cart-popover-content">
+        
+        <!-- Header -->
+        <header class="popover-header">
+          <h3 class="popover-title">Your Cart</h3>
+          <ion-button 
+            fill="clear" 
+            size="small"
+            (click)="onPopoverDismiss()"
+            aria-label="Close cart">
+            <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </header>
+
+        <!-- Empty State -->
+        @if (lines().length === 0) {
+          <div class="popover-empty">
+            <ion-icon name="cart-outline" class="empty-icon" aria-hidden="true"></ion-icon>
+            <h3 class="empty-heading">Your cart is empty</h3>
+            <p class="empty-suggestion">Looks like you haven't added any bakes yet. Browse our fresh breads, cakes and pastries to get started.</p>
+            <ion-button 
+              fill="solid"
+              (click)="browseCatalog()"
+              class="browse-btn"
+              style="--background: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+              Browse Bread Catalog
+            </ion-button>
+          </div>
+        }
+
+        <!-- Cart Items List -->
+        @if (lines().length > 0) {
+          <div class="popover-items">
+            @for (line of lines(); track line.product.id) {
+              <div class="popover-item">
+                
+                <!-- Product Image -->
+                <div class="item-image-wrap">
+                  @if (line.product.image_url) {
+                    <img 
+                      [src]="line.product.image_url" 
+                      [alt]="line.product.name"
+                      class="item-image"
+                      loading="lazy">
+                  } @else {
+                    <div class="item-image-placeholder" aria-hidden="true">🍞</div>
+                  }
+                </div>
+
+                <!-- Product Info -->
+                <div class="item-info">
+                  <p class="item-name">{{ line.product.name }}</p>
+                  <p class="item-price">{{ formatPrice(line.product.price) }} each</p>
+                </div>
+
+                <!-- Quantity Controls -->
+                <div class="item-qty-controls">
+                  <button 
+                    class="qty-btn qty-btn--minus"
+                    (click)="decrement(line.product.id)"
+                    [disabled]="line.quantity <= 1"
+                    aria-label="Decrease quantity">
+                    <ion-icon name="remove-outline" aria-hidden="true"></ion-icon>
+                  </button>
+                  <span class="qty-value" aria-live="polite">{{ line.quantity }}</span>
+                  <button 
+                    class="qty-btn qty-btn--plus"
+                    (click)="increment(line.product.id)"
+                    [disabled]="line.quantity >= (line.product.stock_quantity || 0)"
+                    aria-label="Increase quantity">
+                    <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
+                  </button>
+                </div>
+
+                <!-- Remove Button -->
+                <button 
+                  class="item-remove"
+                  (click)="remove(line.product.id)"
+                  aria-label="Remove {{ line.product.name }} from cart">
+                  <ion-icon name="trash-outline" aria-hidden="true"></ion-icon>
+                </button>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Footer with Totals & Actions -->
+        @if (lines().length > 0) {
+          <footer class="popover-footer">
+            <div class="totals">
+              <div class="total-row">
+                <span class="total-label">Subtotal ({{ itemCount() }} item{{ itemCount() === 1 ? '' : 's' }})</span>
+                <span class="total-value">{{ formatPrice(subtotal()) }}</span>
+              </div>
+              <div class="total-row">
+                <span class="total-label">Delivery</span>
+                <span class="total-value" [class.free]="deliveryFee() === 0">
+                  {{ deliveryFee() === 0 ? 'FREE' : formatPrice(deliveryFee()) }}
+                </span>
+              </div>
+              <div class="total-row">
+                <span class="total-label">Tax (12%)</span>
+                <span class="total-value">{{ formatPrice(tax()) }}</span>
+              </div>
+              <div class="total-row grand-total">
+                <span class="total-label">Total</span>
+                <span class="total-value">{{ formatPrice(total()) }}</span>
+              </div>
+            </div>
+
+            <div class="popover-actions">
+              <ion-button 
+                fill="outline"
+                expand="block"
+                (click)="goToCart()"
+                class="action-btn view-cart-btn"
+                style="--border-color: var(--bakery-burnt); --color: var(--bakery-burnt); --border-radius: 10px; font-weight: 700;">
+                View Cart
+              </ion-button>
+              <ion-button 
+                fill="solid"
+                expand="block"
+                (click)="goToCheckout()"
+                class="action-btn checkout-btn"
+                style="--background: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 10px; font-weight: 700; --box-shadow: 0 4px 14px rgba(204, 111, 0, 0.35);"
+                [disabled]="itemCount() === 0">
+                Checkout
+              </ion-button>
+            </div>
+          </footer>
+        }
+      </div>
+    </ng-template>
+  </ion-popover>
+}

@@ -8,8 +8,8 @@
 <ion-content class="page-content" [scrollY]="true">
 
   <!-- ── Header card ─────────────────────────────────────────────────── -->
-  <div style="background: #2B1712; padding: 22px 24px; display: flex; align-items: center; gap: 16px;">
-    <div style="width: 52px; height: 52px; border-radius: 50%; background: #FF5B35; color: #fff; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; text-transform: uppercase; flex-shrink: 0;">
+  <div style="background: var(--bakery-dark); padding: 22px 24px; display: flex; align-items: center; gap: 16px;">
+    <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--bakery-burnt); color: var(--bakery-base); font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; text-transform: uppercase; flex-shrink: 0;">
       @if (user(); as u) {
         {{ (u.displayName || u.email)[0] }}
       } @else {
@@ -18,35 +18,38 @@
     </div>
     <div>
       @if (user(); as u) {
-        <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 800; color: #FBF6EE; margin: 0;">{{ u.displayName }}</p>
-        <p style="font-family: 'Inter', sans-serif; font-size: 0.74rem; color: rgba(251,246,238,0.6); margin: 2px 0 0;">{{ u.email }}</p>
-        <p style="font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 700; color: #FF5B35; margin: 4px 0 0;">{{ u.role === 'admin' ? 'Admin' : u.role === 'store_admin' ? 'Store Admin' : 'Customer' }}</p>
+        <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 800; color: var(--bakery-card); margin: 0;">{{ u.displayName }}</p>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.74rem; color: rgba(249, 230, 168,0.6); margin: 2px 0 0;">{{ u.email }}</p>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 700; color: var(--bakery-dark); margin: 4px 0 0;">{{ u.role === 'admin' ? 'Admin' : u.role === 'store_admin' ? 'Store Admin' : 'Customer' }}</p>
       }
     </div>
   </div>
 
   <!-- ── Tabs ───────────────────────────────────────────────────────── -->
-  <div style="background: #FBF6EE; padding: 16px 16px 0; display: flex; gap: 8px; flex-wrap: wrap;">
+  <div style="background: var(--bakery-card); padding: 16px 16px 0; display: flex; gap: 8px; flex-wrap: wrap;">
     <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'profile'" [class.bakery-pill--inactive]="tab() !== 'profile'" (click)="tab.set('profile')">
-      ✏️ Edit Profile
+      <ion-icon [icon]="createIcon" aria-hidden="true" style="margin-right: 4px;"></ion-icon>
+      Edit Profile
     </button>
     <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'addresses'" [class.bakery-pill--inactive]="tab() !== 'addresses'" (click)="tab.set('addresses')">
-      📮 Manage Addresses
+      <ion-icon [icon]="mailIcon" aria-hidden="true" style="margin-right: 4px;"></ion-icon>
+      Manage Addresses
     </button>
     <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'password'" [class.bakery-pill--inactive]="tab() !== 'password'" (click)="tab.set('password')">
-      🔑 Change Password
+      <ion-icon [icon]="keyIcon" aria-hidden="true" style="margin-right: 4px;"></ion-icon>
+      Change Password
     </button>
   </div>
 
   <!-- ══════════════════════ EDIT PROFILE ═══════════════════════════ -->
   @if (tab() === 'profile') {
-    <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+    <div style="background: var(--bakery-card); padding: 18px 16px 40px;">
       <div class="page-card">
         @if (profileError(); as err) {
-          <div style="background: rgba(255,91,53,0.1); border: 1px solid rgba(255,91,53,0.35); color: #E04E2B; border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 14px;">{{ err }}</div>
+          <div style="background: rgba(204, 111, 0,0.1); border: 1px solid rgba(204, 111, 0,0.35); color: var(--bakery-dark); border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 14px;">{{ err }}</div>
         }
         @if (profileMessage(); as msg) {
-          <div style="background: rgba(61,125,85,0.1); border: 1px solid rgba(61,125,85,0.35); color: #2F7D46; border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 14px;">{{ msg }}</div>
+          <div style="background: rgba(46, 125, 79,0.1); border: 1px solid rgba(46, 125, 79,0.35); color: var(--bakery-status-finished); border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 14px;">{{ msg }}</div>
         }
 
         <label class="admin-field-label">Display name</label>
@@ -60,8 +63,8 @@
         ></ion-input>
 
         <label class="admin-field-label">Email</label>
-        <ion-input type="email" [value]="user()?.email ?? ''" disabled class="admin-ion-input" style="margin-bottom: 12px; --background: #F3ECDD;"></ion-input>
-        <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #A07850; margin: -6px 0 16px;">
+        <ion-input type="email" [value]="user()?.email ?? ''" disabled class="admin-ion-input" style="margin-bottom: 12px; --background: var(--bakery-disabled-bg);"></ion-input>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: var(--bakery-text-muted); margin: -6px 0 16px;">
           Your email is the one you use to sign in and cannot be changed here.
         </p>
 
@@ -69,7 +72,7 @@
           expand="block"
           [disabled]="savingProfile() || !displayName().trim()"
           (click)="saveProfile()"
-          style="--background: #FF5B35; --background-hover: #E04E2B; --color: #fff; --border-radius: 10px; font-weight: 700; font-size: 0.85rem; height: 44px;"
+          style="--background: var(--bakery-burnt); --background-hover: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 10px; font-weight: 700; font-size: 0.85rem; height: 44px;"
         >
           {{ savingProfile() ? 'Saving…' : 'Save Profile' }}
         </ion-button>
@@ -79,12 +82,12 @@
 
   <!-- ══════════════════════ MANAGE ADDRESSES ═══════════════════════ -->
   @if (tab() === 'addresses') {
-    <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+    <div style="background: var(--bakery-card); padding: 18px 16px 40px;">
       <div class="page-card" style="margin-bottom: 14px;">
         <p class="bakery-section-eyebrow" style="margin-bottom: 10px;">Add an address</p>
 
         @if (addressFormError(); as err) {
-          <div style="background: rgba(255,91,53,0.1); border: 1px solid rgba(255,91,53,0.35); color: #E04E2B; border-radius: 12px; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 0.78rem; margin-bottom: 12px;">{{ err }}</div>
+          <div style="background: rgba(204, 111, 0,0.1); border: 1px solid rgba(204, 111, 0,0.35); color: var(--bakery-dark); border-radius: 12px; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 0.78rem; margin-bottom: 12px;">{{ err }}</div>
         }
 
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
@@ -104,48 +107,48 @@
         <ion-input type="text" placeholder="Street address, building, unit…" [value]="addrLine()" (ionInput)="addrLine.set(($event.detail.value ?? '').toString())" class="admin-ion-input" style="margin-bottom: 10px;"></ion-input>
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
           <ion-input type="text" placeholder="City / Province" [value]="addrCity()" (ionInput)="addrCity.set(($event.detail.value ?? '').toString())" class="admin-ion-input" style="flex: 1; min-width: 140px;"></ion-input>
-          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Inter', sans-serif; font-size: 0.78rem; color: #3D1E16; cursor: pointer; flex-shrink: 0;">
-            <input type="checkbox" [checked]="addrDefault()" (change)="addrDefault.set($any($event.target).checked)" style="accent-color: #FF5B35; width: 16px; height: 16px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Inter', sans-serif; font-size: 0.78rem; color: var(--bakery-dark); cursor: pointer; flex-shrink: 0;">
+            <input type="checkbox" [checked]="addrDefault()" (change)="addrDefault.set($any($event.target).checked)" style="accent-color: var(--bakery-dark); width: 16px; height: 16px;">
             Use as default
           </label>
         </div>
-        <ion-button expand="block" [disabled]="savingAddress()" (click)="saveAddress()" style="--background: #3D1E16; --color: #FBF6EE; --border-radius: 10px; font-weight: 700; font-size: 0.82rem; height: 42px; margin-top: 14px;">
-          {{ savingAddress() ? 'Saving…' : '＋ Save Address' }}
+        <ion-button expand="block" [disabled]="savingAddress()" (click)="saveAddress()" style="--background: var(--bakery-dark); --color: var(--bakery-card); --border-radius: 10px; font-weight: 700; font-size: 0.82rem; height: 42px; margin-top: 14px;">
+          {{ savingAddress() ? 'Saving…' : '+ Save Address' }}
         </ion-button>
       </div>
 
       @if (addressesError(); as err) {
         <div style="text-align: center; padding: 24px 16px;">
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #E04E2B; margin: 0 0 10px;">{{ err }}</p>
-          <ion-button fill="outline" size="small" (click)="loadAddresses()" style="--color: #FF5B35; font-size: 0.75rem;">Try again</ion-button>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--bakery-dark); margin: 0 0 10px;">{{ err }}</p>
+          <ion-button fill="outline" size="small" (click)="loadAddresses()" style="--color: var(--bakery-dark); font-size: 0.75rem;">Try again</ion-button>
         </div>
       } @else if (addressesLoading()) {
-        <p style="text-align: center; font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347;">Loading addresses…</p>
+        <p style="text-align: center; font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--bakery-text-secondary);">Loading addresses…</p>
       } @else if (addresses().length === 0) {
         <div style="text-align: center; padding: 24px 16px;">
-          <p style="font-size: 2rem; margin: 0 0 8px;">📮</p>
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.84rem; color: #8B6347; margin: 0;">No saved addresses yet. Add one above for quicker checkouts.</p>
+          <ion-icon [icon]="mailIcon" style="font-size: 2rem; color: var(--bakery-text-muted);"></ion-icon>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.84rem; color: var(--bakery-text-secondary); margin: 0;">No saved addresses yet. Add one above for quicker checkouts.</p>
         </div>
       } @else {
         @for (a of addresses(); track a.id) {
-          <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <div style="background: var(--bakery-card); border: 1px solid var(--bakery-card-border); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 180px;">
-              <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: #3D1E16; margin: 0;">
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--bakery-dark); margin: 0;">
                 {{ a.label }}
                 @if (a.is_default) {
-                  <span style="background: rgba(61,125,85,0.12); color: #2F7D46; font-size: 0.62rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; margin-left: 6px;">Default</span>
+                  <span style="background: rgba(46, 125, 79,0.12); color: var(--bakery-status-finished); font-size: 0.62rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; margin-left: 6px;">Default</span>
                 }
               </p>
-              <p style="font-family: 'Inter', sans-serif; font-size: 0.74rem; color: #8B6347; margin: 3px 0 0;">{{ a.recipient }} · {{ a.phone }}</p>
-              <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: #A07850; margin: 2px 0 0;">{{ a.address_line }}{{ a.city ? ', ' + a.city : '' }}</p>
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.74rem; color: var(--bakery-text-secondary); margin: 3px 0 0;">{{ a.recipient }} · {{ a.phone }}</p>
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: var(--bakery-text-muted); margin: 2px 0 0;">{{ a.address_line }}{{ a.city ? ', ' + a.city : '' }}</p>
             </div>
             <div style="display: flex; gap: 6px; flex-shrink: 0;">
               @if (!a.is_default) {
-                <button (click)="makeDefault(a)" style="background: #FAF3E0; border: 1px solid #C4A882; color: #3D1E16; font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 700; padding: 7px 12px; border-radius: 8px; cursor: pointer;">
+                <button (click)="makeDefault(a)" style="background: var(--bakery-base); border: 1px solid var(--bakery-button); color: var(--bakery-dark); font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 700; padding: 7px 12px; border-radius: 8px; cursor: pointer;">
                   Make default
                 </button>
               }
-              <button (click)="removeAddress(a)" style="background: none; border: none; color: #E04E2B; cursor: pointer; padding: 6px; display: flex; align-items: center;" title="Remove address">
+              <button (click)="removeAddress(a)" style="background: none; border: none; color: var(--bakery-dark); cursor: pointer; padding: 6px; display: flex; align-items: center;" title="Remove address">
                 <ion-icon [icon]="trashIcon" style="font-size: 1rem;"></ion-icon>
               </button>
             </div>
@@ -157,32 +160,32 @@
 
   <!-- ══════════════════════ CHANGE PASSWORD ════════════════════════ -->
   @if (tab() === 'password') {
-    <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+    <div style="background: var(--bakery-card); padding: 18px 16px 40px;">
       <div class="page-card">
         @if (passwordError(); as err) {
-          <div style="background: rgba(255,91,53,0.1); border: 1px solid rgba(255,91,53,0.35); color: #E04E2B; border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 14px;">{{ err }}</div>
+          <div style="background: rgba(204, 111, 0,0.1); border: 1px solid rgba(204, 111, 0,0.35); color: var(--bakery-dark); border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 14px;">{{ err }}</div>
         }
         @if (passwordMessage(); as msg) {
-          <div style="background: rgba(61,125,85,0.1); border: 1px solid rgba(61,125,85,0.35); color: #2F7D46; border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 14px;">{{ msg }}</div>
+          <div style="background: rgba(46, 125, 79,0.1); border: 1px solid rgba(46, 125, 79,0.35); color: var(--bakery-status-finished); border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 14px;">{{ msg }}</div>
         }
 
         <label class="admin-field-label">New password</label>
         <ion-input type="password" placeholder="At least 6 characters" [value]="newPassword()" (ionInput)="newPassword.set(($event.detail.value ?? '').toString())" class="admin-ion-input" style="margin-bottom: 10px;"></ion-input>
         @if (passwordErrors().newPassword) {
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #E04E2B; margin: -6px 0 10px;">{{ passwordErrors().newPassword }}</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: var(--bakery-dark); margin: -6px 0 10px;">{{ passwordErrors().newPassword }}</p>
         }
 
         <label class="admin-field-label">Confirm new password</label>
         <ion-input type="password" placeholder="Repeat the new password" [value]="confirmPassword()" (ionInput)="confirmPassword.set(($event.detail.value ?? '').toString())" class="admin-ion-input" style="margin-bottom: 10px;"></ion-input>
         @if (passwordErrors().confirm) {
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #E04E2B; margin: -6px 0 10px;">{{ passwordErrors().confirm }}</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: var(--bakery-dark); margin: -6px 0 10px;">{{ passwordErrors().confirm }}</p>
         }
 
         <ion-button
           expand="block"
           [disabled]="savingPassword() || passwordInvalid()"
           (click)="changePassword()"
-          style="--background: #FF5B35; --background-hover: #E04E2B; --color: #fff; --border-radius: 10px; font-weight: 700; font-size: 0.85rem; height: 44px; margin-top: 8px;"
+          style="--background: var(--bakery-burnt); --background-hover: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 10px; font-weight: 700; font-size: 0.85rem; height: 44px; margin-top: 8px;"
         >
           {{ savingPassword() ? 'Updating…' : 'Change Password' }}
         </ion-button>

@@ -12,6 +12,8 @@ export interface AuthUser {
   email: string;
   displayName: string;
   role: AppRole;
+  avatarUrl?: string;
+  phone?: string;
 }
 
 const ROLES: AppRole[] = ['customer', 'store_admin', 'admin'];
@@ -98,15 +100,29 @@ export class AuthService {
 
     const u = session.user;
     let role: AppRole = 'customer';
+    let avatarUrl: string | undefined;
+    let phone: string | undefined;
 
-    const { data, error } = await this.db.client
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', u.id)
-      .maybeSingle();
+    const [{ data: roleData, error: roleError }, { data: profileData }] = await Promise.all([
+      this.db.client
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', u.id)
+        .maybeSingle(),
+      this.db.client
+        .from('profiles')
+        .select('display_name, avatar_url, phone')
+        .eq('id', u.id)
+        .maybeSingle(),
+    ]);
 
-    if (!error && data && ROLES.includes(data.role as AppRole)) {
-      role = data.role as AppRole;
+    if (!roleError && roleData && ROLES.includes(roleData.role as AppRole)) {
+      role = roleData.role as AppRole;
+    }
+
+    if (profileData) {
+      avatarUrl = profileData.avatar_url ?? undefined;
+      phone = profileData.phone ?? undefined;
     }
 
     this.user.set({
@@ -115,8 +131,10 @@ export class AuthService {
       displayName:
         typeof u.user_metadata?.['display_name'] === 'string'
           ? (u.user_metadata['display_name'] as string)
-          : (u.email?.split('@')[0] ?? ''),
+          : (profileData?.display_name ?? u.email?.split('@')[0] ?? ''),
       role,
+      avatarUrl,
+      phone,
     });
 
     this.ready.set(true);

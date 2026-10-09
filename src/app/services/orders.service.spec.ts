@@ -57,26 +57,32 @@ interface RpcResult {
   error: { message: string } | null;
 }
 
+interface StubClient {
+  rpc: (fn: string, args: Record<string, unknown>) => RpcResult;
+}
+
 interface Stub {
-  client: DatabaseService;
+  client: StubClient;
   calls: RpcCall[];
+  dbService: DatabaseService;
 }
 
 function stubRpc(result: RpcResult): Stub {
   const calls: RpcCall[] = [];
-  const client = {
+  const client: StubClient = {
     rpc: (fn: string, args: Record<string, unknown>) => {
       calls.push({ fn, args });
       return result;
     },
-  } as unknown as DatabaseService;
-  return { client, calls };
+  };
+  const dbService = { client } as unknown as DatabaseService;
+  return { client, calls, dbService };
 }
 
 function buildOrders(rpc: RpcResult) {
-  const { client, calls } = stubRpc(rpc);
+  const { client, calls, dbService } = stubRpc(rpc);
   TestBed.configureTestingModule({
-    providers: [{ provide: DatabaseService, useValue: client }],
+    providers: [{ provide: DatabaseService, useValue: dbService }],
   });
   return { svc: TestBed.inject(OrdersService), calls };
 }
@@ -99,10 +105,10 @@ describe('OrdersService.placeOrder', () => {
       makeParams(),
       [makeLine(p, 2), makeLine(makeProduct({ id: 'prod-2' }), 1)]
     );
-    const args = calls[0].args;
-    expect(args.p_cart).toEqual([
-      { product_id: 'prod-1', quantity: 2 },
-      { product_id: 'prod-2', quantity: 1 },
+    const args = calls[0].args as Record<string, unknown>;
+    expect(args['p_cart']).toEqual([
+      { product_id: 'prod-1', qty: 2 },
+      { product_id: 'prod-2', qty: 1 },
     ]);
     const serialized = JSON.stringify(args);
     // Server-side pricing: the client must not send money/stock fields.
@@ -118,14 +124,14 @@ describe('OrdersService.placeOrder', () => {
       makeParams({ promo_code: 'BAKE10', scheduled_at: '2026-02-01T09:00:00.000Z' }),
       [makeLine(makeProduct())]
     );
-    const args = calls[0].args;
-    expect(args.p_customer_name).toBe('Ralph');
-    expect(args.p_phone).toBe('09171234567');
-    expect(args.p_fulfillment_type).toBe('delivery');
-    expect(args.p_address).toBe('123 Baker St');
-    expect(args.p_payment_method).toBe('cod');
-    expect(args.p_promo_code).toBe('BAKE10');
-    expect(args.p_scheduled_at).toBe('2026-02-01T09:00:00.000Z');
+    const args = calls[0].args as Record<string, unknown>;
+    expect(args['p_customer_name']).toBe('Ralph');
+    expect(args['p_phone']).toBe('09171234567');
+    expect(args['p_fulfillment_type']).toBe('delivery');
+    expect(args['p_address']).toBe('123 Baker St');
+    expect(args['p_payment_method']).toBe('cod');
+    expect(args['p_promo_code']).toBe('BAKE10');
+    expect(args['p_scheduled_at']).toBe('2026-02-01T09:00:00.000Z');
   });
 
   it('throws with the server-side message when the RPC rejects', async () => {
@@ -153,22 +159,23 @@ describe('CartService stock capping', () => {
     cart.clear();
   });
 
-  it('caps an added quantity at the product stock', () => {
+  it('caps an added quantity at the product stock', async () => {
     const cart = TestBed.inject(CartService);
-    cart.add(makeProduct({ id: 'p', stock_quantity: 3 }), 10);
+    await cart.addToCart(makeProduct({ id: 'p', stock_quantity: 3 }), 10);
     expect(cart.lines()[0].quantity).toBe(3);
   });
 
-  it('ignores a sold-out product', () => {
+  it('ignores a sold-out product', async () => {
     const cart = TestBed.inject(CartService);
-    cart.add(makeProduct({ id: 'p', stock_quantity: 0 }), 2);
+    const result = await cart.addToCart(makeProduct({ id: 'p', stock_quantity: 0 }), 2);
+    expect(result.success).toBe(false);
     expect(cart.lines().length).toBe(0);
   });
 
-  it('clamps a raised quantity to the remaining stock', () => {
+  it('clamps a raised quantity to the remaining stock', async () => {
     const cart = TestBed.inject(CartService);
-    cart.add(makeProduct({ id: 'p', stock_quantity: 5 }), 1);
-    cart.setQuantity('p', 99);
+    await cart.addToCart(makeProduct({ id: 'p', stock_quantity: 5 }), 1);
+    await cart.setQuantity('p', 99);
     expect(cart.lines()[0].quantity).toBe(5);
   });
 });

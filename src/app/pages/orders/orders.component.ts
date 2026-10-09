@@ -8,11 +8,15 @@ import {
   IonContent,
   IonGrid,
   IonHeader,
+  IonIcon,
   IonMenuButton,
   IonRow,
   IonTitle,
   IonToolbar,
+  ToastController,
 } from '@ionic/angular';
+import { cartOutline } from 'ionicons/icons';
+import { addIcons } from 'ionicons';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import {
@@ -36,6 +40,7 @@ import {
     IonContent,
     IonGrid,
     IonHeader,
+    IonIcon,
     IonMenuButton,
     IonRow,
     IonTitle,
@@ -48,6 +53,7 @@ export class OrdersComponent implements OnDestroy {
   private readonly cart = inject(CartService);
   private readonly ordersService = inject(OrdersService);
   private readonly alertCtrl = inject(AlertController);
+  private readonly toastCtrl = inject(ToastController);
 
   readonly statusLabel = STATUS_LABEL;
   readonly statusBadge = STATUS_BADGE;
@@ -91,6 +97,7 @@ export class OrdersComponent implements OnDestroy {
   private unsubscribeRealtime: (() => void) | null = null;
 
   constructor() {
+    addIcons({ 'cart-outline': cartOutline });
     void this.loadOrders();
     // Live updates: staff see new/updated orders instantly; customers see
     // their own status change the moment staff push it.
@@ -120,9 +127,20 @@ export class OrdersComponent implements OnDestroy {
 
   // ── Cart helpers ─────────────────────────────────────────────────────────────
 
-  adjustQty(productId: string, delta: number): void {
+  async adjustQty(productId: string, delta: number): Promise<void> {
     const current = this.lines().find((l) => l.product.id === productId)?.quantity ?? 0;
-    this.cart.setQuantity(productId, current + delta);
+    try {
+      await this.cart.setQuantity(productId, current + delta);
+    } catch (err) {
+      console.error('adjustQty failed:', err);
+      const t = await this.toastCtrl.create({
+        message: 'Could not update quantity',
+        duration: 2000,
+        position: 'bottom',
+        color: 'danger',
+      });
+      await t.present();
+    }
   }
 
   // ── Staff fulfillment controls ───────────────────────────────────────────────

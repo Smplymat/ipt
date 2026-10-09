@@ -3,22 +3,24 @@ import { RouterLink } from '@angular/router';
 import {
   IonButton,
   IonButtons,
-  IonCard,
   IonCol,
   IonContent,
   IonGrid,
   IonHeader,
   IonInput,
+  IonIcon,
   IonMenuButton,
   IonRow,
   IonTitle,
   IonToolbar,
   ToastController,
 } from '@ionic/angular';
+import { addIcons } from 'ionicons';
 import { CartService } from '../../services/cart.service';
 import { LOW_STOCK_THRESHOLD, Product, ProductsService, toErrorMessage } from '../../services/products.service';
 import { NewsletterService } from '../../services/newsletter.service';
 import { ProductDetailModalComponent } from '../../components/product-detail-modal/product-detail-modal.component';
+import { optionsOutline, nutritionOutline } from 'ionicons/icons';
 
 const TESTIMONIALS = [
   { id: 1, text: 'Every single bite feels like a warm hug. The sourdough is unbelievably good — I order every week!', author: 'Maria Santos', role: 'Loyal Customer', avatar: 'https://i.pravatar.cc/80?img=5' },
@@ -31,11 +33,11 @@ const TESTIMONIALS = [
     RouterLink,
     IonButton,
     IonButtons,
-    IonCard,
     IonCol,
     IonContent,
     IonGrid,
     IonHeader,
+    IonIcon,
     IonInput,
     IonMenuButton,
     IonRow,
@@ -87,6 +89,7 @@ export class DashboardComponent {
   );
 
   constructor() {
+    addIcons({ 'options-outline': optionsOutline, 'nutrition-outline': nutritionOutline });
     void this.loadProducts();
   }
 
@@ -104,6 +107,10 @@ export class DashboardComponent {
 
   formatPrice(n: number): string {
     return `₱${(Number(n) || 0).toFixed(2)}`;
+  }
+
+  stars(r: number): string {
+    return '★'.repeat(Math.round(r)) + '☆'.repeat(5 - Math.round(r));
   }
 
   handleSubscribe(): void {
@@ -162,13 +169,19 @@ export class DashboardComponent {
   async addToCart(product: Product, event: Event): Promise<void> {
     event.stopPropagation();
     if (this.isSoldOut(product)) return;
-    this.cart.add(product);
+    const result = await this.cart.addToCart(product);
     const toast = await this.toast.create({
-      message: `${product.name} added to cart`,
+      message: result.message || (result.success ? `${product.name} added to cart` : 'Could not add to cart'),
       duration: 1800,
       position: 'bottom',
-      color: 'dark',
+      color: result.success ? 'dark' : 'danger',
     });
     await toast.present();
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'logo.jpg';
+    img.alt = 'Product image unavailable';
   }
 }

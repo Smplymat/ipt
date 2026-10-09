@@ -10,15 +10,15 @@
   <!-- ── Empty bag ───────────────────────────────────────────────────── -->
   @if (lines().length === 0) {
     <div style="text-align: center; padding: 72px 24px;">
-      <p style="font-family: 'Inter', sans-serif; font-weight: 800; color: #3D1E16; font-size: 1.05rem; margin: 0 0 6px;">
+      <p style="font-family: 'Inter', sans-serif; font-weight: 800; color: var(--bakery-dark); font-size: 1.05rem; margin: 0 0 6px;">
         Your bag is empty
       </p>
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin-bottom: 20px;">
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin-bottom: 20px;">
         Add some freshly baked goodies before checking out.
       </p>
       <ion-button
         routerLink="/bread-catalog"
-        style="--background: #FF5B35; --color: #fff; --border-radius: 10px; font-weight: 700;"
+        style="--background: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 10px; font-weight: 700;"
       >
         Browse Catalog
       </ion-button>
@@ -33,20 +33,20 @@
     @for (line of lines(); track line.product.id) {
       <div class="order-item">
         @if (line.product.image_url) {
-          <img class="order-item__img" [src]="line.product.image_url" [alt]="line.product.name">
+          <img class="order-item__img" [src]="line.product.image_url" [alt]="line.product.name" (error)="$any($event.target).style.display='none'">
         } @else {
-          <div class="order-item__img" style="display:flex;align-items:center;justify-content:center;background:#FAF3E0;font-size:0.75rem;color:#A07850;font-weight:600;">No img</div>
+          <div class="order-item__img" style="display:flex;align-items:center;justify-content:center;background:var(--bakery-base);font-size:0.75rem;color:var(--bakery-text-muted);font-weight:600;">No img</div>
         }
         <div class="order-item__info">
           <p class="order-item__name">{{ line.product.name }}</p>
           <p class="order-item__meta">
             {{ formatPrice(line.product.price) }} each
-            <span style="color: #FF5B35; font-weight: 700;">· {{ formatPrice(line.product.price * line.quantity) }}</span>
+            <span style="color: var(--bakery-dark); font-weight: 700;">· {{ formatPrice(line.product.price * line.quantity) }}</span>
           </p>
         </div>
         <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
           <button class="qty-btn qty-btn--minus" (click)="cartQty(line.product.id, -1)">−</button>
-          <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.9rem; color: #3D1E16; min-width: 18px; text-align: center;">
+          <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--bakery-dark); min-width: 18px; text-align: center;">
             {{ line.quantity }}
           </span>
           <button class="qty-btn qty-btn--plus" (click)="cartQty(line.product.id, 1)">+</button>
@@ -138,12 +138,12 @@
 
       <!-- Pickup info banner -->
       @if (fulfillment() === 'pickup') {
-        <div style="background: #FFF3E0; border: 1.5px solid #FFB35C; border-radius: 12px; padding: 14px 16px;">
-          <p style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.85rem; color: #3D1E16; margin: 0 0 4px;">Pickup Location</p>
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0;">
+        <div style="background: var(--bakery-base); border: 1.5px solid var(--bakery-navbar); border-radius: 12px; padding: 14px 16px;">
+          <p style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--bakery-dark); margin: 0 0 4px;">Pickup Location</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--bakery-text-secondary); margin: 0;">
             123 Banawe St, Quezon City · Mon–Sun 7 AM – 6 PM
           </p>
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.78rem; color: #A07850; margin: 6px 0 0;">
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.78rem; color: var(--bakery-text-muted); margin: 6px 0 0;">
             We'll notify you when your order is ready for pickup.
           </p>
         </div>
@@ -197,7 +197,7 @@
             <label class="checkout-field__label">
               Map Coordinates
               @if (!mapConfigured) {
-                <span style="font-weight: 500; color: #8B6347;">(Google Maps key not configured)</span>
+                <span style="font-weight: 500; color: var(--bakery-text-secondary);">(Google Maps key not configured)</span>
               }
             </label>
             <div style="display: flex; gap: 10px;">
@@ -278,13 +278,13 @@
               [min]="minScheduleDateTime()"
               [value]="scheduledAt()"
               (input)="scheduledAt.set($any($event.target).value)"
-              style="color: #3D1E16;"
+              style="color: var(--bakery-dark);"
             >
             @if (touched() && scheduleError()) {
               <p class="checkout-field__error">{{ scheduleError() }}</p>
             }
             @if (scheduledAt() && !scheduleError()) {
-              <p style="font-family: 'Inter', sans-serif; font-size: 0.78rem; color: #3D9E6B; margin: 5px 0 0; font-weight: 600;">
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.78rem; color: var(--bakery-status-finished); margin: 5px 0 0; font-weight: 600;">
                 ✓ Scheduled for {{ scheduledAt() | date:'EEE, MMM d · h:mm a' }}
               </p>
             }
@@ -313,10 +313,34 @@
         <span class="pay-option__check">✓</span>
       </button>
 
-      <button class="pay-option" [class.pay-option--active]="payment() === 'online'" (click)="payment.set('online')">
+      <button class="pay-option" [class.pay-option--active]="payment() === 'card'" (click)="payment.set('card')">
         <span style="flex-grow: 1; text-align: left;">
-          <span class="pay-option__title">Online Payment (Card)</span>
-          <span class="pay-option__sub">Secure gateway — recorded as paid for this demo build.</span>
+          <span class="pay-option__title">Credit / Debit Card</span>
+          <span class="pay-option__sub">Visa, Mastercard, JCB via PayMongo</span>
+        </span>
+        <span class="pay-option__check">✓</span>
+      </button>
+
+      <button class="pay-option" [class.pay-option--active]="payment() === 'gcash'" (click)="payment.set('gcash')">
+        <span style="flex-grow: 1; text-align: left;">
+          <span class="pay-option__title">GCash</span>
+          <span class="pay-option__sub">Pay with your GCash wallet</span>
+        </span>
+        <span class="pay-option__check">✓</span>
+      </button>
+
+      <button class="pay-option" [class.pay-option--active]="payment() === 'paymaya'" (click)="payment.set('paymaya')">
+        <span style="flex-grow: 1; text-align: left;">
+          <span class="pay-option__title">Maya</span>
+          <span class="pay-option__sub">Pay with your Maya account</span>
+        </span>
+        <span class="pay-option__check">✓</span>
+      </button>
+
+      <button class="pay-option" [class.pay-option--active]="payment() === 'grab_pay'" (click)="payment.set('grab_pay')">
+        <span style="flex-grow: 1; text-align: left;">
+          <span class="pay-option__title">GrabPay</span>
+          <span class="pay-option__sub">Pay with your Grab wallet</span>
         </span>
         <span class="pay-option__check">✓</span>
       </button>
@@ -324,11 +348,11 @@
   </div>
 
   <!-- ── Summary + place order ─────────────────────────────────────── -->
-  <div style="background: #3D1E16; padding: 24px 20px 40px;">
+  <div style="background: var(--bakery-dark); padding: 24px 20px 40px;">
 
     <!-- ── Apply Discount / Voucher ───────────────────────────────── -->
-    <div style="background: #2B1712; border-radius: 16px; border: 1px solid rgba(251,246,238,0.14); padding: 16px 18px; margin-bottom: 12px;">
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 800; color: #FBF6EE; margin: 0 0 10px;">
+    <div style="background: var(--bakery-dark); border-radius: 16px; border: 1px solid rgba(249, 230, 168,0.14); padding: 16px 18px; margin-bottom: 12px;">
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 800; color: var(--bakery-card); margin: 0 0 10px;">
         Apply Discount / Voucher
       </p>
 
@@ -340,8 +364,8 @@
           [value]="promoCode()"
           (input)="promoCode.set($any($event.target).value); clearPromoMessages()"
           style="
-            flex: 1; min-width: 0; padding: 10px 12px; border: 1.5px solid rgba(251,246,238,0.2);
-            border-radius: 10px; background: rgba(251,246,238,0.08); color: #FBF6EE;
+            flex: 1; min-width: 0; padding: 10px 12px; border: 1.5px solid rgba(249, 230, 168,0.2);
+            border-radius: 10px; background: rgba(249, 230, 168,0.08); color: var(--bakery-card);
             font-family: 'Inter', sans-serif; font-size: 0.8rem; letter-spacing: 1px;
             text-transform: uppercase; outline: none;
           "
@@ -350,36 +374,46 @@
           size="small"
           [disabled]="promoApplying()"
           (click)="applyPromoCode()"
-          style="--background: #FF5B35; --color: #fff; --border-radius: 10px; --padding-start: 14px; --padding-end: 14px; font-weight: 700; font-size: 0.74rem; height: 38px; flex-shrink: 0;"
+          style="--background: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 10px; --padding-start: 14px; --padding-end: 14px; font-weight: 700; font-size: 0.74rem; height: 38px; flex-shrink: 0;"
         >
           {{ promoApplying() ? '…' : 'Apply' }}
         </ion-button>
       </div>
 
       @if (promoMessage(); as msg) {
-        <p style="margin: 0 0 12px; font-size: 0.76rem; font-family: 'Inter', sans-serif; {{ msg.ok ? 'color: #9BE8C4;' : 'color: #FFB3A1;' }}">
+        <p style="margin: 0 0 12px; font-size: 0.76rem; font-family: 'Inter', sans-serif; {{ msg.ok ? 'color: var(--bakery-success-light);' : 'color: var(--bakery-error-light);' }}">
           {{ msg.text }}
         </p>
       }
 
       @if (vouchersLoading()) {
-        <div style="display: flex; align-items: center; gap: 8px; color: rgba(251,246,238,0.7); font-size: 0.8rem;">
+        <div style="display: flex; align-items: center; gap: 8px; color: rgba(249, 230, 168,0.7); font-size: 0.8rem;">
           <ion-spinner name="crescent" color="medium" style="width: 18px; height: 18px;"></ion-spinner>
           Loading your vouchers…
         </div>
       } @else if (vouchersError(); as err) {
-        <p style="color: #FFB3A1; font-size: 0.78rem; margin: 0;">{{ err }}</p>
+        <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+          <p style="color: var(--bakery-error-light); font-size: 0.78rem; margin: 0;">{{ err }}</p>
+          <ion-button
+            fill="outline"
+            size="small"
+            (click)="retryLoadVouchers()"
+            style="--border-color: var(--bakery-burnt); --color: var(--bakery-burnt); --border-radius: 8px; font-size: 0.7rem; font-weight: 700;"
+          >
+            Retry
+          </ion-button>
+        </div>
       } @else if (claimedVouchers().length === 0) {
-        <p style="color: rgba(251,246,238,0.65); font-size: 0.78rem; margin: 0;">
+        <p style="color: rgba(249, 230, 168,0.65); font-size: 0.78rem; margin: 0;">
           No claimed vouchers yet.
-          <a routerLink="/promotions" style="color: #FF5B35; font-weight: 700; text-decoration: none;">Browse promotions →</a>
+          <a routerLink="/promotions" style="color: var(--bakery-dark); font-weight: 700; text-decoration: none;">Browse promotions →</a>
         </p>
       } @else {
         <select
           class="checkout-field__input"
           [value]="selectedVoucher()?.id ?? ''"
           (change)="onVoucherChange($any($event.target).value)"
-          style="width: 100%; color: #3D1E16;"
+          style="width: 100%; color: var(--bakery-dark);"
         >
           <option value="">No voucher</option>
           @for (claim of claimedVouchers(); track claim.id) {
@@ -389,36 +423,36 @@
 
         @if (selectedVoucher(); as v) {
           <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
-            <span style="color: #9BE8C4; font-weight: 700; font-size: 0.78rem;">
+            <span style="color: var(--bakery-success-light); font-weight: 700; font-size: 0.78rem;">
               {{ v.discount_type === 'percent' ? v.discount_value + '% off' : formatPrice(v.discount_value) + ' off' }}
               @if (v.max_discount != null) { · up to {{ formatPrice(v.max_discount) }} }
             </span>
             <button
               (click)="clearVoucher()"
-              style="background: none; border: none; color: #FFB3A1; font-size: 0.75rem; font-family: 'Inter', sans-serif; cursor: pointer; padding: 0; text-decoration: underline;"
+              style="background: none; border: none; color: var(--bakery-error-light); font-size: 0.75rem; font-family: 'Inter', sans-serif; cursor: pointer; padding: 0; text-decoration: underline;"
             >
               Remove
             </button>
           </div>
           @if (voucherNote(); as note) {
-            <p style="color: #FFB3A1; font-size: 0.75rem; margin: 8px 0 0;">{{ note }}</p>
+            <p style="color: var(--bakery-error-light); font-size: 0.75rem; margin: 8px 0 0;">{{ note }}</p>
           }
         }
       }
     </div>
 
-    <div style="background: #2B1712; border-radius: 16px; border: 1px solid rgba(251,246,238,0.14); padding: 18px 18px 6px;">
+    <div style="background: var(--bakery-dark); border-radius: 16px; border: 1px solid rgba(249, 230, 168,0.14); padding: 18px 18px 6px;">
       <div class="summary-row">
         <span>Subtotal ({{ itemCount() }} item{{ itemCount() === 1 ? '' : 's' }})</span>
         <span>{{ formatPrice(subtotal()) }}</span>
       </div>
       @if (discount() > 0) {
-        <div class="summary-row" style="color: #9BE8C4;">
+        <div class="summary-row" style="color: var(--bakery-success-light);">
           <span>
             Discount
             @if (selectedVoucher(); as v) { ({{ v.code }}) }
           </span>
-          <span style="color: #9BE8C4; font-weight: 700;">− {{ formatPrice(discount()) }}</span>
+          <span style="color: var(--bakery-success-light); font-weight: 700;">− {{ formatPrice(discount()) }}</span>
         </div>
       }
       <div class="summary-row">
@@ -426,7 +460,7 @@
           @if (fulfillment() === 'pickup') { Pickup (no delivery fee) } @else { Delivery fee }
         </span>
         @if (displayDeliveryFee() === 0) {
-          <span style="color: #9BE8C4; font-weight: 700;">FREE</span>
+          <span style="color: var(--bakery-success-light); font-weight: 700;">FREE</span>
         } @else {
           <span>{{ formatPrice(displayDeliveryFee()) }}</span>
         }
@@ -436,7 +470,7 @@
         <span>{{ formatPrice(tax()) }}</span>
       </div>
       @if (scheduleMode() === 'scheduled' && scheduledAt()) {
-        <div class="summary-row" style="color: rgba(251,246,238,0.6);">
+        <div class="summary-row" style="color: rgba(249, 230, 168,0.6);">
           <span>
             @if (fulfillment() === 'pickup') { Pickup scheduled } @else { Delivery scheduled }
           </span>
@@ -445,40 +479,51 @@
       }
       <div
         class="summary-row"
-        style="border-top: 1px solid rgba(251,246,238,0.14); padding-top: 12px; margin-top: 4px;"
+        style="border-top: 1px solid rgba(249, 230, 168,0.14); padding-top: 12px; margin-top: 4px;"
       >
         <span style="font-weight: 800;">Estimated total</span>
-        <span style="font-weight: 800; color: #FFB35C;">{{ formatPrice(displayTotal()) }}</span>
+        <span style="font-weight: 800; color: var(--bakery-navbar);">{{ formatPrice(displayTotal()) }}</span>
       </div>
       @if (fulfillment() === 'delivery' && displayDeliveryFee() === 0) {
-        <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #9BE8C4; margin: 6px 0 0;">
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: var(--bakery-success-light); margin: 6px 0 0;">
           You unlocked FREE delivery on orders over ₱500!
         </p>
       }
     </div>
 
     @if (orderError()) {
-      <div style="background: rgba(255,91,53,0.18); color: #FFD2C6; border-radius: 10px; padding: 12px 14px; margin-top: 12px; font-family: 'Inter', sans-serif; font-size: 0.82rem;">
-        {{ orderError() }}
+      <div style="background: rgba(204, 111, 0,0.18); color: var(--bakery-error-light); border-radius: 10px; padding: 12px 14px; margin-top: 12px; font-family: 'Inter', sans-serif; font-size: 0.82rem;">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <span>{{ orderError() }}</span>
+          <ion-button
+            fill="outline"
+            size="small"
+            (click)="placeOrder()"
+            [disabled]="placing()"
+            style="--border-color: var(--bakery-burnt); --color: var(--bakery-burnt); --border-radius: 8px; font-size: 0.7rem; font-weight: 700; align-self: flex-start;"
+          >
+            Retry
+          </ion-button>
+        </div>
       </div>
     }
 
     @if (touched() && (hasErrors() || scheduleError())) {
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.8rem; color: #FFB3A1; margin: 12px 0 0;">
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.8rem; color: var(--bakery-error-light); margin: 12px 0 0;">
         Please fix the highlighted fields above before placing your order.
       </p>
     }
 
-    <ion-button
+<ion-button
       expand="block"
       (click)="placeOrder()"
       [disabled]="placing()"
       style="
-        --background: #FF5B35;
-        --background-activated: #E04E2B;
-        --color: #fff;
+        --background: var(--bakery-burnt);
+        --background-activated: var(--bakery-burnt);
+        --color: var(--bakery-dark);
         --border-radius: 12px;
-        --box-shadow: 0 4px 16px rgba(255,91,53,0.35);
+        --box-shadow: 0 4px 16px rgba(204, 111, 0,0.35);
         --padding-top: 16px;
         --padding-bottom: 16px;
         font-weight: 800;
@@ -494,8 +539,10 @@
       }
     </ion-button>
 
+    <!-- Bottom padding to prevent floating cart button overlap -->
+    <div style="height: 100px;"></div>
+
   </div>
 
   } <!-- /not empty -->
-
 </ion-content>

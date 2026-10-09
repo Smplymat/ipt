@@ -1,0 +1,60 @@
+<svg width="2732" height="2732" viewBox="0 0 2732 2732" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="2732" height="2732" fill="#F9E6A8"/>
+  
+  <!-- Center content area -->
+  <g transform="translate(1366, 1366)">
+    <!-- Wheat decoration ring -->
+    <circle cx="0" cy="0" r="1000" fill="none" stroke="#CC6F00" stroke-width="40" opacity="0.3"/>
+    
+    <!-- Wheat stalks (left) -->
+    <g fill="#CC6F00" transform="translate(-600, 0)">
+      <path d="M0 0 Q-60 -200 -40 -400 Q-20 -500 0 -600 Q20 -500 40 -400 Q60 -200 0 0 Z"/>
+      <ellipse cx="-70" cy="-120" rx="24" ry="40" transform="rotate(-25)"/>
+      <ellipse cx="-90" cy="-220" rx="24" ry="40" transform="rotate(-30)"/>
+      <ellipse cx="-100" cy="-320" rx="24" ry="40" transform="rotate(-35)"/>
+      <ellipse cx="-96" cy="-420" rx="24" ry="40" transform="rotate(-40)"/>
+      <ellipse cx="-80" cy="-520" rx="24" ry="40" transform="rotate(-45)"/>
+      <ellipse cx="70" cy="-160" rx="24" ry="40" transform="rotate(25)"/>
+      <ellipse cx="90" cy="-260" rx="24" ry="40" transform="rotate(30)"/>
+      <ellipse cx="100" cy="-360" rx="24" ry="40" transform="rotate(35)"/>
+      <ellipse cx="96" cy="-460" rx="24" ry="40" transform="rotate(40)"/>
+      <ellipse cx="80" cy="-560" rx="24" ry="40" transform="rotate(45)"/>
+    </g>
+    
+    <!-- Wheat stalks (right) -->
+    <g fill="#CC6F00" transform="translate(600, 0)">
+      <path d="M0 0 Q60 -200 40 -400 Q20 -500 0 -600 Q-20 -500 -40 -400 Q-60 -200 0 0 Z"/>
+      <ellipse cx="70" cy="-120" rx="24" ry="40" transform="rotate(25)"/>
+      <ellipse cx="90" cy="-220" rx="24" ry="40" transform="rotate(30)"/>
+      <ellipse cx="100" cy="-320" rx="24" ry="40" transform="rotate(35)"/>
+      <ellipse cx="96" cy="-420" rx="24" ry="40" transform="rotate(40)"/>
+      <ellipse cx="80" cy="-520" rx="24" ry="40" transform="rotate(45)"/>
+      <ellipse cx="-70" cy="-160" rx="24" ry="40" transform="rotate(-25)"/>
+      <ellipse cx="-90" cy="-260" rx="24" ry="40" transform="rotate(-30)"/>
+      <ellipse cx="-100" cy="-360" rx="24" ry="40" transform="rotate(-35)"/>
+      <ellipse cx="-96" cy="-460" rx="24" ry="40" transform="rotate(-40)"/>
+      <ellipse cx="-80" cy="-560" rx="24" ry="40" transform="rotate(-45)"/>
+    </g>
+    
+    <!-- Central bread loaf (larger) -->
+    <g transform="translate(0, 100)">
+      <path d="M-280 120 Q-280 -240 0 -320 Q280 -240 280 120 Q320 200 0 280 Q-320 200 -280 120 Z" fill="#E5D3AF" stroke="#CC6F00" stroke-width="12"/>
+      <path d="M-120 -280 Q0 -340 120 -280" fill="none" stroke="#CC6F00" stroke-width="16" stroke-linecap="round"/>
+      <path d="M-160 -240 Q0 -310 160 -240" fill="none" stroke="#CC6F00" stroke-width="12" stroke-linecap="round"/>
+      <path d="M-80 -200 Q0 -270 80 -200" fill="none" stroke="#CC6F00" stroke-width="8" stroke-linecap="round"/>
+      <path d="M-240 40 Q0 -120 240 40" fill="none" stroke="#F9E6A8" stroke-width="24" opacity="0.6" stroke-linecap="round"/>
+    </g>
+    
+    <!-- App name -->
+    <text x="0" y="580" text-anchor="middle" font-family="Georgia, serif" font-size="120" font-weight="bold" fill="#4D2A00" letter-spacing="4">Knead to Know</text>
+    <text x="0" y="680" text-anchor="middle" font-family="Georgia, serif" font-size="48" font-weight="600" fill="#CC6F00" letter-spacing="8">Artisan Bakery</text>
+    
+    <!-- Loading indicator placeholder -->
+    <g transform="translate(0, 850)">
+      <circle cx="0" cy="0" r="30" fill="none" stroke="#CC6F00" stroke-width="6" stroke-dasharray="188" stroke-dashoffset="0">
+        <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="1.5s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+  </g>
+</svg>

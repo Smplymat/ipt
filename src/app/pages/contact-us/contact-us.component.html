@@ -1,0 +1,178 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-menu-button slot="start"></ion-menu-button>
+    <ion-title>Contact Us</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- Hero -->
+  <div class="bakery-hero bakery-hero--catalog">
+    <div class="bakery-hero__inner">
+      <p class="bakery-section-eyebrow">Get In Touch</p>
+      <h2 class="bakery-section-title">We'd Love to<br>Hear From You</h2>
+      <p class="bakery-section-subtitle">
+        Questions about an order? Catering inquiry? Just want to say hello?
+        Drop us a line — we read every message.
+      </p>
+    </div>
+  </div>
+
+  <!-- Contact Channels -->
+  <div class="bakery-section bakery-section--cream" style="padding-top: 32px;">
+    <p class="bakery-section-eyebrow">Quick Channels</p>
+    <h2 class="bakery-section-title">Fastest Ways to Reach Us</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; padding: 0 12px;">
+      @for (c of contactInfo; track c.label) {
+        <div class="bakery-card" style="display: flex; align-items: flex-start; gap: 16px; padding: 20px;">
+          <div style="font-size: 2rem; flex-shrink: 0;">{{ c.icon }}</div>
+          <div>
+            <h3 style="font-family: var(--bakery-font); font-size: 0.9rem; font-weight: 800; color: var(--bakery-dark); margin: 0 0 4px;">{{ c.label }}</h3>
+            <p style="font-family: var(--bakery-font); font-size: 1rem; font-weight: 700; color: var(--bakery-burnt); margin: 0 0 2px;">{{ c.value }}</p>
+            <p style="font-family: var(--bakery-font); font-size: 0.75rem; color: var(--bakery-text-muted); margin: 0;">{{ c.detail }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Locations -->
+  <div class="bakery-section bakery-section--beige" style="padding-top: 32px; padding-bottom: 48px;">
+    <p class="bakery-section-eyebrow">Visit Us</p>
+    <h2 class="bakery-section-title">Our Bakeries</h2>
+    <div style="display: grid; gap: 20px; padding: 0 12px;">
+      @for (loc of locations; track loc.name) {
+        <div class="bakery-card" style="padding: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;">
+            <div>
+              <h3 style="font-family: var(--bakery-font); font-size: 1.1rem; font-weight: 800; color: var(--bakery-dark); margin: 0 0 4px;">{{ loc.name }}</h3>
+              <p style="font-family: var(--bakery-font); font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 0;">{{ loc.address }}</p>
+            </div>
+            <ion-button
+              fill="outline"
+              routerLink="javascript:void(0)"
+              (click)="openMap(loc.maps)"
+              style="--color: var(--bakery-dark); --border-color: var(--bakery-card-border); font-size: 0.75rem; flex-shrink: 0;"
+            >
+              <ion-icon name="navigate-outline" slot="start" aria-hidden="true"></ion-icon>
+              Directions
+            </ion-button>
+          </div>
+          <div style="display: flex; gap: 24px; flex-wrap: wrap; font-family: var(--bakery-font); font-size: 0.85rem; color: var(--bakery-dark);">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <ion-icon name="time-outline" style="color: var(--bakery-burnt); font-size: 1.1rem;" aria-hidden="true"></ion-icon>
+              <span>{{ loc.hours }}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <ion-icon name="call-outline" style="color: var(--bakery-burnt); font-size: 1.1rem;" aria-hidden="true"></ion-icon>
+              <a [href]="'tel:' + loc.phone" style="color: var(--bakery-dark); text-decoration: none;">{{ loc.phone }}</a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Contact Form -->
+  <div class="bakery-section bakery-section--brown" style="padding-top: 48px; padding-bottom: 48px;">
+    <p class="bakery-section-eyebrow" style="color: var(--bakery-navbar);">Send a Message</p>
+    <h2 class="bakery-section-title" style="color: var(--bakery-base);">Write to Us Directly</h2>
+    <div style="max-width: 600px; margin: 0 auto; padding: 0 12px;">
+      <form (ngSubmit)="submit()" style="display: grid; gap: 16px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div>
+            <label style="font-family: var(--bakery-font); font-size: 0.78rem; font-weight: 700; color: var(--bakery-base); display: block; margin-bottom: 6px;">Your Name *</label>
+            <ion-input
+              type="text"
+              placeholder="Juan Dela Cruz"
+              [(ngModel)]="form.name"
+              name="name"
+              style="--background: var(--bakery-input-bg); --color: var(--bakery-dark); --border-radius: 10px; --padding: 12px 14px; border: 1.5px solid var(--bakery-card-border);"
+            ></ion-input>
+          </div>
+          <div>
+            <label style="font-family: var(--bakery-font); font-size: 0.78rem; font-weight: 700; color: var(--bakery-base); display: block; margin-bottom: 6px;">Email *</label>
+            <ion-input
+              type="email"
+              placeholder="juan@email.com"
+              [(ngModel)]="form.email"
+              name="email"
+              style="--background: var(--bakery-input-bg); --color: var(--bakery-dark); --border-radius: 10px; --padding: 12px 14px; border: 1.5px solid var(--bakery-card-border);"
+            ></ion-input>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div>
+            <label style="font-family: var(--bakery-font); font-size: 0.78rem; font-weight: 700; color: var(--bakery-base); display: block; margin-bottom: 6px;">Phone (optional)</label>
+            <ion-input
+              type="tel"
+              placeholder="0917-123-4567"
+              [(ngModel)]="form.phone"
+              name="phone"
+              style="--background: var(--bakery-input-bg); --color: var(--bakery-dark); --border-radius: 10px; --padding: 12px 14px; border: 1.5px solid var(--bakery-card-border);"
+            ></ion-input>
+          </div>
+          <div>
+            <label style="font-family: var(--bakery-font); font-size: 0.78rem; font-weight: 700; color: var(--bakery-base); display: block; margin-bottom: 6px;">Subject</label>
+            <ion-input
+              type="text"
+              placeholder="Order inquiry / Catering / Feedback"
+              [(ngModel)]="form.subject"
+              name="subject"
+              style="--background: var(--bakery-input-bg); --color: var(--bakery-dark); --border-radius: 10px; --padding: 12px 14px; border: 1.5px solid var(--bakery-card-border);"
+            ></ion-input>
+          </div>
+        </div>
+        <div>
+          <label style="font-family: var(--bakery-font); font-size: 0.78rem; font-weight: 700; color: var(--bakery-base); display: block; margin-bottom: 6px;">Message *</label>
+          <ion-textarea
+            placeholder="Tell us how we can help..."
+            [(ngModel)]="form.message"
+            name="message"
+            rows="5"
+            style="--background: var(--bakery-input-bg); --color: var(--bakery-dark); --border-radius: 10px; --padding: 12px 14px; border: 1.5px solid var(--bakery-card-border); font-family: var(--bakery-font); font-size: 0.875rem; resize: vertical;"
+          ></ion-textarea>
+        </div>
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="submitting()"
+          style="--background: var(--bakery-burnt); --background-hover: var(--bakery-burnt); --background-activated: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 12px; --padding-top: 16px; --padding-bottom: 16px; --box-shadow: 0 4px 16px rgba(204, 111, 0, 0.35); font-weight: 800; font-size: 0.95rem; height: 54px; margin-top: 8px;"
+        >
+          @if (submitting()) {
+            <ion-spinner name="crescent" color="dark" style="margin-right: 8px;"></ion-spinner>
+            Sending…
+          } @else {
+            Send Message
+          }
+        </ion-button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Social -->
+  <div class="bakery-section bakery-section--cream" style="padding-top: 32px; padding-bottom: 48px; text-align: center;">
+    <p class="bakery-section-eyebrow">Follow Our Journey</p>
+    <h2 class="bakery-section-title">Stay Connected</h2>
+    <p class="bakery-section-subtitle" style="margin-bottom: 24px;">Behind-the-scenes, new launches, and bakery life.</p>
+    <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+      <a href="https://facebook.com/kneadtoknow" target="_blank" rel="noopener" style="width: 48px; height: 48px; border-radius: 50%; background: var(--bakery-button); border: 2px solid var(--bakery-card-border); display: flex; align-items: center; justify-content: center; color: var(--bakery-dark); font-size: 1.2rem; transition: all 0.2s;"
+         onmouseover="this.style.background='var(--bakery-burnt)'; this.style.color='white'; this.style.borderColor='var(--bakery-burnt)'"
+         onmouseout="this.style.background='var(--bakery-button)'; this.style.color='var(--bakery-dark)'; this.style.borderColor='var(--bakery-card-border)'">
+        <ion-icon name="logo-facebook" aria-hidden="true"></ion-icon>
+      </a>
+      <a href="https://instagram.com/kneadtoknow" target="_blank" rel="noopener" style="width: 48px; height: 48px; border-radius: 50%; background: var(--bakery-button); border: 2px solid var(--bakery-card-border); display: flex; align-items: center; justify-content: center; color: var(--bakery-dark); font-size: 1.2rem; transition: all 0.2s;"
+         onmouseover="this.style.background='var(--bakery-burnt)'; this.style.color='white'; this.style.borderColor='var(--bakery-burnt)'"
+         onmouseout="this.style.background='var(--bakery-button)'; this.style.color='var(--bakery-dark)'; this.style.borderColor='var(--bakery-card-border)'">
+        <ion-icon name="logo-instagram" aria-hidden="true"></ion-icon>
+      </a>
+      <a href="https://tiktok.com/@kneadtoknow" target="_blank" rel="noopener" style="width: 48px; height: 48px; border-radius: 50%; background: var(--bakery-button); border: 2px solid var(--bakery-card-border); display: flex; align-items: center; justify-content: center; color: var(--bakery-dark); font-size: 1.2rem; transition: all 0.2s;"
+         onmouseover="this.style.background='var(--bakery-burnt)'; this.style.color='white'; this.style.borderColor='var(--bakery-burnt)'"
+         onmouseout="this.style.background='var(--bakery-button)'; this.style.color='var(--bakery-dark)'; this.style.borderColor='var(--bakery-card-border)'">
+        <ion-icon name="logo-tiktok" aria-hidden="true"></ion-icon>
+      </a>
+    </div>
+  </div>
+
+</ion-content>

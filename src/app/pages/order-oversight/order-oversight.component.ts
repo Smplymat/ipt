@@ -37,12 +37,12 @@ export interface DonutSlice {
 const CIRCUMFERENCE = 2 * Math.PI * 54; // r = 54 on a 128×128 viewBox
 
 const STATUS_COLORS: Record<string, string> = {
-  Pending:            '#FF5B35',   // coral — project brand
-  Preparing:          '#F5A623',   // amber
-  'Out for Delivery': '#6B3A2A',   // brown-mid
-  'Ready for Pickup': '#17A2B8',   // teal — matches STATUS_BADGE 'teal'
-  Delivered:          '#3D7A55',   // green
-  Cancelled:          '#C4A882',   // muted
+  Pending:            '#CC6F00',   // burnt orange
+  Preparing:          '#B7791F',   // pending amber
+  'Out for Delivery': '#2B6CB0',   // delivery blue
+  'Ready for Pickup': '#17A2B8',   // teal
+  Delivered:          '#2E7D4F',   // finished green
+  Cancelled:          '#B3261E',   // cancelled red
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -134,7 +134,7 @@ export class OrderOversightComponent implements OnDestroy {
       slices.push({
         label,
         count,
-        color: STATUS_COLORS[label] ?? '#C4A882',
+        color: STATUS_COLORS[label] ?? '#4D2A00',
         percent,
         dasharray:  `${dash.toFixed(2)} ${gap.toFixed(2)}`,
         dashoffset: `${(CIRCUMFERENCE - offset).toFixed(2)}`,

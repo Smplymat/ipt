@@ -14,6 +14,7 @@ import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { MapsService } from '../../services/maps.service';
 import { FulfillmentType, OrdersService, PlaceOrderParams, toErrorMessage } from '../../services/orders.service';
+import { PaymentService, PaymentMethod, CreatePaymentResponse } from '../../services/payment.service';
 import {
   UserVoucherWithVoucher,
   VouchersService,
@@ -60,11 +61,12 @@ export class CheckoutComponent {
   private readonly maps = inject(MapsService);
   private readonly auth = inject(AuthService);
   private readonly vouchers = inject(VouchersService);
+  private readonly paymentService = inject(PaymentService);
   private readonly router = inject(Router);
 
   readonly form = signal<DeliveryForm>({ ...EMPTY_FORM });
   readonly touched = signal(false);
-  readonly payment = signal<'cod' | 'online'>('cod');
+  readonly payment = signal<PaymentMethod>('cod');
   readonly placing = signal(false);
   readonly orderError = signal<string | null>(null);
 
@@ -175,6 +177,11 @@ export class CheckoutComponent {
     }
   }
 
+  /** Retry loading claimed vouchers. */
+  async retryLoadVouchers(): Promise<void> {
+    await this.loadClaimedVouchers();
+  }
+
   /** Applies (or clears) the voucher selected in the picker. */
   onVoucherChange(voucherId: string): void {
     const found = this.claimedVouchers().find((c) => c.voucher_id === voucherId);
@@ -232,9 +239,14 @@ export class CheckoutComponent {
 
   // ── Bag quantity helper ─────────────────────────────────────────────────────
 
-  cartQty(productId: string, delta: number): void {
+  async cartQty(productId: string, delta: number): Promise<void> {
     const current = this.lines().find((l) => l.product.id === productId)?.quantity ?? 0;
-    this.cart.setQuantity(productId, current + delta);
+    try {
+      await this.cart.setQuantity(productId, current + delta);
+    } catch (err) {
+      console.error('cartQty failed:', err);
+      // Toast will be shown by the cart service or we can add one here
+    }
   }
 
   // ── Form helpers ─────────────────────────────────────────────────────────────
@@ -305,12 +317,6 @@ export class CheckoutComponent {
     try {
       const f = this.form();
 
-      // Online payment: simulated gateway round trip (swap in a real SDK here).
-      // The server derives payment_status from payment_method (online → paid).
-      if (this.payment() === 'online') {
-        await this.delay(1200);
-      }
-
       // Resolve scheduled_at
       const scheduledAt =
         this.scheduleMode() === 'scheduled' && this.scheduledAt()
@@ -319,11 +325,9 @@ export class CheckoutComponent {
 
       const isPickup = this.fulfillment() === 'pickup';
       const voucher = this.selectedVoucher();
+      const selectedPayment = this.payment();
 
-      // Only the cart line ids/quantities + contact/schedule info go to the
-      // server. Prices, stock, totals, tax, discount and voucher redemption
-      // are computed by the SECURITY DEFINER `place_order` function (see 0008).
-      // The numbers shown in the summary above are a client-side preview only.
+      // Build params for the order
       const params: PlaceOrderParams = {
         customer_name: f.name.trim(),
         phone: f.phone.trim(),
@@ -333,7 +337,7 @@ export class CheckoutComponent {
         latitude: isPickup ? null : f.lat,
         longitude: isPickup ? null : f.lng,
         scheduled_at: scheduledAt,
-        payment_method: this.payment(),
+        payment_method: this.mapPaymentMethod(selectedPayment),
         promo_code: voucher ? voucher.code : null,
       };
 
@@ -342,6 +346,28 @@ export class CheckoutComponent {
       // The function has already marked the voucher redeemed inside the same
       // transaction, so the wallet is immediately consistent.
 
+      // For COD, we're done - order created with unpaid status
+      if (selectedPayment === 'cod') {
+        this.cart.clear();
+        await this.router.navigate(['/order-confirmation', order.id]);
+        return;
+      }
+
+      // For online payments, create PayMongo checkout session
+      const paymentResult: CreatePaymentResponse = await this.paymentService.createPayment(order.id, selectedPayment);
+
+      if (!paymentResult.success) {
+        this.orderError.set(paymentResult.error || 'Failed to initialize payment');
+        return;
+      }
+
+      if (paymentResult.checkout_url) {
+        // Redirect to PayMongo checkout
+        window.location.href = paymentResult.checkout_url;
+        return;
+      }
+
+      // Fallback: if no checkout URL, go to confirmation
       this.cart.clear();
       await this.router.navigate(['/order-confirmation', order.id]);
     } catch (err) {
@@ -349,6 +375,11 @@ export class CheckoutComponent {
     } finally {
       this.placing.set(false);
     }
+  }
+
+  /** Map frontend payment method to backend payment_method enum. */
+  private mapPaymentMethod(method: PaymentMethod): 'cod' | 'online' {
+    return method === 'cod' ? 'cod' : 'online';
   }
 
   private delay(ms: number): Promise<void> {

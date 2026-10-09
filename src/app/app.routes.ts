@@ -3,7 +3,7 @@ import { staffGuard } from './guards/role.guard';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: 'bread-catalog', pathMatch: 'full' },
   {
     path: 'login',
     loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent),
@@ -39,6 +39,16 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'payment-success',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/payment-success/payment-success.component').then((m) => m.PaymentSuccessComponent),
+  },
+  {
+    path: 'payment-cancelled',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/payment-cancelled/payment-cancelled.component').then((m) => m.PaymentCancelledComponent),
+  },
+  {
     path: 'promotions',
     loadComponent: () => import('./pages/promotions/promotions.component').then((m) => m.PromotionsComponent),
   },
@@ -63,8 +73,12 @@ export const routes: Routes = [
       import('./pages/notifications/notifications.component').then((m) => m.NotificationsComponent),
   },
   {
-    path: 'about',
-    loadComponent: () => import('./pages/about/about.component').then((m) => m.AboutComponent),
+    path: 'about-products',
+    loadComponent: () => import('./pages/about-products/about-products.component').then((m) => m.AboutProductsComponent),
+  },
+  {
+    path: 'contact-us',
+    loadComponent: () => import('./pages/contact-us/contact-us.component').then((m) => m.ContactUsComponent),
   },
   {
     path: 'developers',
@@ -83,5 +97,5 @@ export const routes: Routes = [
         (m) => m.OrderOversightComponent
       ),
   },
-  { path: '**', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: 'bread-catalog' },
 ];

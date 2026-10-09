@@ -59,6 +59,6 @@ values
     'Soft swirls with cream cheese glaze',
     120.00,
     4.6,
-    'https://images.unsplash.com/photo-1609342122563-a43ac8917a3a?w=400&h=400&fit=crop&auto=format'
+    'https://images.unsplash.com/photo-1509365465985-25d11c17e812?w=400&h=400&fit=crop&auto=format'
   )
 on conflict (id) do nothing;

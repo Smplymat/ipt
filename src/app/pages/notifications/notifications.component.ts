@@ -5,10 +5,18 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
+  IonIcon,
   IonMenuButton,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
+import {
+  basketOutline,
+  colorPaletteOutline,
+  giftOutline,
+  notificationsOutline,
+  pricetagOutline,
+} from 'ionicons/icons';
 import {
   AppNotification,
   notificationIcon,
@@ -18,7 +26,7 @@ import { toErrorMessage } from '../../services/orders.service';
 
 @Component({
   selector: 'app-notifications',
-  imports: [IonButton, IonButtons, IonContent, IonHeader, IonMenuButton, IonTitle, IonToolbar],
+  imports: [IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonMenuButton, IonTitle, IonToolbar],
   templateUrl: './notifications.component.html',
 })
 export class NotificationsComponent implements OnDestroy {
@@ -42,6 +50,23 @@ export class NotificationsComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.unsubscribe?.();
+  }
+
+  /** Ionicon name for a notification type (renders in a styled circle). */
+  iconFor(type: string): string {
+    switch (type as AppNotification['type']) {
+      case 'order_confirmation':
+      case 'order_update':
+        return basketOutline;
+      case 'new_product':
+        return pricetagOutline;
+      case 'promotion':
+        return giftOutline;
+      case 'custom_order':
+        return colorPaletteOutline;
+      default:
+        return notificationsOutline;
+    }
   }
 
   notificationIcon(type: string): string {

@@ -11,6 +11,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
+import { addIcons } from 'ionicons';
 import { closeOutline, createOutline, imageOutline, trashOutline, addOutline } from 'ionicons/icons';
 import { AppRole, AuthUser, AuthService } from '../../services/auth.service';
 import { Product, ProductsService, toErrorMessage, ExtraInfoItem, LOW_STOCK_THRESHOLD } from '../../services/products.service';
@@ -211,6 +212,13 @@ export class AdminComponent {
   });
 
   constructor() {
+    addIcons({
+      closeOutline,
+      createOutline,
+      imageOutline,
+      trashOutline,
+      addOutline,
+    });
     void this.loadProducts();
     void this.loadCategories();
     if (this.canManageUsers()) void this.loadUsers();
@@ -314,9 +322,9 @@ export class AdminComponent {
   /** Colored badge label for a product's current stock level. */
   stockBadge(p: Product): { label: string; color: string; bg: string } {
     const stock = Number(p.stock_quantity) || 0;
-    if (stock <= 0) return { label: 'Out of stock', color: '#E04E2B', bg: 'rgba(255,91,53,0.12)' };
-    if (stock <= LOW_STOCK_THRESHOLD) return { label: `Low stock · ${stock}`, color: '#B47A12', bg: 'rgba(245,166,35,0.16)' };
-    return { label: `In stock · ${stock}`, color: '#2F7D46', bg: 'rgba(61,125,85,0.12)' };
+    if (stock <= 0) return { label: 'Out of stock', color: '#B3261E', bg: 'rgba(179,38,30,0.12)' };
+    if (stock <= LOW_STOCK_THRESHOLD) return { label: `Low stock · ${stock}`, color: '#CC6F00', bg: 'rgba(204,111,0,0.16)' };
+    return { label: `In stock · ${stock}`, color: '#2E7D4F', bg: 'rgba(46,125,79,0.12)' };
   }
 
   /** Display name for a status as used on the admin Orders tab. */
@@ -335,19 +343,19 @@ export class AdminComponent {
   statusChipColor(status: OrderStatus): { fg: string; bg: string } {
     switch (status) {
       case 'pending':
-        return { fg: '#C85A1F', bg: 'rgba(255,91,53,0.12)' };
+        return { fg: '#B7791F', bg: 'rgba(183,121,31,0.12)' };
       case 'preparing':
-        return { fg: '#2F6FB3', bg: 'rgba(47,111,179,0.12)' };
+        return { fg: '#CC6F00', bg: 'rgba(204,111,0,0.12)' };
       case 'out_for_delivery':
-        return { fg: '#6B3A2A', bg: 'rgba(107,58,42,0.12)' };
+        return { fg: '#2B6CB0', bg: 'rgba(43,108,176,0.12)' };
       case 'ready_for_pickup':
         return { fg: '#0E7C7B', bg: 'rgba(23,162,184,0.12)' };
       case 'delivered':
-        return { fg: '#2F7D46', bg: 'rgba(61,125,85,0.14)' };
+        return { fg: '#2E7D4F', bg: 'rgba(46,125,79,0.14)' };
       case 'cancelled':
-        return { fg: '#8B6347', bg: 'rgba(196,168,130,0.25)' };
+        return { fg: '#B3261E', bg: 'rgba(179,38,30,0.25)' };
       default:
-        return { fg: '#3D1E16', bg: 'rgba(196,168,130,0.2)' };
+        return { fg: '#4D2A00', bg: 'rgba(229,211,175,0.2)' };
     }
   }
 
@@ -361,7 +369,37 @@ export class AdminComponent {
   }
 
   paymentLabel(p: PaymentMethod): string {
-    return p === 'cod' ? 'Cash on Delivery' : 'Online Payment';
+    const labels: Record<PaymentMethod, string> = {
+      cod: 'Cash on Delivery',
+      card: 'Credit/Debit Card',
+      gcash: 'GCash',
+      paymaya: 'Maya',
+      grab_pay: 'GrabPay',
+      online: 'Online Payment',
+    };
+    return labels[p] ?? 'Online Payment';
+  }
+
+  paymentStatusLabel(status: string): string {
+    switch (status) {
+      case 'paid': return 'Paid';
+      case 'pending': return 'Pending';
+      case 'unpaid': return 'Unpaid (COD)';
+      case 'failed': return 'Failed';
+      case 'refunded': return 'Refunded';
+      default: return 'Unknown';
+    }
+  }
+
+  paymentStatusColor(status: string): { fg: string; bg: string } {
+    switch (status) {
+      case 'paid': return { fg: '#2E7D4F', bg: 'rgba(46,125,79,0.14)' };
+      case 'pending': return { fg: '#CC6F00', bg: 'rgba(204,111,0,0.12)' };
+      case 'unpaid': return { fg: '#B7791F', bg: 'rgba(183,121,31,0.12)' };
+      case 'failed': return { fg: '#B3261E', bg: 'rgba(179,38,30,0.14)' };
+      case 'refunded': return { fg: '#2B6CB0', bg: 'rgba(43,108,176,0.12)' };
+      default: return { fg: '#4D2A00', bg: 'rgba(229,211,175,0.2)' };
+    }
   }
 
   /** Bar height (px) for the daily revenue chart, clamped 4..120. */

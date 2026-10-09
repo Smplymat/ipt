@@ -4,7 +4,7 @@
     <ion-title>Admin Management</ion-title>
     <ion-buttons slot="end">
       @if (user(); as u) {
-        <span style="background: rgba(255,91,53,0.2); color: #FF5B35; font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(255,91,53,0.35); margin-right: 12px;">
+        <span style="background: rgba(204, 111, 0,0.2); color: var(--bakery-dark); font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(204, 111, 0,0.35); margin-right: 12px;">
           {{ roleBadge() }}
         </span>
       }
@@ -15,22 +15,22 @@
 <ion-content class="page-content" [scrollY]="true">
 
   <!-- ── Welcome strip ───────────────────────────────────────────────── -->
-  <div style="background: #2B1712; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+  <div style="background: var(--bakery-dark); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
     <div>
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #FF5B35; margin: 0 0 4px;">Product control room</p>
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bakery-dark); margin: 0 0 4px;">Product control room</p>
       @if (user(); as u) {
-        <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 800; color: #FBF6EE; margin: 0; line-height: 1.2;">
+        <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 800; color: var(--bakery-card); margin: 0; line-height: 1.2;">
           {{ u.displayName }}
         </p>
       }
     </div>
-    <span style="font-family: 'Inter', sans-serif; font-size: 0.78rem; color: rgba(251,246,238,0.55); flex-shrink: 0;">
+    <span style="font-family: 'Inter', sans-serif; font-size: 0.78rem; color: rgba(249, 230, 168,0.55); flex-shrink: 0;">
       {{ products().length }} product{{ products().length === 1 ? '' : 's' }} live
     </span>
   </div>
 
   <!-- ── Tabs ───────────────────────────────────────────────────────── -->
-  <div style="background: #FBF6EE; padding: 16px 16px 0; display: flex; gap: 8px; flex-wrap: wrap;">
+  <div style="background: var(--bakery-card); padding: 16px 16px 0; display: flex; gap: 8px; flex-wrap: wrap;">
     <button class="bakery-pill" [class.bakery-pill--active]="tab() === 'products'" [class.bakery-pill--inactive]="tab() !== 'products'" (click)="tab.set('products')">
       Products
     </button>
@@ -57,11 +57,11 @@
   @if (tab() === 'products') {
 
     @if (formError(); as err) {
-      <div style="background: rgba(255,91,53,0.1); border: 1px solid rgba(255,91,53,0.35); color: #E04E2B; border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin: 16px 16px 0;">{{ err }}</div>
+      <div style="background: rgba(204, 111, 0,0.1); border: 1px solid rgba(204, 111, 0,0.35); color: var(--bakery-dark); border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin: 16px 16px 0;">{{ err }}</div>
     }
 
     <!-- ── Create product form ─────────────────────────────────────── -->
-    <div style="background: #FBF6EE; padding: 18px 16px;">
+    <div style="background: var(--bakery-card); padding: 18px 16px;">
       <p class="bakery-section-eyebrow" style="margin-bottom: 10px;">Add Product</p>
       <div class="page-card">
 
@@ -70,20 +70,20 @@
           <!-- Image picker -->
           <div style="width: 120px; flex-shrink: 0; text-align: center;">
             @if (createImagePreview(); as preview) {
-              <div style="position: relative; width: 120px; height: 120px; border-radius: 14px; overflow: hidden; background: #FAF3E0; border: 1px solid #EDE0CC; margin-bottom: 8px;">
-                <img [src]="preview" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                <div (click)="clearCreateImage()" style="position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%; background: rgba(61,30,22,0.75); color: #FBF6EE; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+              <div style="position: relative; width: 120px; height: 120px; border-radius: 14px; overflow: hidden; background: var(--bakery-base); border: 1px solid var(--bakery-card-border); margin-bottom: 8px;">
+                <img [src]="preview" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; display: block;" (error)="$any($event.target).style.display='none'">
+                <div (click)="clearCreateImage()" style="position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%; background: rgba(77, 42, 0,0.75); color: var(--bakery-card); display: flex; align-items: center; justify-content: center; cursor: pointer;">
                   <ion-icon [icon]="closeIcon" size="small"></ion-icon>
                 </div>
               </div>
             } @else {
-              <div style="width: 120px; height: 120px; border-radius: 14px; background: #FAF3E0; border: 1.5px dashed #C4A882; color: #A07850; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px;">
+              <div style="width: 120px; height: 120px; border-radius: 14px; background: var(--bakery-base); border: 1.5px dashed var(--bakery-button); color: var(--bakery-text-muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px;">
                 <ion-icon [icon]="imageIcon" size="large" color="secondary"></ion-icon>
                 <span style="font-family: 'Inter', sans-serif; font-size: 0.65rem;">No image</span>
               </div>
             }
             <input #createFile type="file" accept="image/*" hidden (change)="onFileSelected($event)">
-            <ion-button size="small" fill="outline" (click)="createFile.click()" style="--color: #3D1E16; --border-color: #C4A882; font-family: 'Inter', sans-serif; font-size: 0.72rem;">
+            <ion-button size="small" fill="outline" (click)="createFile.click()" style="--color: var(--bakery-dark); --border-color: var(--bakery-button); font-family: 'Inter', sans-serif; font-size: 0.72rem;">
               Choose image
             </ion-button>
           </div>
@@ -146,32 +146,32 @@
               </div>
 
               @for (item of createExtraInfo(); track item.id) {
-                <div style="background: #FAF3E0; border: 1px solid #EDE0CC; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; display: flex; gap: 8px; align-items: flex-start;">
+                <div style="background: var(--bakery-base); border: 1px solid var(--bakery-card-border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; display: flex; gap: 8px; align-items: flex-start;">
                   <div style="flex: 1; display: flex; gap: 8px; flex-wrap: wrap;">
                     <ion-input
                       type="text"
                       placeholder="Label (e.g. Allergens)"
                       [value]="item.label"
                       (ionInput)="updateCreateExtraItem(item.id, 'label', ($event.detail.value ?? '').toString())"
-                      style="flex: 1; min-width: 100px; --background: #fff; --border-radius: 8px; --padding-start: 10px; --padding-end: 10px; border: 1px solid #EDE0CC; border-radius: 8px; font-size: 0.8rem; height: 36px;"
+                      style="flex: 1; min-width: 100px; --background: var(--bakery-card); --border-radius: 8px; --padding-start: 10px; --padding-end: 10px; border: 1px solid var(--bakery-card-border); border-radius: 8px; font-size: 0.8rem; height: 36px;"
                     ></ion-input>
                     <ion-input
                       type="text"
                       placeholder="Detail text"
                       [value]="item.value"
                       (ionInput)="updateCreateExtraItem(item.id, 'value', ($event.detail.value ?? '').toString())"
-                      style="flex: 2; min-width: 140px; --background: #fff; --border-radius: 8px; --padding-start: 10px; --padding-end: 10px; border: 1px solid #EDE0CC; border-radius: 8px; font-size: 0.8rem; height: 36px;"
+                      style="flex: 2; min-width: 140px; --background: var(--bakery-card); --border-radius: 8px; --padding-start: 10px; --padding-end: 10px; border: 1px solid var(--bakery-card-border); border-radius: 8px; font-size: 0.8rem; height: 36px;"
                     ></ion-input>
                   </div>
-                  <button (click)="removeCreateExtraItem(item.id)" style="background: none; border: none; color: #E04E2B; cursor: pointer; padding: 4px; flex-shrink: 0;">
+                  <button (click)="removeCreateExtraItem(item.id)" style="background: none; border: none; color: var(--bakery-dark); cursor: pointer; padding: 4px; flex-shrink: 0;">
                     <ion-icon [icon]="closeIcon" style="font-size: 1rem;"></ion-icon>
                   </button>
                 </div>
               }
             </div>
 
-            <ion-button expand="block" [disabled]="saving()" (click)="handleCreate()" style="--background: #FF5B35; --background-hover: #E04E2B; --background-activated: #E04E2B; --color: #fff; --border-radius: 10px; --box-shadow: 0 4px 14px rgba(255,91,53,0.3); font-weight: 700; font-size: 0.85rem; height: 44px; margin-top: 16px;">
-              {{ saving() ? 'Saving…' : '＋ Add Product' }}
+            <ion-button expand="block" [disabled]="saving()" (click)="handleCreate()" style="--background: var(--bakery-burnt); --background-hover: var(--bakery-burnt); --background-activated: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 10px; --box-shadow: 0 4px 14px rgba(204, 111, 0,0.3); font-weight: 700; font-size: 0.85rem; height: 44px; margin-top: 16px;">
+              {{ saving() ? 'Saving…' : '+ Add Product' }}
             </ion-button>
           </div>
         </div>
@@ -179,54 +179,54 @@
     </div>
 
     <!-- ── Product list ────────────────────────────────────────────── -->
-    <div style="background: #FBF6EE; padding: 8px 16px 40px;">
+    <div style="background: var(--bakery-card); padding: 8px 16px 40px;">
 
       @if (productsError(); as err) {
         <div style="text-align: center; padding: 40px 20px;">
           <p style="font-size: 2rem; margin: 0 0 10px;">(!)</p>
-          <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">Could not load products</p>
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0 0 14px;">{{ err }}</p>
-          <ion-button fill="outline" (click)="loadProducts()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
+          <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: var(--bakery-dark); margin: 0 0 6px;">Could not load products</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--bakery-text-secondary); margin: 0 0 14px;">{{ err }}</p>
+          <ion-button fill="outline" (click)="loadProducts()" style="--color: var(--bakery-dark); font-size: 0.8rem;">Try again</ion-button>
         </div>
       } @else if (productsLoading()) {
         <div style="text-align: center; padding: 48px 20px;">
-          <div style="width: 34px; height: 34px; border: 3px solid #EDE0CC; border-top-color: #FF5B35; border-radius: 50%; margin: 0 auto 14px; animation: spin 0.8s linear infinite;"></div>
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Loading products…</p>
+          <div style="width: 34px; height: 34px; border: 3px solid var(--bakery-card-border); border-top-color: var(--bakery-dark); border-radius: 50%; margin: 0 auto 14px; animation: spin 0.8s linear infinite;"></div>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 0;">Loading products…</p>
         </div>
       } @else if (products().length === 0) {
         <div style="text-align: center; padding: 48px 20px;">
-          <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: #3D1E16; margin: 0 0 6px;">No products yet</p>
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0;">Use the form above to add your first product.</p>
+          <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: var(--bakery-dark); margin: 0 0 6px;">No products yet</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--bakery-text-secondary); margin: 0;">Use the form above to add your first product.</p>
         </div>
       } @else {
         @for (p of products(); track p.id) {
-          <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 16px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 5px rgba(61,30,22,0.05);">
+          <div style="background: var(--bakery-card); border: 1px solid var(--bakery-card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 5px rgba(77, 42, 0,0.05);">
 
             <!-- Display view -->
             @if (editingId() !== p.id) {
               <div style="display: flex; gap: 14px; align-items: center;">
-                <div style="width: 64px; height: 64px; border-radius: 12px; overflow: hidden; background: #FAF3E0; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                <div style="width: 64px; height: 64px; border-radius: 12px; overflow: hidden; background: var(--bakery-base); flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
                   @if (p.image_url) {
-                    <img [src]="p.image_url" [alt]="p.name" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img [src]="p.image_url" [alt]="p.name" style="width: 100%; height: 100%; object-fit: cover;" (error)="$any($event.target).style.display='none'">
                   } @else {
-                    <span style="font-size: 1.5rem; color:#A07850; font-family:'Inter',sans-serif; font-weight:600;">?</span>
+                    <span style="font-size: 1.5rem; color:var(--bakery-text-muted); font-family:'Inter',sans-serif; font-weight:600;">?</span>
                   }
                 </div>
                 <div style="flex: 1; min-width: 0;">
                   <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <p style="font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700; color: #3D1E16; margin: 0;">{{ p.name }}</p>
-                    <span style="background: rgba(255,91,53,0.1); color: #FF5B35; font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;">{{ p.category }}</span>
+                    <p style="font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--bakery-dark); margin: 0;">{{ p.name }}</p>
+                    <span style="background: rgba(204, 111, 0,0.1); color: var(--bakery-dark); font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;">{{ p.category }}</span>
                   </div>
-                  <p style="font-family: 'Inter', sans-serif; font-size: 0.75rem; color: #8B6347; margin: 3px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ p.description || '—' }}</p>
+                  <p style="font-family: 'Inter', sans-serif; font-size: 0.75rem; color: var(--bakery-text-secondary); margin: 3px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ p.description || '—' }}</p>
                   @if (p.ingredients) {
-                    <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #A07850; margin: 3px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: var(--bakery-text-muted); margin: 3px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                       {{ p.ingredients }}
                     </p>
                   }
-                  <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #A07850; margin: 4px 0 0;">
-                    Added {{ formattedDate(p.created_at) }} · <span style="color: #F5A623;">{{ ratingStars(p.rating) }}</span>
+                  <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: var(--bakery-text-muted); margin: 4px 0 0;">
+                    Added {{ formattedDate(p.created_at) }} · <span style="color: var(--bakery-navbar);">{{ ratingStars(p.rating) }}</span>
                     @if (p.extra_info?.length) {
-                      · <span style="color: #8B6347;">{{ p.extra_info.length }} extra field{{ p.extra_info.length > 1 ? 's' : '' }}</span>
+                      · <span style="color: var(--bakery-text-secondary);">{{ p.extra_info.length }} extra field{{ p.extra_info.length > 1 ? 's' : '' }}</span>
                     }
                   </p>
                   @if (stockBadge(p); as badge) {
@@ -236,14 +236,14 @@
                   }
                 </div>
                 <div style="text-align: right; flex-shrink: 0;">
-                  <p style="font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 800; color: #3D1E16; margin: 0 0 8px;">{{ formatPrice(p.price) }}</p>
+                  <p style="font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 800; color: var(--bakery-dark); margin: 0 0 8px;">{{ formatPrice(p.price) }}</p>
                   <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                    <ion-button size="small" fill="outline" (click)="startEdit(p)" style="--color: #6B3A2A; --border-color: #C4A882; font-family: 'Inter', sans-serif; font-size: 0.72rem; --padding-start: 12px; --padding-end: 12px;">
+                    <ion-button size="small" fill="outline" (click)="startEdit(p)" style="--color: var(--bakery-dark); --border-color: var(--bakery-button); font-family: 'Inter', sans-serif; font-size: 0.72rem; --padding-start: 12px; --padding-end: 12px;">
                       <ion-icon [icon]="createIcon" slot="start" size="small"></ion-icon>
                       Edit
                     </ion-button>
                     @if (canManageUsers()) {
-                      <ion-button size="small" fill="outline" (click)="confirmDelete(p)" style="--color: #E04E2B; --border-color: rgba(255,91,53,0.5); font-family: 'Inter', sans-serif; font-size: 0.72rem; --padding-start: 12px; --padding-end: 12px;">
+                      <ion-button size="small" fill="outline" (click)="confirmDelete(p)" style="--color: var(--bakery-dark); --border-color: rgba(204, 111, 0,0.5); font-family: 'Inter', sans-serif; font-size: 0.72rem; --padding-start: 12px; --padding-end: 12px;">
                         <ion-icon [icon]="trashIcon" slot="start" size="small"></ion-icon>
                         Delete
                       </ion-button>
@@ -256,22 +256,22 @@
             <!-- Edit view -->
             @else {
               <div>
-                <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #FF5B35; margin: 0 0 12px;">Editing "{{ editName() }}"</p>
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--bakery-dark); margin: 0 0 12px;">Editing "{{ editName() }}"</p>
 
                 <div style="display: flex; gap: 16px; flex-wrap: wrap;">
 
                   <!-- Image -->
                   <div style="width: 110px; flex-shrink: 0; text-align: center;">
                     @if (editImagePreview(); as preview) {
-                      <img [src]="preview" alt="New image" style="width: 110px; height: 110px; border-radius: 12px; object-fit: cover; border: 1px solid #EDE0CC;">
+                      <img [src]="preview" alt="New image" style="width: 110px; height: 110px; border-radius: 12px; object-fit: cover; border: 1px solid var(--bakery-card-border);" (error)="$any($event.target).style.display='none'">
                     } @else if (p.image_url) {
-                      <img [src]="p.image_url" [alt]="p.name" style="width: 110px; height: 110px; border-radius: 12px; object-fit: cover; border: 1px solid #EDE0CC;">
+                      <img [src]="p.image_url" [alt]="p.name" style="width: 110px; height: 110px; border-radius: 12px; object-fit: cover; border: 1px solid var(--bakery-card-border);" (error)="$any($event.target).style.display='none'">
                     } @else {
-                      <div style="width: 110px; height: 110px; border-radius: 12px; background: #FAF3E0; border: 1.5px dashed #C4A882; color: #A07850; display: flex; align-items: center; justify-content: center; font-family:'Inter',sans-serif; font-size:0.8rem;">No image</div>
+                      <div style="width: 110px; height: 110px; border-radius: 12px; background: var(--bakery-base); border: 1.5px dashed var(--bakery-button); color: var(--bakery-text-muted); display: flex; align-items: center; justify-content: center; font-family:'Inter',sans-serif; font-size:0.8rem;">No image</div>
                     }
                     <input #editFile type="file" accept="image/*" hidden (change)="onEditFileSelected($event)">
-                    <ion-button size="small" fill="outline" (click)="editFile.click()" style="--color: #3D1E16; --border-color: #C4A882; font-size: 0.7rem; margin-top: 6px;">Replace image</ion-button>
-                    <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; color: #A07850; margin: 6px 0 0;">Leave unchanged to keep current</p>
+                    <ion-button size="small" fill="outline" (click)="editFile.click()" style="--color: var(--bakery-dark); --border-color: var(--bakery-button); font-size: 0.7rem; margin-top: 6px;">Replace image</ion-button>
+                    <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; color: var(--bakery-text-muted); margin: 6px 0 0;">Leave unchanged to keep current</p>
                   </div>
 
                   <!-- Edit fields -->
@@ -322,24 +322,24 @@
                         </button>
                       </div>
                       @for (item of editExtraInfo(); track item.id) {
-                        <div style="background: #FAF3E0; border: 1px solid #EDE0CC; border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; display: flex; gap: 8px; align-items: flex-start;">
+                        <div style="background: var(--bakery-base); border: 1px solid var(--bakery-card-border); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; display: flex; gap: 8px; align-items: flex-start;">
                           <div style="flex: 1; display: flex; gap: 8px; flex-wrap: wrap;">
                             <ion-input
                               type="text"
                               placeholder="Label"
                               [value]="item.label"
                               (ionInput)="updateEditExtraItem(item.id, 'label', ($event.detail.value ?? '').toString())"
-                              style="flex: 1; min-width: 90px; --background: #fff; --border-radius: 8px; --padding-start: 10px; --padding-end: 10px; border: 1px solid #EDE0CC; border-radius: 8px; font-size: 0.8rem; height: 34px;"
+                              style="flex: 1; min-width: 90px; --background: var(--bakery-card); --border-radius: 8px; --padding-start: 10px; --padding-end: 10px; border: 1px solid var(--bakery-card-border); border-radius: 8px; font-size: 0.8rem; height: 34px;"
                             ></ion-input>
                             <ion-input
                               type="text"
                               placeholder="Detail"
                               [value]="item.value"
                               (ionInput)="updateEditExtraItem(item.id, 'value', ($event.detail.value ?? '').toString())"
-                              style="flex: 2; min-width: 130px; --background: #fff; --border-radius: 8px; --padding-start: 10px; --padding-end: 10px; border: 1px solid #EDE0CC; border-radius: 8px; font-size: 0.8rem; height: 34px;"
+                              style="flex: 2; min-width: 130px; --background: var(--bakery-card); --border-radius: 8px; --padding-start: 10px; --padding-end: 10px; border: 1px solid var(--bakery-card-border); border-radius: 8px; font-size: 0.8rem; height: 34px;"
                             ></ion-input>
                           </div>
-                          <button (click)="removeEditExtraItem(item.id)" style="background: none; border: none; color: #E04E2B; cursor: pointer; padding: 2px; flex-shrink: 0;">
+                          <button (click)="removeEditExtraItem(item.id)" style="background: none; border: none; color: var(--bakery-dark); cursor: pointer; padding: 2px; flex-shrink: 0;">
                             <ion-icon [icon]="closeIcon" style="font-size: 1rem;"></ion-icon>
                           </button>
                         </div>
@@ -347,8 +347,8 @@
                     </div>
 
                     <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px;">
-                      <ion-button size="small" fill="outline" (click)="cancelEdit()" style="--color: #8B6347; --border-color: #C4A882; font-size: 0.78rem;">Cancel</ion-button>
-                      <ion-button size="small" [disabled]="savingEdit()" (click)="handleUpdate(p)" style="--background: #3D1E16; --color: #FBF6EE; --border-radius: 8px; font-size: 0.78rem; font-weight: 700;">
+                      <ion-button size="small" fill="outline" (click)="cancelEdit()" style="--color: var(--bakery-text-secondary); --border-color: var(--bakery-button); font-size: 0.78rem;">Cancel</ion-button>
+                      <ion-button size="small" [disabled]="savingEdit()" (click)="handleUpdate(p)" style="--background: var(--bakery-dark); --color: var(--bakery-card); --border-radius: 8px; font-size: 0.78rem; font-weight: 700;">
                         {{ savingEdit() ? 'Saving…' : 'Save changes' }}
                       </ion-button>
                     </div>
@@ -364,14 +364,14 @@
 
   <!-- ══════════════════════ CATEGORIES TAB ════════════════════════════ -->
   @if (tab() === 'categories') {
-    <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+    <div style="background: var(--bakery-card); padding: 18px 16px 40px;">
       <p class="bakery-section-eyebrow" style="margin-bottom: 6px;">Manage Categories</p>
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0 0 16px;">
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--bakery-text-secondary); margin: 0 0 16px;">
         Categories group your products on the catalog page. Add custom ones here; they appear in the product form dropdown immediately.
       </p>
 
       @if (categoryFormError(); as err) {
-        <div style="background: rgba(255,91,53,0.1); border: 1px solid rgba(255,91,53,0.35); color: #E04E2B; border-radius: 12px; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 12px;">{{ err }}</div>
+        <div style="background: rgba(204, 111, 0,0.1); border: 1px solid rgba(204, 111, 0,0.35); color: var(--bakery-dark); border-radius: 12px; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 12px;">{{ err }}</div>
       }
 
       <!-- Create category form -->
@@ -390,29 +390,29 @@
         <ion-button
           [disabled]="savingCategory()"
           (click)="handleCreateCategory()"
-          style="--background: #FF5B35; --background-hover: #E04E2B; --color: #fff; --border-radius: 10px; font-weight: 700; font-size: 0.82rem; height: 44px; --padding-start: 20px; --padding-end: 20px; flex-shrink: 0;"
+          style="--background: var(--bakery-burnt); --background-hover: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 10px; font-weight: 700; font-size: 0.82rem; height: 44px; --padding-start: 20px; --padding-end: 20px; flex-shrink: 0;"
         >
-          {{ savingCategory() ? 'Adding…' : '＋ Add Category' }}
+          {{ savingCategory() ? 'Adding…' : '+ Add Category' }}
         </ion-button>
       </div>
 
       <!-- Category list -->
       @if (categoriesLoading()) {
         <div style="text-align: center; padding: 32px 20px;">
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Loading categories…</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 0;">Loading categories…</p>
         </div>
       } @else if (categories().length === 0) {
         <div style="text-align: center; padding: 32px 20px;">
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">No categories yet. Add one above.</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 0;">No categories yet. Add one above.</p>
         </div>
       } @else {
         <div style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px;">
           @for (cat of categories(); track cat.id) {
-            <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 4px rgba(61,30,22,0.05);">
-              <span style="font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 600; color: #3D1E16;">{{ cat.name }}</span>
+            <div style="background: var(--bakery-card); border: 1px solid var(--bakery-card-border); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 4px rgba(77, 42, 0,0.05);">
+              <span style="font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 600; color: var(--bakery-dark);">{{ cat.name }}</span>
               @if (canManageUsers()) {
-                <button (click)="confirmDeleteCategory(cat)" style="background: none; border: none; color: #C4A882; cursor: pointer; padding: 2px; line-height: 1; display: flex; align-items: center;" title="Delete category">
-                  <ion-icon [icon]="trashIcon" style="font-size: 0.9rem; color: #E04E2B;"></ion-icon>
+                <button (click)="confirmDeleteCategory(cat)" style="background: none; border: none; color: var(--bakery-button); cursor: pointer; padding: 2px; line-height: 1; display: flex; align-items: center;" title="Delete category">
+                  <ion-icon [icon]="trashIcon" style="font-size: 0.9rem; color: var(--bakery-dark);"></ion-icon>
                 </button>
               }
             </div>
@@ -424,47 +424,47 @@
 
   <!-- ══════════════════════ USERS TAB (Admin only) ══════════════════ -->
   @if (tab() === 'users') {
-    <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+    <div style="background: var(--bakery-card); padding: 18px 16px 40px;">
       <p class="bakery-section-eyebrow" style="margin-bottom: 8px;">User Accounts</p>
       <p class="bakery-section-subtitle" style="margin-bottom: 14px;">Assign each member of your team a role. Changes take effect immediately.</p>
 
       @if (usersError(); as err) {
         <div style="text-align: center; padding: 36px 20px;">
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #E04E2B; margin: 0 0 12px;">{{ err }}</p>
-          <ion-button fill="outline" (click)="loadUsers()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-dark); margin: 0 0 12px;">{{ err }}</p>
+          <ion-button fill="outline" (click)="loadUsers()" style="--color: var(--bakery-dark); font-size: 0.8rem;">Try again</ion-button>
         </div>
       } @else if (usersLoading()) {
         <div style="text-align: center; padding: 36px 20px;">
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Loading users…</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 0;">Loading users…</p>
         </div>
       } @else if (users().length === 0) {
         <div style="text-align: center; padding: 36px 20px;">
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">No accounts yet.</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 0;">No accounts yet.</p>
         </div>
       } @else {
         @for (u of users(); track u.id) {
-          <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: #FAF3E0; color: #3D1E16; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; text-transform: uppercase; flex-shrink: 0;">
+          <div style="background: var(--bakery-card); border: 1px solid var(--bakery-card-border); border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--bakery-base); color: var(--bakery-dark); font-family: 'Inter', sans-serif; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; text-transform: uppercase; flex-shrink: 0;">
               {{ (u.displayName || u.email)[0] }}
             </div>
             <div style="flex: 1; min-width: 160px;">
-              <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: #3D1E16; margin: 0;">
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--bakery-dark); margin: 0;">
                 {{ u.displayName }}
                 @if (u.id === user()?.id) {
-                  <span style="color: #A07850; font-weight: 500; font-size: 0.68rem;">(you)</span>
+                  <span style="color: var(--bakery-text-muted); font-weight: 500; font-size: 0.68rem;">(you)</span>
                 }
               </p>
-              <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: #8B6347; margin: 2px 0 0;">{{ u.email }}</p>
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: var(--bakery-text-secondary); margin: 2px 0 0;">{{ u.email }}</p>
             </div>
             <div style="flex-shrink: 0;">
               @if (u.id === user()?.id) {
-                <span style="background: rgba(255,91,53,0.1); color: #FF5B35; font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700; padding: 6px 12px; border-radius: 8px;">{{ roleLabel(u.role) }}</span>
+                <span style="background: rgba(204, 111, 0,0.1); color: var(--bakery-dark); font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700; padding: 6px 12px; border-radius: 8px;">{{ roleLabel(u.role) }}</span>
               } @else {
                 <select
                   [value]="u.role"
                   [disabled]="roleUpdatingId() === u.id"
                   (change)="handleRoleChange(u, $event)"
-                  style="background: #FBF6EE; border: 1.5px solid #EDE0CC; border-radius: 8px; padding: 8px 10px; font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 600; color: #3D1E16;"
+                  style="background: var(--bakery-card); border: 1.5px solid var(--bakery-card-border); border-radius: 8px; padding: 8px 10px; font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--bakery-dark);"
                 >
                   <option value="customer">Customer</option>
                   <option value="store_admin">Store Admin</option>
@@ -480,7 +480,7 @@
 
 <!-- ══════════════════════ INVENTORY TAB ═════════════════════════ -->
   @if (tab() === 'inventory') {
-    <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+    <div style="background: var(--bakery-card); padding: 18px 16px 40px;">
       <p class="bakery-section-eyebrow" style="margin-bottom: 6px;">Manage Inventory</p>
       <p class="bakery-section-subtitle" style="margin-bottom: 14px;">
         Quick stock adjustments — quantities at or below {{ LOW_STOCK_THRESHOLD }} are flagged as low.
@@ -497,44 +497,44 @@
 
       @if (productsError(); as err) {
         <div style="text-align: center; padding: 36px 20px;">
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #E04E2B; margin: 0 0 12px;">{{ err }}</p>
-          <ion-button fill="outline" (click)="loadProducts()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-dark); margin: 0 0 12px;">{{ err }}</p>
+          <ion-button fill="outline" (click)="loadProducts()" style="--color: var(--bakery-dark); font-size: 0.8rem;">Try again</ion-button>
         </div>
       } @else if (productsLoading()) {
         <div style="text-align: center; padding: 36px 20px;">
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Loading inventory…</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 0;">Loading inventory…</p>
         </div>
       } @else {
         @for (p of products(); track p.id) {
           @if (inventoryFilter() === 'all' || stockNumber(p) <= LOW_STOCK_THRESHOLD) {
-            <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div style="background: var(--bakery-card); border: 1px solid var(--bakery-card-border); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
               <div style="flex: 1; min-width: 160px;">
-                <p style="font-family: 'Inter', sans-serif; font-size: 0.86rem; font-weight: 700; color: #3D1E16; margin: 0;">
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--bakery-dark); margin: 0;">
                   {{ p.name }}
-                  <span style="color: #A07850; font-weight: 500; font-size: 0.68rem;">{{ p.category }}</span>
+                  <span style="color: var(--bakery-text-muted); font-weight: 500; font-size: 0.68rem;">{{ p.category }}</span>
                 </p>
                 <span style="display: inline-block; margin-top: 5px; background: {{ stockBadge(p).bg }}; color: {{ stockBadge(p).color }}; font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; padding: 3px 8px; border-radius: 6px;">
                   {{ stockBadge(p).label }}
                 </span>
               </div>
               <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                <button (click)="adjustStock(p, -1)" style="width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid #C4A882; background: #FAF3E0; color: #3D1E16; font-size: 1.1rem; font-weight: 700; cursor: pointer;">−</button>
+                <button (click)="adjustStock(p, -1)" style="width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid var(--bakery-button); background: var(--bakery-base); color: var(--bakery-dark); font-size: 1.1rem; font-weight: 700; cursor: pointer;">−</button>
                 <input
                   type="number"
                   min="0"
                   step="1"
                   [value]="stockNumber(p)"
                   (change)="setStockQuantity(p, $event)"
-                  style="width: 74px; text-align: center; padding: 8px 6px; border: 1.5px solid #EDE0CC; border-radius: 9px; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: #3D1E16; background: #FBF6EE; outline: none;"
+                  style="width: 74px; text-align: center; padding: 8px 6px; border: 1.5px solid var(--bakery-card-border); border-radius: 9px; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--bakery-dark); background: var(--bakery-card); outline: none;"
                 >
-                <button (click)="adjustStock(p, 1)" style="width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid #C4A882; background: #FAF3E0; color: #3D1E16; font-size: 1.1rem; font-weight: 700; cursor: pointer;">＋</button>
+                <button (click)="adjustStock(p, 1)" style="width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid var(--bakery-button); background: var(--bakery-base); color: var(--bakery-dark); font-size: 1.1rem; font-weight: 700; cursor: pointer;">+</button>
               </div>
             </div>
           }
         }
         @if (products().length === 0) {
           <div style="text-align: center; padding: 36px 20px;">
-            <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">No products in the catalog yet.</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 0;">No products in the catalog yet.</p>
           </div>
         }
       }
@@ -543,48 +543,48 @@
 
   <!-- ══════════════════════ ORDERS TAB ═══════════════════════════ -->
   @if (tab() === 'orders') {
-    <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+    <div style="background: var(--bakery-card); padding: 18px 16px 40px;">
       <p class="bakery-section-eyebrow" style="margin-bottom: 6px;">Manage Orders</p>
       <p class="bakery-section-subtitle" style="margin-bottom: 14px;">
         Set any order's status directly — Pending, Preparing, Ready for Pickup, On Delivery, Finished, or Cancelled.
       </p>
 
       @if (statusError(); as err) {
-        <div style="background: rgba(255,91,53,0.1); border: 1px solid rgba(255,91,53,0.35); color: #E04E2B; border-radius: 12px; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 12px;">{{ err }}</div>
+        <div style="background: rgba(204, 111, 0,0.1); border: 1px solid rgba(204, 111, 0,0.35); color: var(--bakery-dark); border-radius: 12px; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 12px;">{{ err }}</div>
       }
 
       @if (ordersError(); as err) {
         <div style="text-align: center; padding: 36px 20px;">
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #E04E2B; margin: 0 0 12px;">{{ err }}</p>
-          <ion-button fill="outline" (click)="loadOrders()" style="--color: #FF5B35; font-size: 0.8rem;">Try again</ion-button>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-dark); margin: 0 0 12px;">{{ err }}</p>
+          <ion-button fill="outline" (click)="loadOrders()" style="--color: var(--bakery-dark); font-size: 0.8rem;">Try again</ion-button>
         </div>
       } @else if (ordersLoading()) {
         <div style="text-align: center; padding: 36px 20px;">
-          <div style="width: 30px; height: 30px; border: 3px solid #EDE0CC; border-top-color: #FF5B35; border-radius: 50%; margin: 0 auto 12px; animation: spin 0.8s linear infinite;"></div>
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Loading orders…</p>
+          <div style="width: 30px; height: 30px; border: 3px solid var(--bakery-card-border); border-top-color: var(--bakery-dark); border-radius: 50%; margin: 0 auto 12px; animation: spin 0.8s linear infinite;"></div>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 0;">Loading orders…</p>
         </div>
       } @else if (orders().length === 0) {
         <div style="text-align: center; padding: 36px 20px;">
-          <p style="font-size: 2rem; margin: 0 0 8px;">🧾</p>
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">No orders yet.</p>
+          <ion-icon name="receipt-outline" style="font-size: 2rem; color: var(--bakery-text-muted);"></ion-icon>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 0;">No orders yet.</p>
         </div>
       } @else {
         @for (o of orders(); track o.id) {
-          <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 14px; padding: 12px 14px; margin-bottom: 8px;">
+          <div style="background: var(--bakery-card); border: 1px solid var(--bakery-card-border); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px;">
             <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
               <div style="flex: 1; min-width: 170px;">
-                <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: #3D1E16; margin: 0;">
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--bakery-dark); margin: 0;">
                   #{{ shortOrderId(o) }}
                   @if (o.fulfillment_type === 'pickup') {
-                    <span style="color: #A07850; font-weight: 500; font-size: 0.7rem;">· Pickup</span>
+                    <span style="color: var(--bakery-text-muted); font-weight: 500; font-size: 0.7rem;">· Pickup</span>
                   } @else {
-                    <span style="color: #A07850; font-weight: 500; font-size: 0.7rem;">· Delivery</span>
+                    <span style="color: var(--bakery-text-muted); font-weight: 500; font-size: 0.7rem;">· Delivery</span>
                   }
                 </p>
-                <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: #8B6347; margin: 3px 0 0;">
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: var(--bakery-text-secondary); margin: 3px 0 0;">
                   {{ o.customer_name }} · {{ o.phone }} · {{ formatOrderDate(o.created_at) }}
                 </p>
-                <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #A07850; margin: 3px 0 0;">
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: var(--bakery-text-muted); margin: 3px 0 0;">
                   {{ o.items.length }} item{{ o.items.length === 1 ? '' : 's' }} · {{ paymentLabel(o.payment_method) }} · {{ formatPrice(o.total) }}
                 </p>
               </div>
@@ -596,14 +596,14 @@
                   [value]="o.status"
                   [disabled]="statusSavingId() === o.id"
                   (change)="setOrderStatus(o, $any($event.target).value)"
-                  style="background: #FBF6EE; border: 1.5px solid #EDE0CC; border-radius: 8px; padding: 8px 10px; font-family: 'Inter', sans-serif; font-size: 0.76rem; font-weight: 600; color: #3D1E16;"
+                  style="background: var(--bakery-card); border: 1.5px solid var(--bakery-card-border); border-radius: 8px; padding: 8px 10px; font-family: 'Inter', sans-serif; font-size: 0.76rem; font-weight: 600; color: var(--bakery-dark);"
                 >
                   @for (s of statuses; track s) {
                     <option [value]="s">{{ statusOptionLabel(s) }}</option>
                   }
                 </select>
                 @if (statusSavingId() === o.id) {
-                  <span style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #A07850;">Saving…</span>
+                  <span style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: var(--bakery-text-muted);">Saving…</span>
                 }
               </div>
             </div>
@@ -615,7 +615,7 @@
 
   <!-- ══════════════════════ SALES TAB ════════════════════════════ -->
   @if (tab() === 'sales') {
-    <div style="background: #FBF6EE; padding: 18px 16px 40px;">
+    <div style="background: var(--bakery-card); padding: 18px 16px 40px;">
       <p class="bakery-section-eyebrow" style="margin-bottom: 6px;">Sales Overview</p>
       <p class="bakery-section-subtitle" style="margin-bottom: 16px;">
         Live figures computed from real orders. Cancelled orders and their revenue are excluded.
@@ -623,26 +623,26 @@
 
       @if (ordersLoading()) {
         <div style="text-align: center; padding: 36px 20px;">
-          <div style="width: 30px; height: 30px; border: 3px solid #EDE0CC; border-top-color: #FF5B35; border-radius: 50%; margin: 0 auto 12px; animation: spin 0.8s linear infinite;"></div>
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #8B6347; margin: 0;">Crunching numbers…</p>
+          <div style="width: 30px; height: 30px; border: 3px solid var(--bakery-card-border); border-top-color: var(--bakery-dark); border-radius: 50%; margin: 0 auto 12px; animation: spin 0.8s linear infinite;"></div>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 0;">Crunching numbers…</p>
         </div>
       } @else {
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px;">
-          <div style="background: #3D1E16; border-radius: 14px; padding: 14px 16px;">
-            <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #FF5B35; margin: 0 0 6px;">Total revenue</p>
-            <p style="font-family: 'Inter', sans-serif; font-size: 1.15rem; font-weight: 800; color: #FBF6EE; margin: 0;">{{ formatPrice(salesRevenue()) }}</p>
+          <div style="background: var(--bakery-dark); border-radius: 14px; padding: 14px 16px;">
+            <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--bakery-dark); margin: 0 0 6px;">Total revenue</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 1.15rem; font-weight: 800; color: var(--bakery-card); margin: 0;">{{ formatPrice(salesRevenue()) }}</p>
           </div>
-          <div style="background: #2B1712; border-radius: 14px; padding: 14px 16px;">
-            <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #FF5B35; margin: 0 0 6px;">Finished orders</p>
-            <p style="font-family: 'Inter', sans-serif; font-size: 1.15rem; font-weight: 800; color: #FBF6EE; margin: 0;">{{ formatPrice(salesDeliveredRevenue()) }}</p>
+          <div style="background: var(--bakery-dark); border-radius: 14px; padding: 14px 16px;">
+            <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--bakery-dark); margin: 0 0 6px;">Finished orders</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 1.15rem; font-weight: 800; color: var(--bakery-card); margin: 0;">{{ formatPrice(salesDeliveredRevenue()) }}</p>
           </div>
-          <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 14px; padding: 14px 16px;">
-            <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #A07850; margin: 0 0 6px;">Orders</p>
-            <p style="font-family: 'Inter', sans-serif; font-size: 1.15rem; font-weight: 800; color: #3D1E16; margin: 0;">{{ salesOrderCount() }} total · {{ salesActiveCount() }} active</p>
+          <div style="background: var(--bakery-card); border: 1px solid var(--bakery-card-border); border-radius: 14px; padding: 14px 16px;">
+            <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--bakery-text-muted); margin: 0 0 6px;">Orders</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 1.15rem; font-weight: 800; color: var(--bakery-dark); margin: 0;">{{ salesOrderCount() }} total · {{ salesActiveCount() }} active</p>
           </div>
-          <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 14px; padding: 14px 16px;">
-            <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #A07850; margin: 0 0 6px;">Payment method</p>
-            <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 800; color: #3D1E16; margin: 0;">
+          <div style="background: var(--bakery-card); border: 1px solid var(--bakery-card-border); border-radius: 14px; padding: 14px 16px;">
+            <p style="font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--bakery-text-muted); margin: 0 0 6px;">Payment method</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 800; color: var(--bakery-dark); margin: 0;">
               {{ salesPaymentSplit().cod }} COD · {{ salesPaymentSplit().online }} online
             </p>
           </div>
@@ -652,23 +652,23 @@
         <div style="display: flex; align-items: flex-end; gap: 6px; margin-bottom: 20px; flex-wrap: wrap;">
           @for (d of salesLast7Days(); track d.label) {
             <div style="flex: 1; min-width: 52px; text-align: center;">
-              <div style="background: #FF5B35; border-radius: 6px 6px 0 0; height: {{ chartHeight(d.revenue) }}px;"></div>
-              <p style="font-family: 'Inter', sans-serif; font-size: 0.6rem; color: #8B6347; margin: 4px 0 0;">{{ d.label }}</p>
-              <p style="font-family: 'Inter', sans-serif; font-size: 0.6rem; font-weight: 700; color: #3D1E16; margin: 0;">₱{{ d.revenue.toFixed(0) }}</p>
+              <div style="background: var(--bakery-burnt); border-radius: 6px 6px 0 0; height: {{ chartHeight(d.revenue) }}px;"></div>
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.6rem; color: var(--bakery-text-secondary); margin: 4px 0 0;">{{ d.label }}</p>
+              <p style="font-family: 'Inter', sans-serif; font-size: 0.6rem; font-weight: 700; color: var(--bakery-dark); margin: 0;">₱{{ d.revenue.toFixed(0) }}</p>
             </div>
           }
         </div>
 
         <p class="bakery-section-eyebrow" style="margin: 20px 0 8px;">Best sellers</p>
         @if (salesTopProducts().length === 0) {
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #8B6347; margin: 0;">No sales data yet — place some orders to populate this report.</p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--bakery-text-secondary); margin: 0;">No sales data yet — place some orders to populate this report.</p>
         } @else {
           @for (p of salesTopProducts(); track p.name; let i = $index) {
-            <div style="background: #fff; border: 1px solid #EDE0CC; border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px;">
-              <span style="width: 26px; height: 26px; border-radius: 50%; background: #FAF3E0; color: #3D1E16; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{ i + 1 }}</span>
+            <div style="background: var(--bakery-card); border: 1px solid var(--bakery-card-border); border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px;">
+              <span style="width: 26px; height: 26px; border-radius: 50%; background: var(--bakery-base); color: var(--bakery-dark); font-family: 'Inter', sans-serif; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{ i + 1 }}</span>
               <div style="flex: 1;">
-                <p style="font-family: 'Inter', sans-serif; font-size: 0.84rem; font-weight: 700; color: #3D1E16; margin: 0;">{{ p.name }}</p>
-                <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #8B6347; margin: 2px 0 0;">{{ p.qty }} unit{{ p.qty === 1 ? '' : 's' }} · {{ formatPrice(p.revenue) }}</p>
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.84rem; font-weight: 700; color: var(--bakery-dark); margin: 0;">{{ p.name }}</p>
+                <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: var(--bakery-text-secondary); margin: 2px 0 0;">{{ p.qty }} unit{{ p.qty === 1 ? '' : 's' }} · {{ formatPrice(p.revenue) }}</p>
               </div>
             </div>
           }

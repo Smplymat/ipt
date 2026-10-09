@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
 import { closeOutline } from 'ionicons/icons';
+import { addIcons } from 'ionicons';
 import { Product } from '../../services/products.service';
 
 @Component({
@@ -13,6 +14,10 @@ export class ProductDetailModalComponent {
   @Output() dismiss = new EventEmitter<void>();
 
   readonly closeIcon = closeOutline;
+
+  constructor() {
+    addIcons({ closeOutline });
+  }
 
   formatPrice(n: number): string {
     return `₱${(Number(n) || 0).toFixed(2)}`;

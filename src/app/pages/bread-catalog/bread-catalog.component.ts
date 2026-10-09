@@ -3,20 +3,19 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
   IonButton,
-  IonCard,
-  IonCol,
   IonContent,
-  IonGrid,
   IonHeader,
+  IonIcon,
   IonMenuButton,
-  IonRow,
   IonTitle,
   IonToolbar,
   ToastController,
 } from '@ionic/angular';
+import { addIcons } from 'ionicons';
 import { CartService } from '../../services/cart.service';
 import { LOW_STOCK_THRESHOLD, Product, ProductsService, toErrorMessage } from '../../services/products.service';
 import { ProductDetailModalComponent } from '../../components/product-detail-modal/product-detail-modal.component';
+import { searchOutline, optionsOutline } from 'ionicons/icons';
 
 export type SortKey = 'default' | 'price_asc' | 'price_desc' | 'rating_desc';
 
@@ -26,13 +25,10 @@ export type SortKey = 'default' | 'price_asc' | 'price_desc' | 'rating_desc';
     FormsModule,
     RouterLink,
     IonButton,
-    IonCard,
-    IonCol,
     IonContent,
-    IonGrid,
     IonHeader,
+    IonIcon,
     IonMenuButton,
-    IonRow,
     IonTitle,
     IonToolbar,
     ProductDetailModalComponent,
@@ -144,6 +140,7 @@ export class BreadCatalogComponent {
   });
 
   constructor() {
+    addIcons({ 'search-outline': searchOutline, 'options-outline': optionsOutline });
     void this.loadProducts();
   }
 
@@ -217,13 +214,19 @@ export class BreadCatalogComponent {
   async addToCart(product: Product, event: Event): Promise<void> {
     event.stopPropagation(); // don't open the detail modal
     if (this.isSoldOut(product)) return;
-    this.cart.add(product);
+    const result = await this.cart.addToCart(product);
     const t = await this.toast.create({
-      message: `${product.name} added to cart`,
+      message: result.message || (result.success ? `${product.name} added to cart` : 'Could not add to cart'),
       duration: 1800,
       position: 'bottom',
-      color: 'dark',
+      color: result.success ? 'dark' : 'danger',
     });
     await t.present();
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'logo.jpg';
+    img.alt = 'Product image unavailable';
   }
 }

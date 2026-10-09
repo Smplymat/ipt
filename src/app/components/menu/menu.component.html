@@ -13,7 +13,7 @@
     <!-- ── Brand Logo Strip ─────────────────────────────────────────── -->
     <div class="menu-brand">
       <div class="menu-brand-icon">
-        <img src="/logo.jpg" alt="Knead to Know logo" />
+        <img src="/logo.jpg" alt="Knead to Know logo" (error)="$any($event.target).style.display='none'" />
       </div>
       <p class="menu-brand-name">
         Knead to Know
@@ -24,47 +24,79 @@
     <!-- ── Divider ─────────────────────────────────────────────────── -->
     <div class="menu-divider"></div>
 
-    <!-- ── Navigation List (scrolls with the content) ──────────────── -->
-    <p class="menu-section-label">Navigation</p>
-    <ion-list lines="none" class="menu-nav-list">
-      @for (page of visiblePages(); track page.url) {
-        <ion-menu-toggle auto-hide="false">
-          <ion-item
-            [routerLink]="page.url"
-            detail="false"
-            [class.active-item]="isActive(page)"
-            class="menu-nav-item"
-            lines="none"
-          >
-            <ion-icon
-              slot="start"
-              [icon]="page.icon"
-              class="menu-nav-icon"
-              aria-hidden="true"
-            ></ion-icon>
-            <ion-label class="menu-nav-label">{{ page.title }}</ion-label>
-            @if (page.url === '/notifications' && unreadCount() > 0) {
-              <ion-badge slot="end" class="menu-badge" [attr.aria-label]="unreadCount() + ' unread notifications'">
-                {{ unreadCount() }}
-              </ion-badge>
-            }
-          </ion-item>
-        </ion-menu-toggle>
-      }
-    </ion-list>
+    <!-- ── Navigation List (grouped, scrolls with the content) ──────────── -->
+    @for (section of groupedPages(); track section.label) {
+      <p class="menu-section-label">{{ section.label }}</p>
+      <ion-list lines="none" class="menu-nav-list">
+        @for (page of section.pages; track page.url) {
+          <ion-menu-toggle auto-hide="false">
+            <ion-item
+              [routerLink]="page.url"
+              detail="false"
+              [class.active-item]="isActive(page)"
+              class="menu-nav-item"
+              lines="none"
+            >
+              <ion-icon
+                slot="start"
+                [icon]="page.icon"
+                class="menu-nav-icon"
+                aria-hidden="true"
+              ></ion-icon>
+              <ion-label class="menu-nav-label">{{ page.title }}</ion-label>
+              @if (page.url === '/notifications' && unreadCount() > 0) {
+                <ion-badge slot="end" class="menu-badge" [attr.aria-label]="unreadCount() + ' unread notifications'">
+                  {{ unreadCount() }}
+                </ion-badge>
+              }
+              @if (page.url === '/orders' && itemCount() > 0) {
+                <ion-badge slot="end" class="menu-badge cart-badge" [attr.aria-label]="itemCount() + ' items in cart'">
+                  {{ itemCount() }}
+                </ion-badge>
+              }
+            </ion-item>
+          </ion-menu-toggle>
+        }
+      </ion-list>
+    }
 
-    <!-- ── Footer: account chip + log out (sticky at the bottom) ───── -->
+    <!-- ── Footer: account info + log out (sticky at the bottom) ───── -->
     <div class="menu-footer">
 
-      <!-- Signed-in user chip -->
+      <!-- Signed-in user profile header -->
       @if (user(); as u) {
-        <div class="menu-user-chip">
-          <span style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 700; color: #FBF6EE; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            {{ u.displayName }}
-          </span>
-          <span style="font-family: 'Inter', sans-serif; font-size: 0.68rem; color: #FF5B35; font-weight: 600;">
-            {{ u.role === 'admin' ? 'Admin' : u.role === 'store_admin' ? 'Store Admin' : 'Customer' }}
-          </span>
+        <div class="menu-user-profile">
+          <div class="menu-user-avatar">
+            @if (u.avatarUrl) {
+              <img [src]="u.avatarUrl" [alt]="u.displayName" (error)="onAvatarError($event)" />
+            } @else {
+              <div class="avatar-fallback">
+                <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
+              </div>
+            }
+          </div>
+          <div class="menu-user-info">
+            <span class="menu-user-name">{{ u.displayName }}</span>
+            <span class="menu-user-role">{{ u.role === 'admin' ? 'Admin' : u.role === 'store_admin' ? 'Store Admin' : 'Customer' }}</span>
+            @if (u.phone) {
+              <span class="menu-user-phone">
+                <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+                {{ u.phone }}
+              </span>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="menu-user-profile guest">
+          <div class="menu-user-avatar">
+            <div class="avatar-fallback">
+              <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
+            </div>
+          </div>
+          <div class="menu-user-info">
+            <span class="menu-user-name">Guest</span>
+            <span class="menu-user-role">Not signed in</span>
+          </div>
         </div>
       }
 

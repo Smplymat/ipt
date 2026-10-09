@@ -11,7 +11,7 @@ import {
   IonToolbar,
   ToastController,
 } from '@ionic/angular';
-import { trashOutline } from 'ionicons/icons';
+import { trashOutline, createOutline, mailOutline, keyOutline } from 'ionicons/icons';
 import { Address, AddressesService, NewAddress } from '../../services/addresses.service';
 import { AuthService } from '../../services/auth.service';
 import { toErrorMessage } from '../../services/orders.service';
@@ -203,4 +203,7 @@ export class ProfileComponent {
   }
 
   readonly trashIcon = trashOutline;
+  readonly createIcon = createOutline;
+  readonly mailIcon = mailOutline;
+  readonly keyIcon = keyOutline;
 }

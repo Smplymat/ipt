@@ -11,12 +11,13 @@ import {
   IonMenuToggle,
 } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
+import { CartService } from '../../services/cart.service';
 import { NotificationsService } from '../../services/notifications.service';
+import { addIcons } from 'ionicons';
 import {
   bagHandleOutline,
   codeSlashOutline,
   colorPaletteOutline,
-  gridOutline,
   informationCircleOutline,
   logInOutline,
   logOutOutline,
@@ -27,6 +28,10 @@ import {
   starOutline,
   storefrontOutline,
   clipboardOutline,
+  mailOutline,
+  nutritionOutline,
+  personCircleOutline as personOutline,
+  callOutline,
 } from 'ionicons/icons';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -36,23 +41,24 @@ interface AppPage {
   url: string;
   icon: string;
   staffOnly?: boolean;
+  group: 'Shop' | 'Account' | 'Info' | 'Admin';
 }
 
 // ─── Navigation Map ──────────────────────────────────────────────────────────
 
 const appPages: AppPage[] = [
-  { title: 'Dashboard',            url: '/dashboard',        icon: gridOutline },
-  { title: 'Bread Catalog',        url: '/bread-catalog',    icon: storefrontOutline },
-  { title: 'Custom Order',         url: '/custom-order',     icon: colorPaletteOutline },
-  { title: 'My Orders & Cart',     url: '/orders',           icon: bagHandleOutline },
-  { title: 'Notifications',        url: '/notifications',    icon: notificationsOutline },
-  { title: 'My Account',           url: '/profile',          icon: personCircleOutline },
-  { title: 'Promotions & Offers',  url: '/promotions',       icon: pricetagOutline },
-  { title: 'Customer Feedback',    url: '/feedback',         icon: starOutline },
-  { title: 'About Knead to Know',  url: '/about',            icon: informationCircleOutline },
-  { title: 'Developers',           url: '/developers',       icon: codeSlashOutline },
-  { title: 'Order Management',     url: '/order-oversight',  icon: clipboardOutline,  staffOnly: true },
-  { title: 'Admin Management',     url: '/admin',            icon: shieldCheckmarkOutline, staffOnly: true },
+  { title: 'Bread Catalog',        url: '/bread-catalog',    icon: storefrontOutline,      group: 'Shop' },
+  { title: 'Custom Order',         url: '/custom-order',     icon: colorPaletteOutline,    group: 'Shop' },
+  { title: 'My Orders & Cart',     url: '/orders',           icon: bagHandleOutline,       group: 'Shop' },
+  { title: 'My Account',           url: '/profile',          icon: personCircleOutline,    group: 'Account' },
+  { title: 'Notifications',        url: '/notifications',    icon: notificationsOutline,   group: 'Account' },
+  { title: 'Promotions & Offers',  url: '/promotions',       icon: pricetagOutline,        group: 'Info' },
+  { title: 'Customer Feedback',    url: '/feedback',         icon: starOutline,           group: 'Info' },
+  { title: 'About Our Products',   url: '/about-products',   icon: nutritionOutline,     group: 'Info' },
+  { title: 'Contact Us',           url: '/contact-us',       icon: mailOutline,            group: 'Info' },
+  { title: 'Developers',           url: '/developers',       icon: codeSlashOutline,       group: 'Info' },
+  { title: 'Order Management',     url: '/order-oversight',  icon: clipboardOutline,       group: 'Admin', staffOnly: true },
+  { title: 'Admin Management',     url: '/admin',            icon: shieldCheckmarkOutline, group: 'Admin', staffOnly: true },
 ];
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -75,11 +81,14 @@ const appPages: AppPage[] = [
 })
 export class MenuComponent implements OnDestroy {
   private readonly auth = inject(AuthService);
+  private readonly cart = inject(CartService);
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationsService);
 
   readonly logOutOutline = logOutOutline;
   readonly logInOutline = logInOutline;
+  readonly personOutline = personOutline;
+  readonly callOutline = callOutline;
   readonly isLoggingOut = signal(false);
 
   readonly user = this.auth.user;
@@ -89,9 +98,31 @@ export class MenuComponent implements OnDestroy {
   /** Unread notification count for the nav badge (0 → badge hidden). */
   readonly unreadCount = this.notifications.unreadCount;
 
+  /** Cart item count for badge on My Orders menu item. */
+  readonly itemCount = this.cart.itemCount;
+
   private readonly unsubscribe: (() => void) | null;
 
   constructor() {
+    addIcons({
+      bagHandleOutline,
+      codeSlashOutline,
+      colorPaletteOutline,
+      informationCircleOutline,
+      logInOutline,
+      logOutOutline,
+      notificationsOutline,
+      personCircleOutline,
+      pricetagOutline,
+      shieldCheckmarkOutline,
+      starOutline,
+      storefrontOutline,
+      clipboardOutline,
+      mailOutline,
+      nutritionOutline,
+      callOutline,
+    });
+
     // Keep the badge live via realtime changes…
     this.unsubscribe = this.notifications.subscribe(() => void this.refreshUnread());
     // …and refresh whenever the auth state flips (e.g. right after login).
@@ -117,6 +148,15 @@ export class MenuComponent implements OnDestroy {
     appPages.filter((p) => !p.staffOnly || this.canManageProducts())
   );
 
+  /** Pages grouped by section label for the sidebar (Shop / Account / Info / Admin). */
+  readonly groupedPages = computed(() => {
+    const pages = this.visiblePages();
+    const order: AppPage['group'][] = ['Shop', 'Account', 'Info', 'Admin'];
+    return order
+      .filter((label) => pages.some((p) => p.group === label))
+      .map((label) => ({ label, pages: pages.filter((p) => p.group === label) }));
+  });
+
   isActive(page: AppPage): boolean {
     return this.router.url === page.url;
   }
@@ -124,5 +164,10 @@ export class MenuComponent implements OnDestroy {
   handleLogout(): void {
     this.isLoggingOut.set(true);
     void this.auth.signOut().finally(() => this.isLoggingOut.set(false));
+  }
+
+  onAvatarError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
   }
 }

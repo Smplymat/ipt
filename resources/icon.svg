@@ -1,0 +1,55 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="512" cy="512" r="512" fill="#F9E6A8"/>
+  
+  <!-- Outer decorative ring -->
+  <circle cx="512" cy="512" r="480" fill="none" stroke="#CC6F00" stroke-width="24"/>
+  
+  <!-- Wheat stalks (left) -->
+  <g fill="#CC6F00" transform="translate(200, 512)">
+    <!-- Main stalk -->
+    <path d="M0 0 Q-30 -100 -20 -200 Q-10 -250 0 -300 Q10 -250 20 -200 Q30 -100 0 0 Z"/>
+    <!-- Left grains -->
+    <ellipse cx="-35" cy="-60" rx="12" ry="20" transform="rotate(-25)"/>
+    <ellipse cx="-45" cy="-110" rx="12" ry="20" transform="rotate(-30)"/>
+    <ellipse cx="-50" cy="-160" rx="12" ry="20" transform="rotate(-35)"/>
+    <ellipse cx="-48" cy="-210" rx="12" ry="20" transform="rotate(-40)"/>
+    <ellipse cx="-40" cy="-260" rx="12" ry="20" transform="rotate(-45)"/>
+    <!-- Right grains -->
+    <ellipse cx="35" cy="-80" rx="12" ry="20" transform="rotate(25)"/>
+    <ellipse cx="45" cy="-130" rx="12" ry="20" transform="rotate(30)"/>
+    <ellipse cx="50" cy="-180" rx="12" ry="20" transform="rotate(35)"/>
+    <ellipse cx="48" cy="-230" rx="12" ry="20" transform="rotate(40)"/>
+    <ellipse cx="40" cy="-280" rx="12" ry="20" transform="rotate(45)"/>
+  </g>
+  
+  <!-- Wheat stalks (right) -->
+  <g fill="#CC6F00" transform="translate(824, 512)">
+    <path d="M0 0 Q30 -100 20 -200 Q10 -250 0 -300 Q-10 -250 -20 -200 Q-30 -100 0 0 Z"/>
+    <ellipse cx="35" cy="-60" rx="12" ry="20" transform="rotate(25)"/>
+    <ellipse cx="45" cy="-110" rx="12" ry="20" transform="rotate(30)"/>
+    <ellipse cx="50" cy="-160" rx="12" ry="20" transform="rotate(35)"/>
+    <ellipse cx="48" cy="-210" rx="12" ry="20" transform="rotate(40)"/>
+    <ellipse cx="40" cy="-260" rx="12" ry="20" transform="rotate(45)"/>
+    <ellipse cx="-35" cy="-80" rx="12" ry="20" transform="rotate(-25)"/>
+    <ellipse cx="-45" cy="-130" rx="12" ry="20" transform="rotate(-30)"/>
+    <ellipse cx="-50" cy="-180" rx="12" ry="20" transform="rotate(-35)"/>
+    <ellipse cx="-48" cy="-230" rx="12" ry="20" transform="rotate(-40)"/>
+    <ellipse cx="-40" cy="-280" rx="12" ry="20" transform="rotate(-45)"/>
+  </g>
+  
+  <!-- Central bread loaf -->
+  <g transform="translate(512, 580)">
+    <!-- Loaf body -->
+    <path d="M-140 60 Q-140 -120 0 -160 Q140 -120 140 60 Q160 100 0 140 Q-160 100 -140 60 Z" fill="#E5D3AF" stroke="#CC6F00" stroke-width="6"/>
+    <!-- Scoring on top -->
+    <path d="M-60 -140 Q0 -170 60 -140" fill="none" stroke="#CC6F00" stroke-width="8" stroke-linecap="round"/>
+    <path d="M-80 -120 Q0 -155 80 -120" fill="none" stroke="#CC6F00" stroke-width="6" stroke-linecap="round"/>
+    <path d="M-40 -100 Q0 -135 40 -100" fill="none" stroke="#CC6F00" stroke-width="4" stroke-linecap="round"/>
+    <!-- Highlight -->
+    <path d="M-120 20 Q0 -60 120 20" fill="none" stroke="#F9E6A8" stroke-width="12" opacity="0.6" stroke-linecap="round"/>
+  </g>
+  
+  <!-- "KTK" initials subtle watermark -->
+  <text x="512" y="900" text-anchor="middle" font-family="Georgia, serif" font-size="80" font-weight="bold" fill="#CC6F00" opacity="0.3">KTK</text>
+</svg>

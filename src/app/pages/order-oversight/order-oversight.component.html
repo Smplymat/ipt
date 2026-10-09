@@ -163,7 +163,7 @@
               <!-- track ring -->
               <circle cx="64" cy="64" r="54"
                 fill="none"
-                stroke="#EDE0CC"
+                stroke="var(--bakery-card-border)"
                 stroke-width="18"/>
               <!-- coloured slices -->
               @for (slice of donutSlices(); track slice.label) {
@@ -179,12 +179,12 @@
               <!-- centre label -->
               <text x="64" y="60" text-anchor="middle"
                 font-family="Inter,sans-serif" font-size="13" font-weight="800"
-                fill="#3D1E16">
+                fill="var(--bakery-dark)">
                 {{ totalOrders() }}
               </text>
               <text x="64" y="75" text-anchor="middle"
                 font-family="Inter,sans-serif" font-size="8" font-weight="500"
-                fill="#8B6347">
+                fill="var(--bakery-text-secondary)">
                 orders
               </text>
             </svg>
@@ -222,9 +222,9 @@
                 <!-- thumbnail -->
                 <div class="oo-alert-row__img">
                   @if (product.image_url) {
-                    <img [src]="product.image_url" [alt]="product.name">
+                    <img [src]="product.image_url" [alt]="product.name" (error)="$any($event.target).style.display='none'">
                   } @else {
-                    <span style="font-size:1.1rem; color:#A07850; font-weight:600; font-family:'Inter',sans-serif;">?</span>
+                    <span style="font-size:1.1rem; color:var(--bakery-text-muted); font-weight:600; font-family:'Inter',sans-serif;">?</span>
                   }
                 </div>
                 <!-- info -->
