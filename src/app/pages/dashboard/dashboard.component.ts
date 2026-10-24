@@ -3,24 +3,28 @@ import { RouterLink } from '@angular/router';
 import {
   IonButton,
   IonButtons,
-  IonCol,
   IonContent,
-  IonGrid,
   IonHeader,
   IonInput,
-  IonIcon,
   IonMenuButton,
-  IonRow,
   IonTitle,
   IonToolbar,
   ToastController,
 } from '@ionic/angular';
-import { addIcons } from 'ionicons';
 import { CartService } from '../../services/cart.service';
 import { LOW_STOCK_THRESHOLD, Product, ProductsService, toErrorMessage } from '../../services/products.service';
 import { NewsletterService } from '../../services/newsletter.service';
 import { ProductDetailModalComponent } from '../../components/product-detail-modal/product-detail-modal.component';
-import { optionsOutline, nutritionOutline } from 'ionicons/icons';
+
+import {
+  ButtonComponent,
+  ProductCardComponent,
+  CategoryTileComponent,
+  EmptyStateComponent,
+  SkeletonComponent,
+  PageHeaderComponent,
+  ErrorStateComponent,
+} from '../../shared';
 
 const TESTIMONIALS = [
   { id: 1, text: 'Every single bite feels like a warm hug. The sourdough is unbelievably good — I order every week!', author: 'Maria Santos', role: 'Loyal Customer', avatar: 'https://i.pravatar.cc/80?img=5' },
@@ -31,19 +35,16 @@ const TESTIMONIALS = [
   selector: 'app-dashboard',
   imports: [
     RouterLink,
-    IonButton,
-    IonButtons,
-    IonCol,
     IonContent,
-    IonGrid,
-    IonHeader,
-    IonIcon,
     IonInput,
-    IonMenuButton,
-    IonRow,
-    IonTitle,
-    IonToolbar,
     ProductDetailModalComponent,
+    ButtonComponent,
+    ProductCardComponent,
+    CategoryTileComponent,
+    EmptyStateComponent,
+    SkeletonComponent,
+    PageHeaderComponent,
+    ErrorStateComponent,
   ],
   templateUrl: './dashboard.component.html',
 })
@@ -76,9 +77,10 @@ export class DashboardComponent {
   readonly categoryCircles = computed(() =>
     this.categories()
       .filter((c) => c !== 'All')
-      .map((category) => ({
+      .map((category, idx) => ({
         label: category.toUpperCase(),
         img: this.products().find((p) => p.category === category)?.image_url ?? '',
+        pastelIndex: idx,
       }))
   );
 
@@ -89,7 +91,6 @@ export class DashboardComponent {
   );
 
   constructor() {
-    addIcons({ 'options-outline': optionsOutline, 'nutrition-outline': nutritionOutline });
     void this.loadProducts();
   }
 
@@ -107,10 +108,6 @@ export class DashboardComponent {
 
   formatPrice(n: number): string {
     return `₱${(Number(n) || 0).toFixed(2)}`;
-  }
-
-  stars(r: number): string {
-    return '★'.repeat(Math.round(r)) + '☆'.repeat(5 - Math.round(r));
   }
 
   handleSubscribe(): void {

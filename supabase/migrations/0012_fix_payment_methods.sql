@@ -4,15 +4,29 @@
 -- The place_order() function and edge functions need consistent values.
 -- ─────────────────────────────────────────────────────────────────────────────
 
+-- 00) Drop the OLD check constraints first. The original ones (from 0005) only
+-- allow ('cod','online') and ('pending','paid','failed'), so they would reject
+-- the data fix below. The new constraints are added back in steps 1 and 2.
+alter table public.orders drop constraint if exists orders_payment_method_check;
+alter table public.orders drop constraint if exists orders_payment_status_check;
+
 -- 0) Map old payment_method values to new PayMongo-compatible values
 -- Run this BEFORE adding the new constraint to fix existing data
+-- ('online' was the original non-COD value from 0005; the exact method used is
+--  unknown for those old orders, so they are mapped to 'card'.)
 update public.orders
 set payment_method = case
-  when payment_method in ('credit_card', 'debit_card', 'paypal') then 'card'
+  when payment_method in ('credit_card', 'debit_card', 'paypal', 'online') then 'card'
   when payment_method = 'cash' then 'cod'
   else payment_method
 end
-where payment_method in ('credit_card', 'debit_card', 'paypal', 'cash');
+where payment_method in ('credit_card', 'debit_card', 'paypal', 'online', 'cash');
+
+-- Anything still outside the allowed list would make the new constraint fail.
+update public.orders
+set payment_method = 'cod'
+where payment_method is not null
+  and payment_method not in ('cod', 'card', 'gcash', 'paymaya', 'grab_pay');
 
 -- 1) Update orders.payment_method check constraint to include all PayMongo methods
 -- Drop and recreate with all valid methods

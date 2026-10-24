@@ -1,0 +1,16 @@
+# Minimal Supabase CLI config. Only the settings the Edge Functions need.
+project_id = "vbrbtajunsewqysqpfck"
+
+# PayMongo calls this endpoint server-to-server and does NOT send a Supabase
+# JWT, so JWT verification must be off. The function verifies PayMongo's HMAC
+# signature itself instead.
+[functions.paymongo-webhook]
+verify_jwt = false
+
+# payment-return only redirects the customer back into the mobile app; the
+# customer's browser has no Supabase JWT, so verification must be off.
+[functions.payment-return]
+verify_jwt = false
+
+# create-payment is called by the signed-in customer with their JWT, so it
+# keeps the default verify_jwt = true.

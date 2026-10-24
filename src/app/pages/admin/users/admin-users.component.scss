@@ -1,0 +1,86 @@
+// Admin Users Page Styles
+
+.admin-users-page {
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(42, 26, 16, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--ktk-space-4);
+    animation: ktk-fade-in 0.2s var(--ktk-ease-out);
+  }
+
+  .modal-content {
+    background: var(--ktk-card);
+    border-radius: var(--ktk-radius-card);
+    box-shadow: var(--ktk-shadow-sheet);
+    max-width: 480px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: ktk-modal-in 0.3s var(--ktk-ease-out);
+
+    @keyframes ktk-modal-in {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+  }
+
+  .users-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .users-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--ktk-font-sans);
+
+    th {
+      padding: var(--ktk-space-2) var(--ktk-space-3);
+      text-align: left;
+      font-family: var(--ktk-font-sans);
+      font-size: var(--ktk-fs-xs);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--ktk-text-muted);
+      background: var(--ktk-base);
+      border-bottom: 2px solid var(--ktk-card-border);
+    }
+
+    td {
+      padding: var(--ktk-space-2) var(--ktk-space-3);
+      vertical-align: middle;
+    }
+
+    tr {
+      transition: background var(--ktk-dur-fast);
+
+      &:hover {
+        background: var(--ktk-base);
+      }
+    }
+  }
+
+  .ktk-form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232A1A10' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--ktk-space-3) center;
+    padding-right: 40px;
+  }
+
+  @keyframes ktk-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}

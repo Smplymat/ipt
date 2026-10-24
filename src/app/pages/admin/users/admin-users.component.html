@@ -1,0 +1,339 @@
+<ktk-page-header title="User Management" [showBack]="false" [showNotifications]="true" />
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- ── Header strip ───────────────────────────────────────────────── -->
+  <div style="background: var(--ktk-primary); padding: var(--ktk-space-4) var(--ktk-space-4); display: flex; align-items: center; justify-content: space-between; gap: var(--ktk-space-3); flex-wrap: wrap;">
+    <div>
+      <p style="font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-xs); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ktk-primary-contrast); margin: 0 0 var(--ktk-space-1);">User Administration</p>
+      <p style="font-family: var(--ktk-font-serif); font-size: clamp(1.125rem, 2.5vw, 1.5rem); font-weight: 800; color: var(--ktk-primary-contrast); margin: 0; line-height: 1.2;">
+        Manage Users & Roles
+      </p>
+    </div>
+    <ktk-button
+      variant="accent"
+      (onClick)="isCreating.set(true)"
+      style="--border-radius: var(--ktk-radius-button); font-weight: 700; font-size: var(--ktk-fs-sm); height: 44px; --padding-start: var(--ktk-space-4); --padding-end: var(--ktk-space-4); flex-shrink: 0;">
+      <ion-icon [icon]="personAddOutline" slot="start" aria-hidden="true"></ion-icon>
+      Add User
+    </ktk-button>
+  </div>
+
+  @if (loading()) {
+    <div class="skeleton-grid" role="list" aria-label="Loading users">
+      @for (i of [1,2,3,4,5]; track i) {
+        <ktk-skeleton type="card" role="listitem"></ktk-skeleton>
+      }
+    </div>
+  } @else if (error()) {
+    <ktk-error-state
+      type="server"
+      [message]="error() ?? ''"
+      [retryable]="true"
+      (onRetry)="loadUsers()">
+    </ktk-error-state>
+  } @else {
+
+    <!-- ── Search & Filters ─────────────────────────────────────────────── -->
+    <div style="background: var(--ktk-card); padding: var(--ktk-space-3) var(--ktk-space-4); border-bottom: 1px solid var(--ktk-card-border);">
+      <div style="display: flex; flex-wrap: wrap; gap: var(--ktk-space-3); align-items: center;">
+        <div style="flex: 1; min-width: 240px; position: relative;">
+          <ion-icon name="search-outline" style="position: absolute; left: var(--ktk-space-3); top: 50%; transform: translateY(-50%); color: var(--ktk-text-muted); font-size: 1.25rem;"></ion-icon>
+          <input
+            type="search"
+            class="ktk-form-input"
+            placeholder="Search by name or email…"
+            [value]="searchQuery()"
+            (input)="onSearchChange($event)"
+            style="padding-left: 44px; width: 100%;"
+            aria-label="Search users">
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: var(--ktk-space-2); align-items: center;">
+          <select
+            class="ktk-form-select"
+            [value]="roleFilter()"
+            (change)="onRoleFilterChange($event)"
+            style="min-width: 140px;">
+            <option value="all">All Roles</option>
+            <option value="customer">Customer</option>
+            <option value="store_admin">Staff</option>
+            <option value="admin">Admin</option>
+          </select>
+          <select
+            class="ktk-form-select"
+            [value]="statusFilter()"
+            (change)="onStatusFilterChange($event)"
+            style="min-width: 140px;">
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="disabled">Disabled</option>
+          </select>
+          <select
+            class="ktk-form-select"
+            [value]="pageSize()"
+            (change)="onPageSizeChange($event)"
+            style="min-width: 80px;"
+            aria-label="Items per page">
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }} / page</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Users Table ──────────────────────────────────────────────────── -->
+    <div style="padding: var(--ktk-space-3) var(--ktk-space-4);">
+      @if (filteredUsers().length === 0) {
+        <ktk-empty-state
+          illustration="box"
+          title="No users found"
+          description="Try adjusting your search or filters."
+          [centered]="true">
+        </ktk-empty-state>
+      } @else {
+        <div class="users-table-wrapper" style="overflow-x: auto;">
+          <table class="users-table" style="width: 100%; border-collapse: collapse; font-family: var(--ktk-font-sans);">
+            <thead>
+              <tr style="background: var(--ktk-base); border-bottom: 2px solid var(--ktk-card-border);">
+                <th style="padding: var(--ktk-space-2) var(--ktk-space-3); text-align: left; font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-xs); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ktk-text-muted);">User</th>
+                <th style="padding: var(--ktk-space-2) var(--ktk-space-3); text-align: left; font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-xs); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ktk-text-muted);">Role</th>
+                <th style="padding: var(--ktk-space-2) var(--ktk-space-3); text-align: left; font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-xs); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ktk-text-muted);">Status</th>
+                <th style="padding: var(--ktk-space-2) var(--ktk-space-3); text-align: left; font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-xs); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ktk-text-muted);">Joined</th>
+                <th style="padding: var(--ktk-space-2) var(--ktk-space-3); text-align: right; font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-xs); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ktk-text-muted);">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of paginatedUsers(); track user.id) {
+                <tr style="border-bottom: 1px solid var(--ktk-card-border); transition: background var(--ktk-dur-fast);"
+                    [style.background]="user.isCurrentUser ? 'var(--ktk-base)' : 'transparent'">
+                  <td style="padding: var(--ktk-space-2) var(--ktk-space-3);">
+                    <div style="display: flex; align-items: center; gap: var(--ktk-space-2);">
+                      <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--ktk-base); border: 2px solid var(--ktk-card-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden;">
+                        @if (user.avatarUrl) {
+                          <img [src]="user.avatarUrl" [alt]="user.displayName" style="width: 100%; height: 100%; object-fit: cover;" (error)="$any($event.target).style.display='none'">
+                        } @else {
+                          <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                            <ion-icon name="person-circle-outline" style="font-size: 1.25rem; color: var(--ktk-text-muted);"></ion-icon>
+                          </div>
+                        }
+                      </div>
+                      <div>
+                        <p style="font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-sm); font-weight: 600; color: var(--ktk-text); margin: 0 0 2px;">{{ user.displayName }}</p>
+                        <p style="font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-xs); color: var(--ktk-text-secondary); margin: 0;">{{ user.email }}</p>
+                        @if (user.isCurrentUser) {
+                          <span style="font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-xs); font-weight: 600; color: var(--ktk-accent-text); background: var(--ktk-accent-light); padding: 1px 6px; border-radius: var(--ktk-radius-button);">You</span>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td style="padding: var(--ktk-space-2) var(--ktk-space-3);">
+                    <ktk-chip
+                      [variant]="'accent'"
+                      size="sm"
+                      [disabled]="true">
+                    {{ roleLabel(user.role) }}
+                  </ktk-chip>
+                  @if (user.isCurrentUser) {
+                    <ktk-chip variant="ghost" size="sm">Current User</ktk-chip>
+                  }
+                  </td>
+                  <td style="padding: var(--ktk-space-2) var(--ktk-space-3);">
+                    @if (user.disabled) {
+                      <ktk-chip variant="danger" size="sm" label="Disabled"></ktk-chip>
+                    } @else {
+                      <ktk-chip variant="accent" size="sm" label="Active"></ktk-chip>
+                    }
+                  </td>
+                  <td style="padding: var(--ktk-space-2) var(--ktk-space-3); font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-sm); color: var(--ktk-text-secondary); white-space: nowrap;">
+                    {{ user.createdAt ? (user.createdAt | date:'MMM d, yyyy') : '—' }}
+                  </td>
+                  <td style="padding: var(--ktk-space-2) var(--ktk-space-3); text-align: right;">
+                    <div style="display: flex; gap: var(--ktk-space-1); justify-content: flex-end;">
+                      <ktk-button
+                        variant="ghost"
+                        size="sm"
+                        [disabled]="user.isCurrentUser === true"
+                        (onClick)="startEdit(user)"
+                        title="Edit user"
+                        style="--padding: var(--ktk-space-1) var(--ktk-space-2);">
+                        <ion-icon [icon]="createOutline" slot="start" aria-hidden="true" style="font-size: 1rem;"></ion-icon>
+                      </ktk-button>
+                      <ktk-button
+                        variant="ghost"
+                        size="sm"
+                        [disabled]="user.isCurrentUser === true"
+                        (onClick)="toggleDisable(user)"
+                        [attr.aria-label]="user.disabled ? 'Enable user' : 'Disable user'"
+                        style="--padding: var(--ktk-space-1) var(--ktk-space-2);">
+                        <ion-icon [icon]="user.disabled ? 'person-add-outline' : 'person-remove-outline'" slot="start" aria-hidden="true" style="font-size: 1rem;"></ion-icon>
+                      </ktk-button>
+                      <ktk-button
+                        variant="danger"
+                        size="sm"
+                        [disabled]="user.isCurrentUser === true"
+                        (onClick)="deleteUser(user)"
+                        title="Delete user"
+                        style="--padding: var(--ktk-space-1) var(--ktk-space-2);">
+                        <ion-icon [icon]="trashOutline" slot="start" aria-hidden="true" style="font-size: 1rem;"></ion-icon>
+                      </ktk-button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ── Pagination ────────────────────────────────────────────────── -->
+        @if (totalPages() > 1) {
+          <div style="display: flex; align-items: center; justify-content: center; gap: var(--ktk-space-2); padding: var(--ktk-space-3) 0; flex-wrap: wrap;">
+            <ktk-button
+              variant="outline"
+              size="sm"
+              [disabled]="currentPage() === 1"
+              (onClick)="goToPage(1)"
+              aria-label="First page">
+            <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
+            <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
+          </ktk-button>
+            <ktk-button
+              variant="outline"
+              size="sm"
+              [disabled]="currentPage() === 1"
+              (onClick)="goToPage(currentPage() - 1)"
+              aria-label="Previous page">
+            <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
+          </ktk-button>
+            @for (page of getPageRange(); track page) {
+              <ktk-button
+                [variant]="currentPage() === page ? 'accent' : 'outline'"
+                size="sm"
+                (onClick)="goToPage(page)"
+                style="min-width: 40px;"
+                [attr.aria-current]="currentPage() === page ? 'page' : null">
+                {{ page }}
+              </ktk-button>
+            }
+            <ktk-button
+              variant="outline"
+              size="sm"
+              [disabled]="currentPage() === totalPages()"
+              (onClick)="goToPage(currentPage() + 1)"
+              aria-label="Next page">
+            <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+          </ktk-button>
+            <ktk-button
+              variant="outline"
+              size="sm"
+              [disabled]="currentPage() === totalPages()"
+              (onClick)="goToPage(totalPages())"
+              aria-label="Last page">
+            <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+            <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+          </ktk-button>
+        </div>
+        }
+
+      }
+
+    </div>
+
+    <!-- ── Create User Modal ────────────────────────────────────────────── -->
+    @if (isCreating()) {
+      <div class="modal-overlay" (click)="isCreating.set(false)" style="position: fixed; inset: 0; background: rgba(42, 26, 16, 0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: var(--ktk-space-4);">
+        <div class="modal-content" style="background: var(--ktk-card); border-radius: var(--ktk-radius-card); box-shadow: var(--ktk-shadow-sheet); max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; animation: ktk-modal-in 0.3s var(--ktk-ease-out);" (click)="$event.stopPropagation()">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--ktk-space-4); border-bottom: 1px solid var(--ktk-card-border);">
+            <h2 style="font-family: var(--ktk-font-serif); font-size: var(--ktk-fs-xl); font-weight: 800; color: var(--ktk-text); margin: 0;">Create New User</h2>
+            <button (click)="isCreating.set(false)" style="background: none; border: none; color: var(--ktk-text-muted); font-size: 1.5rem; cursor: pointer; line-height: 1; padding: var(--ktk-space-1);" aria-label="Close">&times;</button>
+          </div>
+          <div style="padding: var(--ktk-space-4); display: flex; flex-direction: column; gap: var(--ktk-space-3);">
+            @if (createError()) {
+              <ktk-error-state type="server" [message]="createError() ?? ''" [retryable]="false"></ktk-error-state>
+            }
+            <ktk-form-field
+              label="Display Name"
+              placeholder="Juan Dela Cruz"
+              [value]="createName()"
+              (valueChange)="createName.set($event)"
+              [required]="true"
+              [icon]="'person-outline'">
+            </ktk-form-field>
+            <ktk-form-field
+              label="Email"
+              type="email"
+              placeholder="juan@email.com"
+              [value]="createEmail()"
+              (valueChange)="createEmail.set($event)"
+              [required]="true"
+              [icon]="'mail-outline'">
+            </ktk-form-field>
+            <ktk-form-field
+              label="Password"
+              type="password"
+              placeholder="At least 6 characters"
+              [value]="createPassword()"
+              (valueChange)="createPassword.set($event)"
+              [required]="true"
+              [icon]="'lock-closed-outline'">
+            </ktk-form-field>
+            <ktk-form-field
+              label="Role"
+              [value]="createRole()"
+              (valueChange)="createRole.set($event)"
+              [required]="true">
+              <select class="ktk-form-select" [value]="createRole()" (change)="createRole.set($any($event.target).value)">
+                <option value="customer">Customer</option>
+                <option value="store_admin">Staff</option>
+                <option value="admin">Admin</option>
+              </select>
+            </ktk-form-field>
+            <div style="display: flex; gap: var(--ktk-space-2); margin-top: var(--ktk-space-2);">
+              <ktk-button variant="ghost" [block]="true" (onClick)="isCreating.set(false)">Cancel</ktk-button>
+              <ktk-button variant="accent" [block]="true" [disabled]="creating()" (onClick)="createUser()">{{ creating() ? 'Creating…' : 'Create User' }}</ktk-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ── Edit User Modal ──────────────────────────────────────────────── -->
+    @if (editingId(); as userId) {
+      @let user = users().find(u => u.id === userId);
+      @if (user) {
+        <div class="modal-overlay" (click)="cancelEdit()" style="position: fixed; inset: 0; background: rgba(42, 26, 16, 0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: var(--ktk-space-4);">
+          <div class="modal-content" style="background: var(--ktk-card); border-radius: var(--ktk-radius-card); box-shadow: var(--ktk-shadow-sheet); max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; animation: ktk-modal-in 0.3s var(--ktk-ease-out);" (click)="$event.stopPropagation()">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--ktk-space-4); border-bottom: 1px solid var(--ktk-card-border);">
+              <h2 style="font-family: var(--ktk-font-serif); font-size: var(--ktk-fs-xl); font-weight: 800; color: var(--ktk-text); margin: 0;">Edit User</h2>
+              <button (click)="cancelEdit()" style="background: none; border: none; color: var(--ktk-text-muted); font-size: 1.5rem; cursor: pointer; line-height: 1; padding: var(--ktk-space-1);" aria-label="Close">&times;</button>
+            </div>
+            <div style="padding: var(--ktk-space-4); display: flex; flex-direction: column; gap: var(--ktk-space-3);">
+              @if (editError()) {
+                <ktk-error-state type="server" [message]="editError() ?? ''" [retryable]="false"></ktk-error-state>
+              }
+              <ktk-form-field label="Display Name" [value]="editName()" (valueChange)="editName.set($event)" [required]="true" [icon]="'person-outline'"></ktk-form-field>
+              <ktk-form-field label="Email" type="email" [value]="editEmail()" (valueChange)="editEmail.set($event)" [required]="true" [icon]="'mail-outline'"></ktk-form-field>
+              <ktk-form-field label="Role" [value]="editRole()" (valueChange)="editRole.set($event)" [required]="true">
+                <select class="ktk-form-select" [value]="editRole()" (change)="editRole.set($any($event.target).value)">
+                  <option value="customer">Customer</option>
+                  <option value="store_admin">Staff</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </ktk-form-field>
+              <div style="display: flex; align-items: center; gap: var(--ktk-space-2);">
+                <input type="checkbox" id="editDisabled" [checked]="editDisabled()" (change)="editDisabled.set($any($event.target).checked)">
+                <label for="editDisabled" style="font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-sm); color: var(--ktk-text-secondary); cursor: pointer;">Account Disabled</label>
+              </div>
+              <div style="display: flex; gap: var(--ktk-space-2); margin-top: var(--ktk-space-2);">
+                <ktk-button variant="ghost" [block]="true" (onClick)="cancelEdit()">Cancel</ktk-button>
+                <ktk-button variant="accent" [block]="true" [disabled]="savingEdit()" (onClick)="saveEdit(user)">{{ savingEdit() ? 'Saving…' : 'Save Changes' }}</ktk-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    }
+
+  }
+
+</ion-content>

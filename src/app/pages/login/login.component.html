@@ -1,8 +1,4 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Sign In — Knead to Know</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ktk-page-header title="Sign In" [showBack]="true" backRoute="/bread-catalog" [showNotifications]="false" [transparent]="true" />
 
 <ion-content class="page-content" [scrollY]="true">
 
@@ -10,66 +6,67 @@
 
     <!-- ── Branding ─────────────────────────────────────────────────── -->
     <div style="text-align: center; margin-bottom: 28px;">
-      <div style="width: 72px; height: 72px; border-radius: 24px; overflow: hidden; margin: 0 auto 16px; box-shadow: 0 6px 18px rgba(77, 42, 0,0.25); border: 2px solid var(--bakery-card-border);">
+      <div style="width: 72px; height: 72px; border-radius: 24px; overflow: hidden; margin: 0 auto 16px; box-shadow: 0 6px 18px rgba(42, 26, 16, 0.25); border: 2px solid var(--ktk-card-border);">
         <img src="/logo.jpg" alt="Knead to Know logo" style="width: 100%; height: 100%; object-fit: cover; display: block;" (error)="$any($event.target).style.display='none'" />
       </div>
-      <h1 style="font-family: 'Inter', sans-serif; font-size: 1.5rem; font-weight: 900; color: var(--bakery-dark); margin: 0 0 6px; letter-spacing: -0.02em;">
+      <h1 style="font-family: var(--ktk-font-sans); font-size: 1.5rem; font-weight: 900; color: var(--ktk-text); margin: 0 0 6px; letter-spacing: -0.02em;">
         Welcome Back
       </h1>
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 0;">
+      <p style="font-family: var(--ktk-font-sans); font-size: 0.85rem; color: var(--ktk-text-secondary); margin: 0;">
         Sign in to continue to your bakery dashboard.
       </p>
     </div>
 
     <!-- ── Error banner ─────────────────────────────────────────────── -->
-    @if (errorMessage(); as error) {
-      <div style="background: rgba(204, 111, 0,0.1); border: 1px solid rgba(204, 111, 0,0.35); color: var(--bakery-dark); border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 16px;">
-        {{ error }}
-      </div>
+    @if (errorMessage()) {
+      <ktk-error-state
+        type="server"
+        [message]="errorMessage() ?? ''"
+        [retryable]="false">
+      </ktk-error-state>
     }
 
     <!-- ── Form ─────────────────────────────────────────────────────── -->
-    <div style="background: var(--bakery-card); border: 1px solid var(--bakery-card-border); border-radius: 18px; padding: 24px; box-shadow: 0 4px 16px rgba(77, 42, 0,0.07);">
+    <div class="login-form" style="background: var(--ktk-card); border: 1px solid var(--ktk-card-border); border-radius: 18px; padding: 24px; box-shadow: var(--ktk-shadow-card);">
 
-      <label style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--bakery-dark); display: block; margin: 0 0 6px;">
-        Email address
-      </label>
-      <ion-input
+      <ktk-form-field
+        label="Email address"
         type="email"
-        inputmode="email"
         placeholder="you@example.com"
         [value]="email()"
-        (ionInput)="email.set(($event.detail.value ?? '').toString())"
-        style="--background: var(--bakery-card); --color: var(--bakery-dark); --placeholder-color: var(--bakery-button); --border-radius: 10px; --padding-start: 14px; --padding-end: 14px; --padding-top: 12px; --padding-bottom: 12px; border: 1.5px solid var(--bakery-card-border); border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.875rem; margin-bottom: 16px; display: block;"
-      ></ion-input>
+        (valueChange)="email.set($event)"
+        [error]="errorMessage() ? 'Invalid email or password' : ''"
+        [icon]="'mail-outline'"
+        [required]="true">
+      </ktk-form-field>
 
-      <label style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--bakery-dark); display: block; margin: 0 0 6px;">
-        Password
-      </label>
-      <ion-input
+      <ktk-form-field
+        label="Password"
         type="password"
         placeholder="••••••••"
         [value]="password()"
-        (ionInput)="password.set(($event.detail.value ?? '').toString())"
-        style="--background: var(--bakery-card); --color: var(--bakery-dark); --placeholder-color: var(--bakery-button); --border-radius: 10px; --padding-start: 14px; --padding-end: 14px; --padding-top: 12px; --padding-bottom: 12px; border: 1.5px solid var(--bakery-card-border); border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.875rem; margin-bottom: 22px; display: block;"
-      ></ion-input>
+        (valueChange)="password.set($event)"
+        [error]="submitting() ? '' : ''"
+        [icon]="'lock-closed-outline'"
+        [required]="true">
+      </ktk-form-field>
 
-      <ion-button
-        expand="block"
+      <ktk-button
+        variant="accent"
+        size="lg"
         [disabled]="submitting()"
-        (click)="handleSubmit()"
-        style="--background: var(--bakery-burnt); --background-hover: var(--bakery-burnt); --background-activated: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 12px; --padding-top: 16px; --padding-bottom: 16px; --box-shadow: 0 4px 16px rgba(204, 111, 0,0.3); font-weight: 700; font-size: 0.9rem; height: 50px;"
-      >
+        (onClick)="handleSubmit()"
+        style="--border-radius: 12px; --padding-top: 16px; --padding-bottom: 16px; --box-shadow: var(--ktk-shadow-fab); font-weight: 700; font-size: 0.9rem; height: 50px; margin-top: 8px;">
         {{ submitting() ? 'Signing in…' : 'Sign In' }}
-      </ion-button>
+      </ktk-button>
 
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.8rem; color: var(--bakery-text-secondary); text-align: center; margin: 18px 0 0;">
+      <p style="font-family: var(--ktk-font-sans); font-size: 0.8rem; color: var(--ktk-text-secondary); text-align: center; margin: 18px 0 0;">
         Don't have an account?
-        <a routerLink="/register" style="color: var(--bakery-dark); font-weight: 700; text-decoration: none; cursor: pointer;">Create one</a>
+        <a routerLink="/register" style="color: var(--ktk-text); font-weight: 700; text-decoration: none; cursor: pointer;">Create one</a>
       </p>
     </div>
 
-    <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: var(--bakery-text-muted); text-align: center; margin: 20px 0 0; line-height: 1.5;">
+    <p style="font-family: var(--ktk-font-sans); font-size: 0.72rem; color: var(--ktk-text-muted); text-align: center; margin: 20px 0 0; line-height: 1.5;">
       The first account you create is automatically promoted to Admin.<br>
       You can manage store staff roles from the Admin panel.
     </p>

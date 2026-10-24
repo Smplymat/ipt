@@ -1,86 +1,106 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { IonSpinner } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-splash-screen',
   standalone: true,
-  imports: [IonSpinner],
+  imports: [],
   template: `
     @if (show()) {
-      <div class="splash-overlay" [class.fade-out]="fadeOut()">
-        <div class="splash-content">
-          <img src="/logo.jpg" alt="Knead to Know" class="splash-logo" (error)="onImageError($event)" />
-          <p class="splash-name">Knead to Know</p>
-          <p class="splash-tagline">Artisan Bakery</p>
-          <ion-spinner name="crescent" color="primary" class="splash-spinner"></ion-spinner>
+      <div class="ktk-splash" [class.fade-out]="fadeOut()">
+        <div class="ktk-splash-content">
+          <div class="ktk-splash-logo-wrap">
+            <img src="/logo.jpg" alt="Knead to Know" class="ktk-splash-logo" (error)="onImageError($event)" />
+          </div>
+          <h1 class="ktk-splash-name">Knead to Know</h1>
+          <p class="ktk-splash-tagline">Baked fresh, picked up warm</p>
+          <div class="ktk-splash-spinner"></div>
         </div>
       </div>
     }
   `,
   styles: [`
-    .splash-overlay {
+    .ktk-splash {
       position: fixed;
       inset: 0;
-      background: var(--bakery-base);
+      background: var(--ktk-accent);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 9999;
-      transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
+      transition: opacity 0.4s var(--ktk-ease-out), visibility 0.4s var(--ktk-ease-out);
     }
 
-    .splash-overlay.fade-out {
+    .ktk-splash.fade-out {
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
     }
 
-    .splash-content {
+    .ktk-splash-content {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: var(--ktk-space-4);
       text-align: center;
     }
 
-    .splash-logo {
-      width: 120px;
-      height: 120px;
-      border-radius: 24px;
+    .ktk-splash-logo-wrap {
+      width: 140px;
+      height: 140px;
+      border-radius: var(--ktk-radius-tile);
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(42, 26, 16, 0.3);
+      border: 4px solid var(--ktk-primary);
+      background: var(--ktk-primary);
+    }
+
+    .ktk-splash-logo {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      box-shadow: 0 8px 32px rgba(77, 42, 0, 0.2);
-      border: 3px solid var(--bakery-dark);
     }
 
-    .splash-name {
-      font-family: 'Georgia', serif;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--bakery-dark);
+    .ktk-splash-name {
+      font-family: var(--ktk-font-serif);
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      color: var(--ktk-primary-contrast);
       margin: 0;
-      letter-spacing: 1px;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
     }
 
-    .splash-tagline {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.875rem;
+    .ktk-splash-tagline {
+      font-family: var(--ktk-font-sans);
+      font-size: clamp(0.875rem, 2vw, 1rem);
       font-weight: 600;
-      color: var(--bakery-burnt);
+      color: var(--ktk-primary);
       margin: 0;
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
 
-    .splash-spinner {
-      --size: 40px;
-      margin-top: 8px;
+    .ktk-splash-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(250, 248, 242, 0.3);
+      border-top-color: var(--ktk-primary-contrast);
+      border-radius: 50%;
+      animation: ktk-spin 0.8s linear infinite;
+    }
+
+    @keyframes ktk-spin {
+      to { transform: rotate(360deg); }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .splash-overlay {
+      .ktk-splash {
         transition: none;
+      }
+      .ktk-splash-spinner {
+        animation: none;
       }
     }
   `],
@@ -109,10 +129,6 @@ export class SplashScreenComponent {
         // to maintain consistent branding experience
       }
     });
-
-    // Cleanup on destroy
-    // Note: In a real app, you'd use ngOnDestroy, but for this simple
-    // component the timer will be cleaned up when the component is removed
   }
 
   onImageError(event: Event): void {

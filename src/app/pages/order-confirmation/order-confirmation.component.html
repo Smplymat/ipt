@@ -1,31 +1,20 @@
-<ion-header class="no-print">
-  <ion-toolbar>
-    <ion-menu-button slot="start"></ion-menu-button>
-    <ion-title>Order Confirmation</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ktk-page-header title="Order Confirmation" [showBack]="true" backRoute="/orders" [showNotifications]="false" />
 
 <ion-content class="page-content" [scrollY]="true">
 
   <!-- ── Loading ─────────────────────────────────────────────────────── -->
   @if (loading()) {
-    <div style="text-align: center; padding: 72px 24px;">
-      <div class="spinner" style="margin: 0 auto 16px;"></div>
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--bakery-text-secondary);">Fetching your order…</p>
-    </div>
+    <ktk-skeleton type="card" />
   }
 
   <!-- ── Error ───────────────────────────────────────────────────────── -->
   @if (!loading() && error()) {
-    <div style="text-align: center; padding: 72px 24px;">
-      <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: var(--bakery-dark); font-size: 1rem; margin: 0 0 6px;">
-        We couldn't load this order
-      </p>
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin-bottom: 20px;">{{ error() }}</p>
-      <ion-button routerLink="/orders" style="--background: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 10px; font-weight: 700;">
-        Back to My Orders
-      </ion-button>
-    </div>
+    <ktk-error-state
+      type="server"
+      [message]="error() ?? ''"
+      [retryable]="true"
+      (onRetry)="load(orderNumber())">
+    </ktk-error-state>
   }
 
   <!-- ── Receipt ─────────────────────────────────────────────────────── -->
@@ -34,158 +23,52 @@
     <div class="receipt-print">
 
       <div style="text-align: center; padding: 8px 0 2px;" class="no-print">
-        <h1 style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 800; color: var(--bakery-dark); font-size: 1.25rem;">
+        <h1 style="margin: 0; font-family: var(--ktk-font-sans); font-weight: 800; color: var(--ktk-text); font-size: 1.25rem;">
           Order confirmed! Thank you!
         </h1>
-        <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 4px 0 0;">
+        <p style="font-family: var(--ktk-font-sans); font-size: 0.85rem; color: var(--ktk-text-secondary); margin: 4px 0 0;">
           A copy of your receipt is below — your bakers are on it.
         </p>
       </div>
 
-      <!-- Business + order header -->
-      <div style="background: var(--bakery-dark); color: var(--bakery-base); padding: 22px 20px; margin-top: 22px;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
-          <div>
-            <p style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.15rem; color: var(--bakery-navbar);">
-              Knead to Know
-            </p>
-            <p style="margin: 2px 0 0; font-family: 'Inter', sans-serif; font-size: 0.75rem; color: rgba(249, 230, 168,0.75);">
-              Artisan Breads · Baked daily
-            </p>
-            <p style="margin: 10px 0 0; font-family: 'Inter', sans-serif; font-size: 0.75rem; color: rgba(249, 230, 168,0.85);">
-              123 Banawe St, Quezon City<br>
-              0917 123 4567 · kneadtoknow@example.com
-            </p>
-          </div>
-          <div style="text-align: right;">
-            <p style="margin: 0; font-family: 'Inter', sans-serif; font-size: 0.7rem; color: rgba(249, 230, 168,0.7);">RECEIPT / ORDER NO.</p>
-            <p style="margin: 2px 0 0; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--bakery-base);">
-              #{{ orderNumber() }}
-            </p>
-            <p style="margin: 6px 0 0; font-family: 'Inter', sans-serif; font-size: 0.75rem; color: rgba(249, 230, 168,0.85);">
-              {{ formatDate(o.created_at) }}
-            </p>
-          </div>
-        </div>
-      </div>
+      <ktk-ticket-card
+        [title]="'Order #' + orderNumber()"
+        [subtitle]="formatDate(o.created_at)"
+        [status]="mapStatusTag(o.status)"
+        [metaRows]="[
+          { label: o.fulfillment_type === 'pickup' ? 'PICKUP AT' : 'DELIVER TO', value: o.fulfillment_type === 'pickup' ? 'In-Store Pickup · 123 Banawe St, Quezon City' : (o.address + (o.unit_notes ? ' · ' + o.unit_notes : '') + ' · ' + coordinates()), highlight: true },
+          { label: 'Customer', value: o.customer_name + ' · ' + o.phone, highlight: false },
+          { label: o.scheduled_at ? 'Scheduled' : 'Fulfillment', value: o.scheduled_at ? formatDate(o.scheduled_at) : 'ASAP', highlight: false },
+          { label: 'Payment', value: paymentLabel[o.payment_method], highlight: true },
+          { label: 'Items', value: o.items.length + ' item' + (o.items.length === 1 ? '' : 's'), highlight: false }
+        ]"
+        [items]="getTicketItems(o)"
+        [actions]="getTicketActions()"
+        [showDivider]="true"
+        (action)="handleTicketAction($event)">
+      </ktk-ticket-card>
 
-      <!-- Items -->
-      <div style="background: var(--bakery-card); border: 1px solid var(--bakery-card-border); border-top: none; padding: 18px 20px;">
-        <p style="margin: 0 0 10px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.8rem; color: var(--bakery-text-secondary); letter-spacing: 1px;">
-          ITEMS
-        </p>
-        @for (item of o.items; track item.id) {
-          <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--bakery-card-border);">
-            <span style="font-family: 'Inter', sans-serif; font-size: 0.88rem; color: var(--bakery-dark);">
-              <b style="color: var(--bakery-dark);">×{{ item.quantity }}</b>&nbsp; {{ item.name }}
-            </span>
-            <span style="font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.88rem; color: var(--bakery-dark); white-space: nowrap;">
-              {{ formatPrice(item.price * item.quantity) }}
-            </span>
-          </div>
-        }
-
-        <!-- Totals -->
-        <div style="padding: 12px 0 2px;">
-          <div style="display: flex; justify-content: space-between; padding: 3px 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary);">
-            <span>Subtotal</span><span style="color: var(--bakery-dark);">{{ formatPrice(o.subtotal) }}</span>
-          </div>
-          @if ((o.discount ?? 0) > 0) {
-            <div style="display: flex; justify-content: space-between; padding: 3px 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-status-finished);">
-              <span>Discount
-                @if (o.voucher_code) { ({{ o.voucher_code }}) }
-              </span>
-              <span style="color: var(--bakery-status-finished); font-weight: 700;">− {{ formatPrice(o.discount) }}</span>
-            </div>
-          }
-          <div style="display: flex; justify-content: space-between; padding: 3px 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary);">
-            <span>Delivery fee</span>
-            <span style="color: var(--bakery-dark);">{{ o.delivery_fee === 0 ? 'FREE' : formatPrice(o.delivery_fee) }}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding: 3px 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary);">
-            <span>Tax (12%)</span><span style="color: var(--bakery-dark);">{{ formatPrice(o.tax) }}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding: 10px 0 0; border-top: 2px solid var(--bakery-dark); margin-top: 8px; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1rem; color: var(--bakery-dark);">
-            <span>TOTAL</span><span style="color: var(--bakery-dark);">{{ formatPrice(o.total) }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Delivery + payment -->
-      <div style="display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--bakery-card-border); border: 1px solid var(--bakery-card-border);">
-        <div style="background: var(--bakery-card); padding: 16px 20px;">
-          <p class="receipt-label">
-            @if (o.fulfillment_type === 'pickup') { PICKUP AT } @else { DELIVER TO }
-          </p>
-          @if (o.fulfillment_type === 'pickup') {
-            <p class="receipt-value">In-Store Pickup · 123 Banawe St, Quezon City</p>
-            <p class="receipt-value">{{ o.customer_name }} · {{ o.phone }}</p>
-          } @else {
-            <p class="receipt-value">{{ o.customer_name }} · {{ o.phone }}</p>
-            <p class="receipt-value">{{ o.address }}</p>
-            @if (o.unit_notes) {
-              <p class="receipt-value">Notes: {{ o.unit_notes }}</p>
-            }
-            <p class="receipt-value">
-              {{ coordinates() }}
-              @if (mapUrl()) {
-                · <a [href]="mapUrl()" target="_blank" rel="noopener" class="receipt-link">View on map</a>
-              }
-            </p>
-          }
-          <p class="receipt-value" style="margin-top: 6px;">
-            @if (o.scheduled_at) {
-              Scheduled: {{ formatDate(o.scheduled_at) }}
-            } @else {
-              ASAP
-            }
-          </p>
-        </div>
-        <div style="background: var(--bakery-card); padding: 16px 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-          <div>
-            <p class="receipt-label">PAYMENT</p>
-            <p class="receipt-value">{{ paymentLabel[o.payment_method] }}</p>
-          </div>
-          <div style="text-align: right;">
-            <p class="receipt-label">ORDER STATUS</p>
-            <span [class]="'status-badge status-badge--' + statusBadge[o.status]">{{ statusLabel[o.status] }}</span>
-          </div>
-        </div>
-      </div>
-
-      <p style="text-align: center; margin: 18px 0 0; font-family: 'Inter', sans-serif; font-size: 0.72rem; color: var(--bakery-text-muted);">
+      <p style="text-align: center; margin: 18px 0 0; font-family: var(--ktk-font-sans); font-size: 0.72rem; color: var(--ktk-text-muted);">
         Thank you for supporting Knead to Know — baked with love.
       </p>
     </div>
 
     <!-- Actions -->
     <div class="no-print" style="padding: 24px 20px 48px; display: flex; gap: 12px; flex-wrap: wrap;">
-      <ion-button
-        expand="block"
-        (click)="printReceipt()"
-        style="
-          --background: var(--bakery-burnt);
-          --background-activated: var(--bakery-burnt);
-          --color: var(--bakery-dark);
-          --border-radius: 12px;
-          --padding-top: 16px;
-          --padding-bottom: 16px;
-          font-weight: 800;
-          font-size: 0.92rem;
-          flex: 1;
-          min-width: 180px;
-        "
-      >
+      <ktk-button
+        variant="accent"
+        size="lg"
+        (onClick)="printReceipt()"
+        style="--border-radius: 12px; --padding-top: 16px; --padding-bottom: 16px; font-weight: 800; font-size: 0.92rem; flex: 1; min-width: 180px;">
         Print / Save as PDF
-      </ion-button>
-      <ion-button
+      </ktk-button>
+      <ktk-button
         routerLink="/orders"
-        expand="block"
-        fill="outline"
-        style="--border-color: var(--bakery-dark); --color: var(--bakery-dark); --border-radius: 12px; --padding-top: 16px; --padding-bottom: 16px; font-weight: 700; font-size: 0.92rem; flex: 1; min-width: 180px;"
-      >
+        variant="outline"
+        size="lg"
+        style="--border-color: var(--ktk-text); --color: var(--ktk-text); --border-radius: 12px; --padding-top: 16px; --padding-bottom: 16px; font-weight: 700; font-size: 0.92rem; flex: 1; min-width: 180px;">
         Track My Orders
-      </ion-button>
+      </ktk-button>
     </div>
 
   }

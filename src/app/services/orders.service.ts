@@ -229,6 +229,47 @@ export class OrdersService {
     if (error) throw new Error(error.message);
   }
 
+  /** Fetches custom orders for staff (all) or for the current user. */
+  async getCustomOrders(): Promise<any[]> {
+    const {
+      data: { user },
+    } = await this.client.auth.getUser();
+    if (!user) throw new Error('You must be signed in to view custom orders.');
+
+    // Staff can see all custom orders, customers see only their own
+    const isStaff = await this.isStaff();
+    let query = this.client.from('custom_orders').select('*').order('created_at', { ascending: false });
+    
+    if (!isStaff) {
+      query = query.eq('user_id', user.id);
+    }
+
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  }
+
+  /** Updates the status of a custom order (staff only). */
+  async updateCustomOrderStatus(orderId: string, status: 'approved' | 'declined'): Promise<void> {
+    const { error } = await this.client
+      .from('custom_orders')
+      .update({ status })
+      .eq('id', orderId);
+    if (error) throw new Error(error.message);
+  }
+
+  // Helper to check if user is staff
+  private async isStaff(): Promise<boolean> {
+    const { data: { user } } = await this.client.auth.getUser();
+    if (!user) return false;
+    const { data } = await this.client
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+    return data?.role === 'store_admin' || data?.role === 'admin';
+  }
+
   // ── Status updates (staff) ────────────────────────────────────────────────────
 
   async updateStatus(orderId: string, status: OrderStatus): Promise<void> {

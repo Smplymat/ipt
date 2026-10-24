@@ -1,0 +1,414 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   tokens.scss — Single Source of Truth for Knead to Know Design System
+   Every color, radius, spacing, shadow, font, and breakpoint lives here.
+   Import this FIRST in variables.scss and styles.scss. No hardcoded values elsewhere.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COLOR PALETTE
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── Backgrounds & Surfaces ────────────────────────────────────────────────
+$color-page-bg:           #FAF8F2;  // page cream
+$color-card-bg:           #FFFFFF;  // card white
+$color-card-border:       #EFE6D4;  // 1px border
+$color-muted-beige:       #EFE6D4;  // tabs, inputs, disabled
+$color-base-tint:         #FDF3C4;  // slightly lighter than page (alternating sections)
+$color-input-bg:          #FFFDF5;  // white-ish input background
+
+// ── Primary (dark brown) ──────────────────────────────────────────────────
+$color-primary:           #2A1A10;  // buttons, active chips, headings
+$color-primary-contrast:  #FAF8F2;  // text on primary (cream)
+$color-primary-hover:     #3D2A1A;  // slightly lighter for hover
+$color-primary-active:    #1A1008;  // darker for active/pressed
+
+// ── Accent (amber) ────────────────────────────────────────────────────────
+$color-accent:            #F2A900;  // splash, active nav pill, badges, Apply buttons
+$color-accent-text:       #B8780A;  // roles, ratings, small links (amber text)
+$color-accent-hover:      #E09800;  // hover state
+$color-accent-active:     #CC8800;  // active/pressed
+$color-accent-light:      #FFF3D0;  // light background for accent chips
+$color-accent-focus:      rgba(242, 169, 0, 0.35); // focus ring
+
+// ── Pastel Tile Colors (category & product image backgrounds) ─────────────
+$color-pastel-yellow:     #F9D77E;  // yellow
+$color-pastel-bread:      #F0DCAE;  // bread tan
+$color-pastel-pink:       #F8C4D0;  // pink
+$color-pastel-cookie:     #DDBBA0;  // cookie tan
+$color-pastel-lavender:   #D9DCF7;  // lavender
+$color-pastel-green:      #CFE5BD;  // green
+$pastel-tiles: (
+  'yellow':  $color-pastel-yellow,
+  'bread':   $color-pastel-bread,
+  'pink':    $color-pastel-pink,
+  'cookie':  $color-pastel-cookie,
+  'lavender':$color-pastel-lavender,
+  'green':   $color-pastel-green,
+);
+
+// ── Status Colors ─────────────────────────────────────────────────────────
+$color-status-pending:    #F5D07A;  // soft amber
+$color-status-baking:     #A8D0E6;  // soft blue ("baking" = preparing)
+$color-status-ready:      #B8E5B8;  // soft green ("ready" = ready_for_pickup / out_for_delivery)
+$color-status-delivered:  #2E7D4F;  // success green (finished/delivered)
+$color-status-cancelled:  #C0392B;  // red (error/destructive)
+$color-status-lowstock:   #F2A900;  // amber (low stock warning)
+
+// ── Text Colors (all derived from primary) ────────────────────────────────
+$color-text:              #2A1A10;  // body & heading text (primary)
+$color-text-secondary:    rgba(42, 26, 16, 0.72);  // captions, meta, dates
+$color-text-muted:        rgba(42, 26, 16, 0.55);  // hints, footnotes
+$color-text-on-dark:      #FAF8F2;  // light text on dark/primary backgrounds
+$color-text-on-accent:    #2A1A10;  // dark text on accent backgrounds
+$color-text-error:        #C0392B;  // error text
+$color-text-success:      #2E7D4F;  // success text
+
+// ── Success / Error UI ────────────────────────────────────────────────────
+$color-success:           #2E7D4F;
+$color-success-bg:        rgba(46, 125, 79, 0.1);
+$color-success-border:    rgba(46, 125, 79, 0.35);
+$color-error:             #C0392B;
+$color-error-bg:          rgba(192, 57, 43, 0.1);
+$color-error-border:      rgba(192, 57, 43, 0.35);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TYPOGRAPHY
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Font families (self-hosted via @font-face in variables.scss)
+$font-serif:       'Lora', Georgia, Cambria, 'Times New Roman', serif;   // headings, titles, prices
+$font-sans:        'Lato', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; // body, labels
+
+// Fluid type scale using clamp(min, preferred, max)
+// Base: 16px at 320px, scales to 18px at 1440px
+$fs-base:          clamp(0.875rem, 0.85rem + 0.15vw, 1rem);      // 14-16px body
+$fs-sm:            clamp(0.75rem, 0.72rem + 0.1vw, 0.8125rem);   // 12-13px small
+$fs-xs:            clamp(0.6875rem, 0.65rem + 0.1vw, 0.75rem);   // 11-12px tiny
+$fs-lg:            clamp(1rem, 0.95rem + 0.2vw, 1.125rem);       // 16-18px large
+$fs-xl:            clamp(1.125rem, 1rem + 0.3vw, 1.375rem);      // 18-22px xlarge
+$fs-2xl:           clamp(1.5rem, 1.3rem + 0.5vw, 2rem);          // 24-32px h3
+$fs-3xl:           clamp(2rem, 1.7rem + 0.8vw, 2.75rem);         // 32-44px h2
+$fs-4xl:           clamp(2.5rem, 2rem + 1vw, 3.5rem);            // 40-56px h1
+
+$lh-tight:         1.2;
+$lh-normal:        1.5;
+$lh-relaxed:       1.6;
+
+// Font weights
+$fw-normal:        400;
+$fw-medium:        500;
+$fw-semibold:      600;
+$fw-bold:          700;
+$fw-extrabold:     800;
+$fw-black:         900;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SPACING (8px base grid)
+// ═══════════════════════════════════════════════════════════════════════════
+
+$space-1:          4px;   // --space-1
+$space-2:          8px;   // --space-2
+$space-3:          12px;  // --space-3
+$space-4:          16px;  // --space-4
+$space-5:          20px;  // --space-5
+$space-6:          24px;  // --space-6
+$space-7:          28px;  // --space-7
+$space-8:          32px;  // --space-8
+$space-10:         40px;  // --space-10
+$space-12:         48px;  // --space-12
+$space-16:         64px;  // --space-16
+
+$container-max:    1200px; // max content width on desktop
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BORDER RADII
+// ═══════════════════════════════════════════════════════════════════════════
+
+$radius-card:      20px;   // cards
+$radius-tile:      24px;   // image tiles (category circles, product images)
+$radius-button:    999px;  // fully rounded (pill) — buttons, chips, badges
+$radius-input:     16px;   // inputs, selects, textareas
+$radius-sheet:     24px;   // bottom sheets / modals
+$radius-small:     8px;    // badges, small chips
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SHADOWS & ELEVATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+$shadow-sm:        0 1px 2px rgba(42, 26, 16, 0.06);
+$shadow-card:      0 4px 12px rgba(42, 26, 16, 0.08);
+$shadow-card-hover:0 8px 24px rgba(42, 26, 16, 0.12);
+$shadow-sheet:     0 -4px 24px rgba(42, 26, 16, 0.12), 0 8px 32px rgba(42, 26, 16, 0.16);
+$shadow-fab:       0 4px 16px rgba(242, 169, 0, 0.35);
+$shadow-button:    0 3px 0 $color-primary; // 3D button effect
+$shadow-button-accent: 0 3px 0 $color-accent-active;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BORDERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+$border-width:     1px;
+$border-width-bold: 2px;
+$border-card:      $border-width solid $color-card-border;
+$border-input:     $border-width-bold solid $color-primary;
+$border-focus:     $border-width-bold solid $color-accent;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FOCUS RING (visible, accessible)
+// ═══════════════════════════════════════════════════════════════════════════
+
+$focus-ring-width: 2px;
+$focus-ring-color: $color-accent;
+$focus-ring-offset: 2px;
+$focus-ring:       0 0 0 $focus-ring-width $focus-ring-color;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TOUCH TARGETS & ACCESSIBILITY
+// ═══════════════════════════════════════════════════════════════════════════
+
+$touch-target-min: 44px; // minimum 44x44px
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ANIMATION & MOTION
+// ═══════════════════════════════════════════════════════════════════════════
+
+$ease-out:         cubic-bezier(0.22, 0.61, 0.36, 1);
+$ease-spring:      cubic-bezier(0.34, 1.56, 0.64, 1);
+$ease-in-out:      cubic-bezier(0.4, 0, 0.2, 1);
+
+$dur-fast:         150ms;
+$dur-normal:       250ms;
+$dur-slow:         350ms;
+$dur-page:         300ms; // page transitions
+
+$stagger-delay:    50ms; // per-item stagger for lists/grids
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Z-INDEX SCALE
+// ═══════════════════════════════════════════════════════════════════════════
+
+$z-dropdown:       100;
+$z-sticky:         200;
+$z-modal-backdrop: 1000;
+$z-modal:          1010;
+$z-toast:          2000;
+$z-splash:         9999;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BREAKPOINTS
+// ═══════════════════════════════════════════════════════════════════════════
+
+$bp-phone:         576px;   // < 576px = phone
+$bp-tablet:        992px;   // 576px - 991px = tablet
+$bp-desktop:       1400px;  // 992px - 1399px = desktop, >=1400 = wide desktop
+
+// Media query helpers
+$mq-phone:         '(max-width: 575.98px)';
+$mq-tablet:        '(min-width: 576px) and (max-width: 991.98px)';
+$mq-desktop:       '(min-width: 992px)';
+$mq-wide:          '(min-width: 1400px)';
+$mq-touch:         '(hover: none) and (pointer: coarse)';
+$mq-hover:         '(hover: hover)';
+$mq-reduced-motion:'(prefers-reduced-motion: reduce)';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPONENT-SPECIFIC TOKENS (derived from above)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Buttons
+$btn-height:              $touch-target-min; // 44px
+$btn-height-sm:           36px;
+$btn-height-lg:           52px;
+$btn-padding-x:           20px;
+$btn-padding-x-sm:        14px;
+$btn-padding-x-lg:        28px;
+$btn-font-size:           $fs-base;
+$btn-font-weight:         $fw-bold;
+
+// Chips / Pills
+$chip-height:             36px;
+$chip-padding-x:          16px;
+$chip-font-size:          $fs-sm;
+$chip-font-weight:        $fw-semibold;
+
+// Form fields
+$field-height:            $touch-target-min; // 44px
+$field-padding-x:         16px;
+$field-padding-y:         12px;
+$field-font-size:         $fs-base;
+$label-font-size:         $fs-xs;
+$label-font-weight:       $fw-bold;
+$helper-font-size:        $fs-xs;
+$error-font-size:         $fs-xs;
+
+// Cards
+$card-padding:            $space-5; // 20px
+$card-gap:                $space-4; // 16px
+
+// Bottom sheets / Modals
+$sheet-handle-width:      36px;
+$sheet-handle-height:     4px;
+$sheet-handle-radius:     2px;
+$sheet-handle-color:      $color-muted-beige;
+
+// Tab bar
+$tab-bar-height:          72px; // includes safe area
+$tab-bar-bg:              $color-card-bg;
+$tab-bar-border-top:      $border-card;
+$tab-active-pill-bg:      $color-accent;
+$tab-active-pill-color:   $color-primary;
+
+// Floating cart bar
+$floating-cart-height:    64px;
+$floating-cart-bg:        $color-card-bg;
+$floating-cart-shadow:    0 -4px 20px rgba(42, 26, 16, 0.1);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CSS CUSTOM PROPERTY EXPORTS (for :root in variables.scss)
+// ═══════════════════════════════════════════════════════════════════════════
+// These are emitted as --ktk-* variables in variables.scss
+
+// Colors
+$css-color-page-bg:           $color-page-bg;
+$css-color-card-bg:           $color-card-bg;
+$css-color-card-border:       $color-card-border;
+$css-color-muted-beige:       $color-muted-beige;
+$css-color-base-tint:         $color-base-tint;
+$css-color-input-bg:          $color-input-bg;
+$css-color-primary:           $color-primary;
+$css-color-primary-contrast:  $color-primary-contrast;
+$css-color-primary-hover:     $color-primary-hover;
+$css-color-primary-active:    $color-primary-active;
+$css-color-accent:            $color-accent;
+$css-color-accent-text:       $color-accent-text;
+$css-color-accent-hover:      $color-accent-hover;
+$css-color-accent-active:     $color-accent-active;
+$css-color-accent-light:      $color-accent-light;
+$css-color-accent-focus:      $color-accent-focus;
+$css-color-pastel-yellow:     $color-pastel-yellow;
+$css-color-pastel-bread:      $color-pastel-bread;
+$css-color-pastel-pink:       $color-pastel-pink;
+$css-color-pastel-cookie:     $color-pastel-cookie;
+$css-color-pastel-lavender:   $color-pastel-lavender;
+$css-color-pastel-green:      $color-pastel-green;
+$css-color-status-pending:    $color-status-pending;
+$css-color-status-baking:     $color-status-baking;
+$css-color-status-ready:      $color-status-ready;
+$css-color-status-delivered:  $color-status-delivered;
+$css-color-status-cancelled:  $color-status-cancelled;
+$css-color-status-lowstock:   $color-status-lowstock;
+$css-color-text:              $color-text;
+$css-color-text-secondary:    $color-text-secondary;
+$css-color-text-muted:        $color-text-muted;
+$css-color-text-on-dark:      $color-text-on-dark;
+$css-color-text-on-accent:    $color-text-on-accent;
+$css-color-text-error:        $color-text-error;
+$css-color-text-success:      $color-text-success;
+$css-color-success:           $color-success;
+$css-color-success-bg:        $color-success-bg;
+$css-color-success-border:    $color-success-border;
+$css-color-error:             $color-error;
+$css-color-error-bg:          $color-error-bg;
+$css-color-error-border:      $color-error-border;
+
+// Typography
+$css-font-serif:      $font-serif;
+$css-font-sans:       $font-sans;
+$css-fs-base:         $fs-base;
+$css-fs-sm:           $fs-sm;
+$css-fs-xs:           $fs-xs;
+$css-fs-lg:           $fs-lg;
+$css-fs-xl:           $fs-xl;
+$css-fs-2xl:          $fs-2xl;
+$css-fs-3xl:          $fs-3xl;
+$css-fs-4xl:          $fs-4xl;
+$css-lh-tight:        $lh-tight;
+$css-lh-normal:       $lh-normal;
+$css-lh-relaxed:      $lh-relaxed;
+$css-fw-normal:       $fw-normal;
+$css-fw-medium:       $fw-medium;
+$css-fw-semibold:     $fw-semibold;
+$css-fw-bold:         $fw-bold;
+$css-fw-extrabold:    $fw-extrabold;
+$css-fw-black:        $fw-black;
+
+// Spacing
+$css-space-1:         #{$space-1};
+$css-space-2:         #{$space-2};
+$css-space-3:         #{$space-3};
+$css-space-4:         #{$space-4};
+$css-space-5:         #{$space-5};
+$css-space-6:         #{$space-6};
+$css-space-7:         #{$space-7};
+$css-space-8:         #{$space-8};
+$css-space-10:        #{$space-10};
+$css-space-12:        #{$space-12};
+$css-space-16:        #{$space-16};
+$css-container-max:   #{$container-max};
+
+// Radii
+$css-radius-card:     #{$radius-card};
+$css-radius-tile:     #{$radius-tile};
+$css-radius-button:   #{$radius-button};
+$css-radius-input:    #{$radius-input};
+$css-radius-sheet:    #{$radius-sheet};
+$css-radius-small:    #{$radius-small};
+
+// Shadows
+$css-shadow-sm:           $shadow-sm;
+$css-shadow-card:         $shadow-card;
+$css-shadow-card-hover:   $shadow-card-hover;
+$css-shadow-sheet:        $shadow-sheet;
+$css-shadow-fab:          $shadow-fab;
+$css-shadow-button:       $shadow-button;
+$css-shadow-button-accent:$shadow-button-accent;
+
+// Borders
+$css-border-width:        #{$border-width};
+$css-border-width-bold:   #{$border-width-bold};
+$css-border-card:         $border-card;
+$css-border-input:        $border-input;
+$css-border-focus:        $border-focus;
+
+// Focus
+$css-focus-ring-width:    #{$focus-ring-width};
+$css-focus-ring-color:    $color-accent-focus;
+$css-focus-ring-offset:   #{$focus-ring-offset};
+
+// Touch
+$css-touch-target-min:    #{$touch-target-min};
+
+// Animation
+$css-ease-out:            $ease-out;
+$css-ease-spring:         $ease-spring;
+$css-ease-in-out:         $ease-in-out;
+$css-dur-fast:            #{$dur-fast};
+$css-dur-normal:          #{$dur-normal};
+$css-dur-slow:            #{$dur-slow};
+$css-dur-page:            #{$dur-page};
+$css-stagger-delay:       #{$stagger-delay};
+
+// Z-index
+$css-z-dropdown:          $z-dropdown;
+$css-z-sticky:            $z-sticky;
+$css-z-modal-backdrop:    $z-modal-backdrop;
+$css-z-modal:             $z-modal;
+$css-z-toast:             $z-toast;
+$css-z-splash:            $z-splash;
+
+// Breakpoints (for JS/media queries)
+$css-bp-phone:            #{$bp-phone};
+$css-bp-tablet:           #{$bp-tablet};
+$css-bp-desktop:          #{$bp-desktop};
+
+// Component tokens
+$css-btn-height:          #{$btn-height};
+$css-btn-height-sm:       #{$btn-height-sm};
+$css-btn-height-lg:       #{$btn-height-lg};
+$css-chip-height:         #{$chip-height};
+$css-field-height:        #{$field-height};
+$css-card-padding:        #{$card-padding};
+$css-sheet-handle-width:  #{$sheet-handle-width};
+$css-sheet-handle-height: #{$sheet-handle-height};
+$css-tab-bar-height:      #{$tab-bar-height};
+$css-floating-cart-height:#{$floating-cart-height};

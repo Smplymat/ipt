@@ -21,10 +21,10 @@ This guide walks you through setting up PayMongo payments for the Knead to Know 
 2. Click **Add Webhook**
 3. URL: `https://<your-project-ref>.supabase.co/functions/v1/paymongo-webhook`
 4. Events to subscribe:
-   - `checkout_session.payment.paid`
-   - `checkout_session.payment.failed`
-   - `checkout_session.expired`
-4. Copy the **Signing Secret** (starts with `whsk_`)
+   - `checkout_session.payment.paid` (the one that marks orders as paid)
+   - any `...failed` / `...expired` checkout events your dashboard offers (optional)
+5. Create the webhook in **Test Mode** while using test keys (webhooks are per mode).
+6. Copy the **Signing Secret** (starts with `whsk_`)
 
 ## 2. Set Supabase Secrets
 
@@ -39,6 +39,9 @@ supabase link --project-ref vbrbtajunsewqysqpfck
 supabase secrets set PAYMONGO_SECRET_KEY=sk_test_YOUR_TEST_SECRET_KEY
 supabase secrets set PAYMONGO_WEBHOOK_SECRET=whsk_YOUR_TEST_WEBHOOK_SECRET
 
+# Where PayMongo sends customers after paying (your deployed site, no trailing slash)
+supabase secrets set APP_URL=https://your-site.netlify.app
+
 # Verify secrets are set
 supabase secrets list
 ```
@@ -50,7 +53,12 @@ supabase secrets list
 supabase functions deploy create-payment
 
 # Deploy the paymongo-webhook function
-supabase functions deploy paymongo-webhook
+supabase functions deploy paymongo-webhook --no-verify-jwt
+# (supabase/config.toml also sets verify_jwt = false for this function.
+#  PayMongo does not send a Supabase JWT, so without this the webhook gets 401.)
+
+# Mobile app only: bounces the customer back into the installed app after paying
+supabase functions deploy payment-return --no-verify-jwt
 
 # Verify deployments
 supabase functions list

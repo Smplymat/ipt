@@ -1,0 +1,40 @@
+// Staff Products Page Styles
+
+.ticket-card.product-ticket {
+  margin-bottom: var(--ktk-space-3);
+}
+
+.product-ticket .item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-ticket .item-name {
+  font-family: var(--ktk-font-sans);
+  font-size: var(--ktk-fs-sm);
+  font-weight: 600;
+  color: var(--ktk-text);
+  margin: 0 0 var(--ktk-space-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-ticket .item-price {
+  font-family: var(--ktk-font-serif);
+  font-size: var(--ktk-fs-sm);
+  font-weight: 700;
+  color: var(--ktk-text);
+  white-space: nowrap;
+}
+
+.product-ticket .item-qty {
+  background: var(--ktk-muted);
+  color: var(--ktk-text);
+  font-family: var(--ktk-font-serif);
+  font-size: var(--ktk-fs-xs);
+  font-weight: 700;
+  padding: var(--ktk-space-1) var(--ktk-space-2);
+  border-radius: var(--ktk-radius-small);
+  white-space: nowrap;
+}

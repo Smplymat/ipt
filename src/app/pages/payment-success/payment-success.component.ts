@@ -1,45 +1,41 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import {
-  IonButton,
-  IonContent,
-  IonHeader,
-  IonIcon,
-  IonSpinner,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/angular';
+import { IonContent, IonIcon } from '@ionic/angular';
 import { PaymentService, PaymentMethod } from '../../services/payment.service';
-import { checkmarkCircleOutline, alertCircleOutline, timeOutline, arrowForwardOutline } from 'ionicons/icons';
+import { CartService } from '../../services/cart.service';
+
+import {
+  ButtonComponent,
+  ErrorStateComponent,
+  PageHeaderComponent,
+  SkeletonComponent,
+  TicketCardComponent,
+} from '../../shared';
 
 @Component({
   selector: 'app-payment-success',
   imports: [
     RouterLink,
-    IonButton,
     IonContent,
-    IonHeader,
     IonIcon,
-    IonSpinner,
-    IonTitle,
-    IonToolbar,
+    ButtonComponent,
+    ErrorStateComponent,
+    PageHeaderComponent,
+    SkeletonComponent,
+    TicketCardComponent,
   ],
   templateUrl: './payment-success.component.html',
 })
 export class PaymentSuccessComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly payment = inject(PaymentService);
+  private readonly cart = inject(CartService);
 
   readonly orderId = signal<string | null>(null);
   readonly loading = signal(true);
   readonly paymentStatus = signal<'paid' | 'pending' | 'failed' | 'unknown'>('unknown');
-  readonly paymentMethod = signal<PaymentMethod | null>(null);
+  readonly paymentMethod = signal<'cod' | 'card' | 'gcash' | 'paymaya' | 'grab_pay' | null>(null);
   readonly error = signal<string | null>(null);
-
-  readonly checkmarkCircle = checkmarkCircleOutline;
-  readonly alertCircle = alertCircleOutline;
-  readonly timeOutline = timeOutline;
-  readonly arrowForward = arrowForwardOutline;
 
   constructor() {
     const id = this.route.snapshot.queryParamMap.get('order_id');
@@ -55,12 +51,20 @@ export class PaymentSuccessComponent {
   private async checkStatus(orderId: string): Promise<void> {
     this.loading.set(true);
     try {
-      const status = await this.payment.checkPaymentStatus(orderId);
+      let status = await this.payment.checkPaymentStatus(orderId);
+      // The PayMongo webhook can arrive a few seconds after the customer
+      // returns, so re-check a few times while the payment is still pending.
+      for (let i = 0; i < 5 && status?.payment_status === 'pending'; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        status = await this.payment.checkPaymentStatus(orderId);
+      }
       if (status) {
-        this.paymentMethod.set(status.payment_method as PaymentMethod);
+        this.paymentMethod.set(status.payment_method as 'cod' | 'card' | 'gcash' | 'paymaya' | 'grab_pay');
         switch (status.payment_status) {
           case 'paid':
             this.paymentStatus.set('paid');
+            // The order is paid, so the basket is no longer needed.
+            void this.cart.clear();
             break;
           case 'pending':
             this.paymentStatus.set('pending');
@@ -81,8 +85,8 @@ export class PaymentSuccessComponent {
     }
   }
 
-  getMethodLabel(method: PaymentMethod | null): string {
-    const labels: Record<PaymentMethod, string> = {
+  getMethodLabel(method: 'cod' | 'card' | 'gcash' | 'paymaya' | 'grab_pay' | null): string {
+    const labels: Record<string, string> = {
       cod: 'Cash on Delivery',
       card: 'Credit/Debit Card',
       gcash: 'GCash',
@@ -107,19 +111,47 @@ export class PaymentSuccessComponent {
 
   getStatusColor(): string {
     switch (this.paymentStatus()) {
-      case 'paid': return 'var(--bakery-status-finished)';
-      case 'pending': return 'var(--bakery-burnt)';
-      case 'failed': return 'var(--bakery-error)';
-      default: return 'var(--bakery-dark)';
+      case 'paid': return 'var(--ktk-status-finished)';
+      case 'pending': return 'var(--ktk-burnt)';
+      case 'failed': return 'var(--ktk-error)';
+      default: return 'var(--ktk-text)';
     }
   }
 
   getStatusIcon(): string {
     switch (this.paymentStatus()) {
-      case 'paid': return this.checkmarkCircle;
-      case 'pending': return this.timeOutline;
-      case 'failed': return this.alertCircle;
-      default: return this.timeOutline;
+      case 'paid': return 'checkmark-circle-outline';
+      case 'pending': return 'time-outline';
+      case 'failed': return 'alert-circle-outline';
+      default: return 'time-outline';
     }
+  }
+
+  /** Build ticket actions. */
+  getActions() {
+    return [
+      {
+        label: 'View My Orders',
+        variant: 'accent' as const,
+        icon: 'arrow-forward-outline',
+        action: 'view-orders',
+      },
+      {
+        label: 'Continue Shopping',
+        variant: 'outline' as const,
+        icon: 'storefront-outline',
+        action: 'continue-shopping',
+      },
+    ];
+  }
+
+  /** Handle ticket action clicks. */
+  handleAction(action: string): void {
+    // Navigation handled by routerLink
+  }
+
+  /** Handle ticket action clicks (accepts any for template compatibility). */
+  handleTicketAction(action: unknown): void {
+    this.handleAction(action as string);
   }
 }

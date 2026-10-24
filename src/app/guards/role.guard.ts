@@ -24,3 +24,14 @@ export const staffGuard = roleGuard('store_admin', 'admin');
 
 /** Admin (Super Admin) only — can also manage users. */
 export const adminOnlyGuard = roleGuard('admin');
+
+/** Admin only — redirects admin to admin/users, others to dashboard. */
+export const adminGuard: CanActivateFn = async () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  if (!auth.ready()) await auth.waitForSession();
+
+  const user = auth.user();
+  if (user && user.role === 'admin') return true;
+  return router.createUrlTree(user ? ['/dashboard'] : ['/login']);
+};

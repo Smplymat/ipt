@@ -170,7 +170,7 @@ export class AdminComponent {
     const list = this.orders();
     return {
       cod: list.filter((o) => o.payment_method === 'cod').length,
-      online: list.filter((o) => o.payment_method === 'online').length,
+      online: list.filter((o) => o.payment_method !== 'cod').length,
     };
   });
 

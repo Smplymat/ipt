@@ -1,8 +1,9 @@
 <ion-app>
   <app-splash-screen></app-splash-screen>
-  <ion-split-pane content-id="main-content" when="false">
+  <!-- Desktop: persistent sidebar (when >= 992px), Mobile: overlay menu -->
+  <ion-split-pane content-id="main-content" when="(min-width: 992px)">
     <app-menu></app-menu>
     <ion-router-outlet id="main-content"></ion-router-outlet>
   </ion-split-pane>
-  <app-floating-cart></app-floating-cart>
+  <ktk-floating-cart-bar></ktk-floating-cart-bar>
 </ion-app>

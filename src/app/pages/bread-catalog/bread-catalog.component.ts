@@ -2,36 +2,48 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
-  IonButton,
   IonContent,
-  IonHeader,
   IonIcon,
-  IonMenuButton,
-  IonTitle,
-  IonToolbar,
   ToastController,
 } from '@ionic/angular';
-import { addIcons } from 'ionicons';
 import { CartService } from '../../services/cart.service';
 import { LOW_STOCK_THRESHOLD, Product, ProductsService, toErrorMessage } from '../../services/products.service';
 import { ProductDetailModalComponent } from '../../components/product-detail-modal/product-detail-modal.component';
+
+import {
+  ButtonComponent,
+  ProductCardComponent,
+  SegmentedTabsComponent,
+  EmptyStateComponent,
+  SkeletonComponent,
+  PageHeaderComponent,
+  ErrorStateComponent,
+} from '../../shared';
+
 import { searchOutline, optionsOutline } from 'ionicons/icons';
 
 export type SortKey = 'default' | 'price_asc' | 'price_desc' | 'rating_desc';
+
+interface SortOption {
+  value: SortKey;
+  label: string;
+}
 
 @Component({
   selector: 'app-bread-catalog',
   imports: [
     FormsModule,
     RouterLink,
-    IonButton,
     IonContent,
-    IonHeader,
     IonIcon,
-    IonMenuButton,
-    IonTitle,
-    IonToolbar,
     ProductDetailModalComponent,
+    ButtonComponent,
+    ProductCardComponent,
+    SegmentedTabsComponent,
+    EmptyStateComponent,
+    SkeletonComponent,
+    PageHeaderComponent,
+    ErrorStateComponent,
   ],
   templateUrl: './bread-catalog.component.html',
 })
@@ -139,8 +151,14 @@ export class BreadCatalogComponent {
     return Array.from(map.entries()).map(([category, items]) => ({ category, items }));
   });
 
+  readonly sortOptions = signal<{ value: SortKey; label: string }[]>([
+    { value: 'default', label: 'Newest first' },
+    { value: 'rating_desc', label: 'Most popular' },
+    { value: 'price_asc', label: 'Price: low to high' },
+    { value: 'price_desc', label: 'Price: high to low' },
+  ]);
+
   constructor() {
-    addIcons({ 'search-outline': searchOutline, 'options-outline': optionsOutline });
     void this.loadProducts();
   }
 
@@ -178,6 +196,11 @@ export class BreadCatalogComponent {
     this.priceMax.set(Number.isFinite(n) && n > 0 ? n : null);
   }
 
+  /** Handles sort change from segmented tabs (casts string to SortKey). */
+  onSortChange(value: string): void {
+    this.sortKey.set(value as SortKey);
+  }
+
   // ── Modal ─────────────────────────────────────────────────────────────────
 
   openDetail(product: Product): void {
@@ -192,10 +215,6 @@ export class BreadCatalogComponent {
 
   formatPrice(n: number): string {
     return `₱${(Number(n) || 0).toFixed(2)}`;
-  }
-
-  stars(r: number): string {
-    return '★'.repeat(Math.round(r)) + '☆'.repeat(5 - Math.round(r));
   }
 
   // ── Cart ──────────────────────────────────────────────────────────────────

@@ -1,18 +1,25 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  IonButton,
-  IonContent,
-  IonHeader,
-  IonInput,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/angular';
+import { IonContent } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
+
+import {
+  ButtonComponent,
+  ErrorStateComponent,
+  FormFieldComponent,
+  PageHeaderComponent,
+} from '../../shared';
 
 @Component({
   selector: 'app-register',
-  imports: [RouterLink, IonButton, IonContent, IonHeader, IonInput, IonTitle, IonToolbar],
+  imports: [
+    RouterLink,
+    IonContent,
+    ButtonComponent,
+    ErrorStateComponent,
+    FormFieldComponent,
+    PageHeaderComponent,
+  ],
   templateUrl: './register.component.html',
 })
 export class RegisterComponent {

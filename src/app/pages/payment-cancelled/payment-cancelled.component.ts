@@ -1,25 +1,24 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { IonContent, IonIcon } from '@ionic/angular';
+
 import {
-  IonButton,
-  IonContent,
-  IonHeader,
-  IonIcon,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/angular';
-import { arrowBackOutline, arrowForwardOutline, closeCircleOutline } from 'ionicons/icons';
+  ButtonComponent,
+  PageHeaderComponent,
+  TicketCardComponent,
+} from '../../shared';
+
+import { closeCircleOutline, arrowBackOutline, arrowForwardOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-payment-cancelled',
   imports: [
     RouterLink,
-    IonButton,
     IonContent,
-    IonHeader,
     IonIcon,
-    IonTitle,
-    IonToolbar,
+    ButtonComponent,
+    PageHeaderComponent,
+    TicketCardComponent,
   ],
   templateUrl: './payment-cancelled.component.html',
 })

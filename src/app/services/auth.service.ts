@@ -154,7 +154,7 @@ export class AuthService {
     email: string,
     password: string,
     displayName: string
-  ): Promise<{ ok: boolean; message?: string; needEmailConfirmation?: boolean }> {
+  ): Promise<{ ok: boolean; message?: string; needEmailConfirmation?: boolean; userId?: string }> {
     const { data, error } = await this.db.client.auth.signUp({
       email,
       password,
@@ -162,9 +162,9 @@ export class AuthService {
     });
     if (error) return { ok: false, message: error.message };
     // When email confirmation is enabled, no session exists yet.
-    if (!data.session) return { ok: true, needEmailConfirmation: true };
+    if (!data.session) return { ok: true, needEmailConfirmation: true, userId: data.user?.id };
     await this.refresh();
-    return { ok: true };
+    return { ok: true, userId: data.user?.id };
   }
 
   async signOut(): Promise<void> {
@@ -242,5 +242,36 @@ export class AuthService {
   async changePassword(newPassword: string): Promise<void> {
     const { error } = await this.db.client.auth.updateUser({ password: newPassword });
     if (error) throw new Error(error.message);
+  }
+
+  /** Updates the signed-in user's profile (display name, email, etc.). */
+  async updateUserProfile(userId: string, updates: { displayName?: string; email?: string }): Promise<void> {
+    const adminUpdates: Record<string, any> = {};
+    if (updates.displayName) adminUpdates['data'] = { display_name: updates.displayName };
+    if (updates.email) adminUpdates['email'] = updates.email;
+    
+    const { error } = await this.db.client.auth.admin.updateUserById(userId, adminUpdates);
+    if (error) throw new Error(error.message);
+    
+    // If we updated the display name, also update the profiles table
+    if (updates.displayName) {
+      await this.db.client.from('profiles').update({ display_name: updates.displayName }).eq('id', userId);
+    }
+    
+    // Refresh the current user if it's the same user
+    const currentUser = this.user();
+    if (currentUser?.id === userId) {
+      await this.refresh();
+    }
+  }
+
+  /** Deletes a user by ID (Admin only). */
+  async deleteUser(userId: string): Promise<void> {
+    const { error } = await this.db.client.auth.admin.deleteUser(userId);
+    if (error) throw new Error(error.message);
+    
+    // Also delete from profiles and user_roles tables
+    await this.db.client.from('profiles').delete().eq('id', userId);
+    await this.db.client.from('user_roles').delete().eq('user_id', userId);
   }
 }

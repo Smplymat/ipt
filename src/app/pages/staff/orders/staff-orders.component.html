@@ -1,0 +1,75 @@
+<ktk-page-header title="Fulfillment" [showNotifications]="true" />
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- ── Page header ──────────────────────────────────────────────────── -->
+  <div class="staff-header">
+    <div>
+      <h1 class="staff-page-title">Order Fulfillment</h1>
+      <p class="staff-page-sub">Manage order statuses and track fulfillment progress.</p>
+    </div>
+    <ktk-button class="staff-reload-btn" (click)="loadOrders()" title="Refresh">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Refresh
+    </ktk-button>
+  </div>
+
+  @if (error(); as err) {
+    <ktk-error-state type="server" [message]="err" [retryable]="true" (onRetry)="loadOrders()"></ktk-error-state>
+  }
+
+  @if (loading()) {
+    <div class="skeleton-grid" role="list" aria-label="Loading orders">
+      @for (i of [1,2,3,4,5]; track i) {
+        <ktk-skeleton type="product-card" role="listitem"></ktk-skeleton>
+      }
+    </div>
+  } @else {
+
+    <!-- ── Tab bar ────────────────────────────────────────────────────── -->
+    <div class="staff-tabs">
+      @for (status of statusOptions; track status) {
+        <ktk-chip
+          [variant]="activeTab() === status ? 'accent' : 'outline'"
+          (onClick)="activeTab.set(status)"
+          [disabled]="false">
+          {{ getTabLabel(status) }}
+        </ktk-chip>
+      }
+    </div>
+
+    <!-- ── Order List ─────────────────────────────────────────────────── -->
+    <div class="orders-list stagger-children">
+      @if (filteredOrders().length === 0) {
+        <ktk-empty-state
+          illustration="box"
+          [title]="emptyStateTitle"
+          [description]="emptyStateDescription"
+          [centered]="true">
+        </ktk-empty-state>
+      } @else {
+        @for (order of filteredOrders(); track order.id) {
+          <ktk-ticket-card
+            [title]="'Order ' + shortId(order)"
+            [subtitle]="formatDate(order.created_at) + ' · ' + paymentLabel(order.payment_method)"
+            [status]="order.status"
+            [metaRows]="[
+              { label: order.fulfillment_type === 'pickup' ? 'PICKUP' : 'DELIVERY', value: fulfillmentLabel(order) + (order.scheduled_at ? ' · ' + scheduleLabel(order) : ' · ASAP'), highlight: true },
+              { label: 'Customer', value: order.customer_name + ' · ' + order.phone, highlight: false },
+              { label: order.fulfillment_type === 'pickup' ? 'Pickup' : 'Address', value: order.fulfillment_type === 'pickup' ? 'In-Store Pickup · 123 Banawe St, Quezon City' : (order.address + (order.unit_notes ? ' · ' + order.unit_notes : '') + ' · ' + order.latitude?.toFixed(5) + ', ' + order.longitude?.toFixed(5)), highlight: false },
+              { label: 'Items', value: order.items.length + ' item' + (order.items.length === 1 ? '' : 's'), highlight: false },
+              { label: 'Payment', value: paymentLabel(order.payment_method) + (order.payment_status === 'paid' ? ' · Paid' : ''), highlight: true }
+            ]"
+            [items]="order.items.map(item => ({ id: item.id, name: item.name, qty: item.quantity, price: formatPrice(item.price * item.quantity) }))"
+            [actions]="getTicketActions(order)"
+            [showDivider]="true"
+            (onAction)="handleAction($event, order)">
+          </ktk-ticket-card>
+        }
+      }
+
+    </div>
+
+  }
+
+</ion-content>

@@ -1,466 +1,279 @@
-<ion-header class="no-print">
-  <ion-toolbar>
-    <ion-menu-button slot="start"></ion-menu-button>
-    <ion-title>Checkout</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ktk-page-header title="Checkout" [showBack]="true" backRoute="/orders" [showNotifications]="true" />
 
 <ion-content class="page-content" [scrollY]="true">
 
+  <!-- ── Step Indicator ──────────────────────────────────────────────────── -->
+  <div class="step-indicator-wrapper" style="padding: 16px 20px 0;">
+    <ktk-step-indicator [steps]="steps" [currentStep]="2" />
+  </div>
+
   <!-- ── Empty bag ───────────────────────────────────────────────────── -->
   @if (lines().length === 0) {
-    <div style="text-align: center; padding: 72px 24px;">
-      <p style="font-family: 'Inter', sans-serif; font-weight: 800; color: var(--bakery-dark); font-size: 1.05rem; margin: 0 0 6px;">
-        Your bag is empty
-      </p>
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin-bottom: 20px;">
-        Add some freshly baked goodies before checking out.
-      </p>
-      <ion-button
-        routerLink="/bread-catalog"
-        style="--background: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 10px; font-weight: 700;"
-      >
-        Browse Catalog
-      </ion-button>
-    </div>
+    <ktk-empty-state
+      illustration="cart"
+      title="Your bag is empty"
+      description="Add some freshly baked goodies before checking out."
+      actionLabel="Browse Catalog"
+      actionRoute="/bread-catalog">
+    </ktk-empty-state>
   } @else {
 
-  <!-- ── 1 · Your bag ────────────────────────────────────────────────── -->
-  <div class="bakery-section bakery-section--beige" style="padding-bottom: 28px;">
-    <p class="bakery-section-eyebrow">Step 1 of 4</p>
-    <h2 class="bakery-section-title" style="margin-bottom: 18px;">Your Bag</h2>
-
-    @for (line of lines(); track line.product.id) {
-      <div class="order-item">
-        @if (line.product.image_url) {
-          <img class="order-item__img" [src]="line.product.image_url" [alt]="line.product.name" (error)="$any($event.target).style.display='none'">
-        } @else {
-          <div class="order-item__img" style="display:flex;align-items:center;justify-content:center;background:var(--bakery-base);font-size:0.75rem;color:var(--bakery-text-muted);font-weight:600;">No img</div>
-        }
-        <div class="order-item__info">
-          <p class="order-item__name">{{ line.product.name }}</p>
-          <p class="order-item__meta">
-            {{ formatPrice(line.product.price) }} each
-            <span style="color: var(--bakery-dark); font-weight: 700;">· {{ formatPrice(line.product.price * line.quantity) }}</span>
-          </p>
+  <!-- ── Step 1: Your Bag ────────────────────────────────────────────────── -->
+  <section class="checkout-section" aria-labelledby="step1-title">
+    <h2 id="step1-title" class="checkout-section-title">Step 1: Your Bag</h2>
+    <div class="bag-items stagger-children">
+      @for (line of lines(); track line.product.id) {
+        <div class="bag-item">
+          <div class="item-image-wrap">
+            @if (line.product.image_url) {
+              <img [src]="line.product.image_url" [alt]="line.product.name" class="item-image" loading="lazy">
+            } @else {
+              <div class="item-image-placeholder">No img</div>
+            }
+          </div>
+          <div class="item-info">
+            <p class="item-name">{{ line.product.name }}</p>
+            <p class="item-meta">{{ formatPrice(line.product.price) }} each · Subtotal {{ formatPrice(line.product.price * line.quantity) }}</p>
+          </div>
+          <div class="item-qty-controls">
+            <button class="qty-btn qty-btn--minus" (click)="cartQty(line.product.id, -1)" aria-label="Decrease quantity">−</button>
+            <span class="qty-value" aria-live="polite">{{ line.quantity }}</span>
+            <button class="qty-btn qty-btn--plus" (click)="cartQty(line.product.id, 1)" aria-label="Increase quantity">+</button>
+          </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-          <button class="qty-btn qty-btn--minus" (click)="cartQty(line.product.id, -1)">−</button>
-          <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--bakery-dark); min-width: 18px; text-align: center;">
-            {{ line.quantity }}
-          </span>
-          <button class="qty-btn qty-btn--plus" (click)="cartQty(line.product.id, 1)">+</button>
-        </div>
-      </div>
-    }
-  </div>
-
-  <!-- ── 2 · Fulfillment type ───────────────────────────────────────── -->
-  <div class="bakery-section" style="padding: 28px 20px;">
-    <p class="bakery-section-eyebrow">Step 2 of 4</p>
-    <h2 class="bakery-section-title" style="margin-bottom: 14px;">How would you like to get your order?</h2>
-
-    <div style="display: grid; gap: 10px;">
-
-      <!-- Delivery option -->
-      <button
-        class="pay-option"
-        [class.pay-option--active]="fulfillment() === 'delivery'"
-        (click)="fulfillment.set('delivery')"
-      >
-        <span style="flex-grow: 1; text-align: left;">
-          <span class="pay-option__title">Delivery</span>
-          <span class="pay-option__sub">We deliver right to your door.
-            @if (subtotal() >= 500) { Free delivery on this order! }
-            @else { +{{ formatPrice(deliveryFee()) }} delivery fee. }
-          </span>
-        </span>
-        <span class="pay-option__check">✓</span>
-      </button>
-
-      <!-- Pickup option -->
-      <button
-        class="pay-option"
-        [class.pay-option--active]="fulfillment() === 'pickup'"
-        (click)="fulfillment.set('pickup')"
-      >
-        <span style="flex-grow: 1; text-align: left;">
-          <span class="pay-option__title">In-Store Pickup</span>
-          <span class="pay-option__sub">Pick up at 123 Banawe St, Quezon City. No delivery fee.</span>
-        </span>
-        <span class="pay-option__check">✓</span>
-      </button>
-
+      }
     </div>
-  </div>
+  </section>
 
-  <!-- ── 3 · Delivery / Contact details (conditioned on fulfillment) ── -->
-  <div class="bakery-section bakery-section--beige" style="padding: 28px 20px;">
-    <p class="bakery-section-eyebrow">Step 3 of 4</p>
-    <h2 class="bakery-section-title" style="margin-bottom: 14px;">
+  <!-- ── Step 2: Fulfillment Type ───────────────────────────────────────── -->
+  <section class="checkout-section" aria-labelledby="step2-title">
+    <h2 id="step2-title" class="checkout-section-title">Step 2: How would you like to get your order?</h2>
+    <ktk-segmented-tabs
+      [segments]="fulfillmentSegments"
+      [activeValue]="fulfillment()"
+      [fullWidth]="true"
+      (valueChange)="onFulfillmentChange($event)">
+    </ktk-segmented-tabs>
+  </section>
+
+  <!-- ── Step 3: Delivery / Contact Details ─────────────────────────────── -->
+  <section class="checkout-section" aria-labelledby="step3-title">
+    <h2 id="step3-title" class="checkout-section-title">
       @if (fulfillment() === 'delivery') { Delivery Details } @else { Contact Details }
     </h2>
 
-    <div style="display: grid; gap: 16px;">
-
+    <div class="form-grid">
       <!-- Recipient name — always required -->
-      <div class="checkout-field">
-        <label class="checkout-field__label" for="checkout-name">Recipient Name</label>
-        <input
-          id="checkout-name"
-          class="checkout-field__input"
-          type="text"
-          placeholder="e.g. Maria Santos"
-          [value]="form().name"
-          (input)="setField('name', $any($event.target).value)"
-        >
-        @if (touched() && errors().name) {
-          <p class="checkout-field__error">{{ errors().name }}</p>
-        }
-      </div>
+      <ktk-form-field
+        label="Recipient Name"
+        placeholder="e.g. Maria Santos"
+        [value]="form().name"
+        (valueChange)="setField('name', $event)"
+        [error]="getError('name')"
+        [icon]="'person-outline'"
+        [required]="true">
+      </ktk-form-field>
 
       <!-- Phone — always required -->
-      <div class="checkout-field">
-        <label class="checkout-field__label" for="checkout-phone">Contact Number</label>
-        <input
-          id="checkout-phone"
-          class="checkout-field__input"
-          type="tel"
-          inputmode="tel"
-          placeholder="e.g. 09171234567"
-          [value]="form().phone"
-          (input)="setField('phone', $any($event.target).value)"
-        >
-        @if (touched() && errors().phone) {
-          <p class="checkout-field__error">{{ errors().phone }}</p>
-        }
-      </div>
+      <ktk-form-field
+        label="Contact Number"
+        type="tel"
+        placeholder="e.g. 09171234567"
+        [value]="form().phone"
+        (valueChange)="setField('phone', $event)"
+        [error]="getError('phone')"
+        [icon]="'call-outline'"
+        [required]="true">
+      </ktk-form-field>
 
       <!-- Pickup info banner -->
       @if (fulfillment() === 'pickup') {
-        <div style="background: var(--bakery-base); border: 1.5px solid var(--bakery-navbar); border-radius: 12px; padding: 14px 16px;">
-          <p style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--bakery-dark); margin: 0 0 4px;">Pickup Location</p>
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--bakery-text-secondary); margin: 0;">
-            123 Banawe St, Quezon City · Mon–Sun 7 AM – 6 PM
-          </p>
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.78rem; color: var(--bakery-text-muted); margin: 6px 0 0;">
-            We'll notify you when your order is ready for pickup.
-          </p>
+        <div class="pickup-banner" style="grid-column: 1 / -1; background: var(--ktk-base-tint); border: 1px solid var(--ktk-accent); border-radius: 12px; padding: 14px 16px;">
+          <p class="pickup-title">Pickup Location</p>
+          <p class="pickup-address">123 Banawe St, Quezon City · Mon–Sun 7 AM – 6 PM</p>
+          <p class="pickup-note">We'll notify you when your order is ready for pickup.</p>
         </div>
       }
 
       <!-- Delivery address fields — only for delivery -->
       @if (fulfillment() === 'delivery') {
+        <ktk-form-field
+          label="Delivery Address"
+          placeholder="e.g. 123 Banawe St, Quezon City"
+          [value]="form().address"
+          (valueChange)="setField('address', $event)"
+          [error]="getError('address')"
+          [icon]="'location-outline'"
+          [hint]="mapConfigured && !mapError() ? 'Start typing and pick a suggestion — or tap the map below.' : ''">
+        </ktk-form-field>
 
-        <div class="checkout-field">
-          <label class="checkout-field__label" for="checkout-address">Delivery Address</label>
-          @if (mapConfigured && !mapError()) {
-            <p class="checkout-field__hint">Start typing and pick a suggestion — or tap the map below.</p>
-          }
-          <input
-            id="checkout-address"
-            class="checkout-field__input"
-            type="text"
-            placeholder="e.g. 123 Banawe St, Quezon City"
-            [value]="form().address"
-            (input)="setField('address', $any($event.target).value)"
-          >
-          @if (touched() && errors().address) {
-            <p class="checkout-field__error">{{ errors().address }}</p>
-          }
-        </div>
-
-        <div class="checkout-field">
-          <label class="checkout-field__label" for="checkout-unit">Unit / Building Notes</label>
-          <input
-            id="checkout-unit"
-            class="checkout-field__input"
-            type="text"
-            placeholder="House no, floor, landmark, gate code…"
-            [value]="form().unit"
-            (input)="setField('unit', $any($event.target).value)"
-          >
-        </div>
+        <ktk-form-field
+          label="Unit / Building Notes"
+          placeholder="House no, floor, landmark, gate code…"
+          [value]="form().unit"
+          (valueChange)="setField('unit', $event)"
+          [icon]="'home-outline'">
+        </ktk-form-field>
 
         <!-- Interactive map (requires API key) -->
         @if (mapConfigured && !mapError()) {
-          <div class="checkout-field">
-            <label class="checkout-field__label">Delivery Pin</label>
-            <div id="checkout-map" class="checkout-map"></div>
-            <p class="checkout-field__hint">Drag the pin or tap anywhere on the map to set the exact drop-off point.</p>
+          <div class="map-field" style="grid-column: 1 / -1;">
+            <label class="field-label">Delivery Pin</label>
+            <div id="checkout-map" class="checkout-map" style="height: 260px; border-radius: 14px; overflow: hidden; border: 2px solid var(--ktk-text);"></div>
+            <p class="field-hint">Drag the pin or tap anywhere on the map to set the exact drop-off point.</p>
           </div>
         }
 
         <!-- Manual coordinate fallback -->
         @if (!mapConfigured || mapError()) {
-          <div class="checkout-field">
-            <label class="checkout-field__label">
-              Map Coordinates
-              @if (!mapConfigured) {
-                <span style="font-weight: 500; color: var(--bakery-text-secondary);">(Google Maps key not configured)</span>
-              }
-            </label>
-            <div style="display: flex; gap: 10px;">
-              <input
-                class="checkout-field__input"
-                type="number"
-                step="any"
-                placeholder="Latitude"
-                [value]="form().lat ?? ''"
-                (input)="setCoord('lat', $any($event.target).value)"
-              >
-              <input
-                class="checkout-field__input"
-                type="number"
-                step="any"
-                placeholder="Longitude"
-                [value]="form().lng ?? ''"
-                (input)="setCoord('lng', $any($event.target).value)"
-              >
-            </div>
+          <div class="coords-field" style="grid-column: 1 / -1; display: flex; gap: 10px;">
+            <ktk-form-field
+              label="Latitude"
+              type="number"
+              step="any"
+              [value]="form().lat ?? ''"
+              (valueChange)="setCoord('lat', $event)"
+              [error]="getError('coords')">
+            </ktk-form-field>
+            <ktk-form-field
+              label="Longitude"
+              type="number"
+              step="any"
+              [value]="form().lng ?? ''"
+              (valueChange)="setCoord('lng', $event)">
+            </ktk-form-field>
           </div>
-        }
-
-        @if (touched() && errors().coords) {
-          <p class="checkout-field__error" style="margin: -8px 0 0;">{{ errors().coords }}</p>
         }
 
         @if (form().lat != null && form().lng != null) {
-          <div class="coords-chip">
+          <div class="coords-chip" style="grid-column: 1 / -1; justify-self: start;">
             Pin set: {{ form().lat!.toFixed(6) }}, {{ form().lng!.toFixed(6) }}
           </div>
         }
+      }
 
-      } <!-- /delivery fields -->
-
-      <!-- ── Order schedule ─────────────────────────────────────────── -->
-      <div class="checkout-field" style="margin-top: 4px;">
-        <label class="checkout-field__label">
+      <!-- ── Order Schedule ─────────────────────────────────────────── -->
+      <div class="schedule-field" style="grid-column: 1 / -1; margin-top: 4px;">
+        <label class="field-label">
           @if (fulfillment() === 'delivery') { Delivery Schedule } @else { Pickup Schedule }
         </label>
-
-        <div style="display: grid; gap: 8px;">
-          <!-- ASAP option -->
-          <button
-            class="pay-option"
-            [class.pay-option--active]="scheduleMode() === 'asap'"
-            (click)="scheduleMode.set('asap')"
-            style="padding: 12px 16px;"
-          >
-            <span style="flex-grow: 1; text-align: left;">
-              <span class="pay-option__title">As Soon As Possible</span>
-              <span class="pay-option__sub">We'll get on it right away.</span>
-            </span>
-            <span class="pay-option__check">✓</span>
-          </button>
-
-          <!-- Scheduled option -->
-          <button
-            class="pay-option"
-            [class.pay-option--active]="scheduleMode() === 'scheduled'"
-            (click)="scheduleMode.set('scheduled')"
-            style="padding: 12px 16px;"
-          >
-            <span style="flex-grow: 1; text-align: left;">
-              <span class="pay-option__title">Schedule for Later</span>
-              <span class="pay-option__sub">Pick a date and time at least 30 minutes from now.</span>
-            </span>
-            <span class="pay-option__check">✓</span>
-          </button>
-        </div>
+        <ktk-segmented-tabs
+          [segments]="scheduleSegments"
+          [activeValue]="scheduleMode()"
+          [fullWidth]="true"
+          (valueChange)="onScheduleChange($event)">
+        </ktk-segmented-tabs>
 
         <!-- Datetime picker — shown only when "scheduled" is active -->
         @if (scheduleMode() === 'scheduled') {
-          <div style="margin-top: 10px;">
-            <input
+          <div class="datetime-picker" style="margin-top: 10px;">
+            <ktk-form-field
+              label=""
               type="datetime-local"
-              class="checkout-field__input"
-              [min]="minScheduleDateTime()"
               [value]="scheduledAt()"
-              (input)="scheduledAt.set($any($event.target).value)"
-              style="color: var(--bakery-dark);"
-            >
-            @if (touched() && scheduleError()) {
-              <p class="checkout-field__error">{{ scheduleError() }}</p>
-            }
-            @if (scheduledAt() && !scheduleError()) {
-              <p style="font-family: 'Inter', sans-serif; font-size: 0.78rem; color: var(--bakery-status-finished); margin: 5px 0 0; font-weight: 600;">
-                ✓ Scheduled for {{ scheduledAt() | date:'EEE, MMM d · h:mm a' }}
-              </p>
-            }
+              (valueChange)="scheduledAt.set($event)"
+              [error]="scheduleError() ?? ''"
+              [hint]="scheduledAt() && !scheduleError() ? ('✓ Scheduled for ' + (scheduledAt() | date:'EEE, MMM d · h:mm a')) : ''"
+              [min]="minScheduleDateTime()">
+            </ktk-form-field>
           </div>
         }
-
       </div>
-
     </div>
-  </div>
+  </section>
 
-  <!-- ── 4 · Payment ────────────────────────────────────────────────── -->
-  <div class="bakery-section" style="padding: 28px 20px;">
-    <p class="bakery-section-eyebrow">Step 4 of 4</p>
-    <h2 class="bakery-section-title" style="margin-bottom: 14px;">Payment Method</h2>
+  <!-- ── Step 4: Payment ────────────────────────────────────────────────── -->
+  <section class="checkout-section" aria-labelledby="step4-title">
+    <h2 id="step4-title" class="checkout-section-title">Step 4: Payment Method</h2>
+    <ktk-segmented-tabs
+      [segments]="paymentSegments"
+      [activeValue]="payment()"
+      [fullWidth]="true"
+      (valueChange)="onPaymentChange($event)">
+    </ktk-segmented-tabs>
+  </section>
 
-    <div style="display: grid; gap: 10px;">
-      <button class="pay-option" [class.pay-option--active]="payment() === 'cod'" (click)="payment.set('cod')">
-        <span style="flex-grow: 1; text-align: left;">
-          <span class="pay-option__title">Cash on Delivery</span>
-          <span class="pay-option__sub">
-            @if (fulfillment() === 'pickup') { Pay at the counter when you pick up. }
-            @else { Pay the driver when your order arrives. }
-          </span>
-        </span>
-        <span class="pay-option__check">✓</span>
-      </button>
-
-      <button class="pay-option" [class.pay-option--active]="payment() === 'card'" (click)="payment.set('card')">
-        <span style="flex-grow: 1; text-align: left;">
-          <span class="pay-option__title">Credit / Debit Card</span>
-          <span class="pay-option__sub">Visa, Mastercard, JCB via PayMongo</span>
-        </span>
-        <span class="pay-option__check">✓</span>
-      </button>
-
-      <button class="pay-option" [class.pay-option--active]="payment() === 'gcash'" (click)="payment.set('gcash')">
-        <span style="flex-grow: 1; text-align: left;">
-          <span class="pay-option__title">GCash</span>
-          <span class="pay-option__sub">Pay with your GCash wallet</span>
-        </span>
-        <span class="pay-option__check">✓</span>
-      </button>
-
-      <button class="pay-option" [class.pay-option--active]="payment() === 'paymaya'" (click)="payment.set('paymaya')">
-        <span style="flex-grow: 1; text-align: left;">
-          <span class="pay-option__title">Maya</span>
-          <span class="pay-option__sub">Pay with your Maya account</span>
-        </span>
-        <span class="pay-option__check">✓</span>
-      </button>
-
-      <button class="pay-option" [class.pay-option--active]="payment() === 'grab_pay'" (click)="payment.set('grab_pay')">
-        <span style="flex-grow: 1; text-align: left;">
-          <span class="pay-option__title">GrabPay</span>
-          <span class="pay-option__sub">Pay with your Grab wallet</span>
-        </span>
-        <span class="pay-option__check">✓</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- ── Summary + place order ─────────────────────────────────────── -->
-  <div style="background: var(--bakery-dark); padding: 24px 20px 40px;">
+  <!-- ── Summary + Place Order ───────────────────────────────────────────── -->
+  <section class="checkout-summary" style="background: var(--ktk-primary); padding: 24px 20px 40px; margin-top: 20px;">
 
     <!-- ── Apply Discount / Voucher ───────────────────────────────── -->
-    <div style="background: var(--bakery-dark); border-radius: 16px; border: 1px solid rgba(249, 230, 168,0.14); padding: 16px 18px; margin-bottom: 12px;">
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 800; color: var(--bakery-card); margin: 0 0 10px;">
-        Apply Discount / Voucher
-      </p>
+    <div class="voucher-section" style="background: var(--ktk-primary); border-radius: 16px; border: 1px solid rgba(250, 248, 242, 0.14); padding: 16px 18px; margin-bottom: 12px;">
+      <p class="section-title">Apply Discount / Voucher</p>
 
       <!-- ── Promo code entry ─────────────────────────────────────── -->
-      <div style="display: flex; gap: 8px; margin-bottom: 12px; align-items: center;">
+      <div class="promo-row" style="display: flex; gap: 8px; margin-bottom: 12px; align-items: center;">
         <input
           type="text"
           placeholder="Enter promo code, e.g. BREADLOVER"
           [value]="promoCode()"
           (input)="promoCode.set($any($event.target).value); clearPromoMessages()"
-          style="
-            flex: 1; min-width: 0; padding: 10px 12px; border: 1.5px solid rgba(249, 230, 168,0.2);
-            border-radius: 10px; background: rgba(249, 230, 168,0.08); color: var(--bakery-card);
-            font-family: 'Inter', sans-serif; font-size: 0.8rem; letter-spacing: 1px;
-            text-transform: uppercase; outline: none;
-          "
-        >
-        <ion-button
-          size="small"
+          class="promo-input">
+        <ktk-button
+          variant="accent"
+          size="sm"
           [disabled]="promoApplying()"
-          (click)="applyPromoCode()"
-          style="--background: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 10px; --padding-start: 14px; --padding-end: 14px; font-weight: 700; font-size: 0.74rem; height: 38px; flex-shrink: 0;"
-        >
+          (onClick)="applyPromoCode()"
+          style="--border-radius: 10px; font-weight: 700; font-size: 0.74rem; height: 38px; flex-shrink: 0;">
           {{ promoApplying() ? '…' : 'Apply' }}
-        </ion-button>
+        </ktk-button>
       </div>
 
       @if (promoMessage(); as msg) {
-        <p style="margin: 0 0 12px; font-size: 0.76rem; font-family: 'Inter', sans-serif; {{ msg.ok ? 'color: var(--bakery-success-light);' : 'color: var(--bakery-error-light);' }}">
+        <p class="promo-msg" [style.color]="msg.ok ? 'var(--ktk-success)' : 'var(--ktk-error)'">
           {{ msg.text }}
         </p>
       }
 
       @if (vouchersLoading()) {
-        <div style="display: flex; align-items: center; gap: 8px; color: rgba(249, 230, 168,0.7); font-size: 0.8rem;">
-          <ion-spinner name="crescent" color="medium" style="width: 18px; height: 18px;"></ion-spinner>
-          Loading your vouchers…
-        </div>
+        <div class="loading-vouchers">Loading your vouchers…</div>
       } @else if (vouchersError(); as err) {
-        <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
-          <p style="color: var(--bakery-error-light); font-size: 0.78rem; margin: 0;">{{ err }}</p>
-          <ion-button
-            fill="outline"
-            size="small"
-            (click)="retryLoadVouchers()"
-            style="--border-color: var(--bakery-burnt); --color: var(--bakery-burnt); --border-radius: 8px; font-size: 0.7rem; font-weight: 700;"
-          >
-            Retry
-          </ion-button>
-        </div>
+        <ktk-error-state
+          type="server"
+          [message]="err"
+          [retryable]="true"
+          (onRetry)="retryLoadVouchers()">
+        </ktk-error-state>
       } @else if (claimedVouchers().length === 0) {
-        <p style="color: rgba(249, 230, 168,0.65); font-size: 0.78rem; margin: 0;">
-          No claimed vouchers yet.
-          <a routerLink="/promotions" style="color: var(--bakery-dark); font-weight: 700; text-decoration: none;">Browse promotions →</a>
-        </p>
+        <p class="no-vouchers">No claimed vouchers yet. <a routerLink="/promotions">Browse promotions →</a></p>
       } @else {
-        <select
-          class="checkout-field__input"
-          [value]="selectedVoucher()?.id ?? ''"
-          (change)="onVoucherChange($any($event.target).value)"
-          style="width: 100%; color: var(--bakery-dark);"
-        >
-          <option value="">No voucher</option>
-          @for (claim of claimedVouchers(); track claim.id) {
-            <option [value]="claim.voucher_id">{{ voucherLabel(claim) }}</option>
-          }
-        </select>
+        <ktk-segmented-tabs
+          [segments]="voucherSegments()"
+          [activeValue]="selectedVoucher()?.id ?? ''"
+          [fullWidth]="true"
+          (valueChange)="onVoucherChange($event)">
+        </ktk-segmented-tabs>
 
         @if (selectedVoucher(); as v) {
-          <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
-            <span style="color: var(--bakery-success-light); font-weight: 700; font-size: 0.78rem;">
-              {{ v.discount_type === 'percent' ? v.discount_value + '% off' : formatPrice(v.discount_value) + ' off' }}
+          <div class="voucher-applied" style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+            <span class="discount-badge">
+              {{ v.discount_type === 'percent' ? v.discount_value + '% off' : formatPrice(v.discount_value ?? 0) + ' off' }}
               @if (v.max_discount != null) { · up to {{ formatPrice(v.max_discount) }} }
             </span>
-            <button
-              (click)="clearVoucher()"
-              style="background: none; border: none; color: var(--bakery-error-light); font-size: 0.75rem; font-family: 'Inter', sans-serif; cursor: pointer; padding: 0; text-decoration: underline;"
-            >
-              Remove
-            </button>
+            <ktk-button variant="ghost" size="sm" (onClick)="clearVoucher()">Remove</ktk-button>
           </div>
           @if (voucherNote(); as note) {
-            <p style="color: var(--bakery-error-light); font-size: 0.75rem; margin: 8px 0 0;">{{ note }}</p>
+            <p class="voucher-note" style="color: var(--ktk-error); font-size: 0.75rem; margin: 8px 0 0;">{{ note }}</p>
           }
         }
       }
     </div>
 
-    <div style="background: var(--bakery-dark); border-radius: 16px; border: 1px solid rgba(249, 230, 168,0.14); padding: 18px 18px 6px;">
+    <!-- ── Order Summary ──────────────────────────────────────────────── -->
+    <div class="summary-card" style="background: var(--ktk-primary); border-radius: 16px; border: 1px solid rgba(250, 248, 242, 0.14); padding: 18px 18px 6px;">
       <div class="summary-row">
         <span>Subtotal ({{ itemCount() }} item{{ itemCount() === 1 ? '' : 's' }})</span>
         <span>{{ formatPrice(subtotal()) }}</span>
       </div>
       @if (discount() > 0) {
-        <div class="summary-row" style="color: var(--bakery-success-light);">
-          <span>
-            Discount
-            @if (selectedVoucher(); as v) { ({{ v.code }}) }
-          </span>
-          <span style="color: var(--bakery-success-light); font-weight: 700;">− {{ formatPrice(discount()) }}</span>
+        <div class="summary-row discount-row">
+          <span>Discount @if (selectedVoucher(); as v) { ({{ v.code }}) }</span>
+          <span>− {{ formatPrice(discount()) }}</span>
         </div>
       }
       <div class="summary-row">
-        <span>
-          @if (fulfillment() === 'pickup') { Pickup (no delivery fee) } @else { Delivery fee }
-        </span>
+        <span>@if (fulfillment() === 'pickup') { Pickup (no delivery fee) } @else { Delivery fee }</span>
         @if (displayDeliveryFee() === 0) {
-          <span style="color: var(--bakery-success-light); font-weight: 700;">FREE</span>
+          <span class="free">FREE</span>
         } @else {
           <span>{{ formatPrice(displayDeliveryFee()) }}</span>
         }
@@ -470,79 +283,52 @@
         <span>{{ formatPrice(tax()) }}</span>
       </div>
       @if (scheduleMode() === 'scheduled' && scheduledAt()) {
-        <div class="summary-row" style="color: rgba(249, 230, 168,0.6);">
-          <span>
-            @if (fulfillment() === 'pickup') { Pickup scheduled } @else { Delivery scheduled }
-          </span>
+        <div class="summary-row schedule-row">
+          <span>@if (fulfillment() === 'pickup') { Pickup scheduled } @else { Delivery scheduled }</span>
           <span style="font-size: 0.78rem;">{{ scheduledAt() | date:'MMM d, h:mm a' }}</span>
         </div>
       }
-      <div
-        class="summary-row"
-        style="border-top: 1px solid rgba(249, 230, 168,0.14); padding-top: 12px; margin-top: 4px;"
-      >
+      <div class="summary-row grand-total" style="border-top: 1px solid rgba(250, 248, 242, 0.14); padding-top: 12px; margin-top: 4px;">
         <span style="font-weight: 800;">Estimated total</span>
-        <span style="font-weight: 800; color: var(--bakery-navbar);">{{ formatPrice(displayTotal()) }}</span>
+        <span style="font-weight: 800; color: var(--ktk-accent);">{{ formatPrice(displayTotal()) }}</span>
       </div>
       @if (fulfillment() === 'delivery' && displayDeliveryFee() === 0) {
-        <p style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: var(--bakery-success-light); margin: 6px 0 0;">
-          You unlocked FREE delivery on orders over ₱500!
-        </p>
+        <p class="free-delivery-msg">You unlocked FREE delivery on orders over ₱500!</p>
       }
     </div>
 
     @if (orderError()) {
-      <div style="background: rgba(204, 111, 0,0.18); color: var(--bakery-error-light); border-radius: 10px; padding: 12px 14px; margin-top: 12px; font-family: 'Inter', sans-serif; font-size: 0.82rem;">
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          <span>{{ orderError() }}</span>
-          <ion-button
-            fill="outline"
-            size="small"
-            (click)="placeOrder()"
-            [disabled]="placing()"
-            style="--border-color: var(--bakery-burnt); --color: var(--bakery-burnt); --border-radius: 8px; font-size: 0.7rem; font-weight: 700; align-self: flex-start;"
-          >
-            Retry
-          </ion-button>
-        </div>
-      </div>
+      <ktk-error-state
+        type="server"
+        [message]="orderError() ?? ''"
+        [retryable]="true"
+        (onRetry)="placeOrder()">
+      </ktk-error-state>
     }
 
     @if (touched() && (hasErrors() || scheduleError())) {
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.8rem; color: var(--bakery-error-light); margin: 12px 0 0;">
-        Please fix the highlighted fields above before placing your order.
-      </p>
+      <p class="form-error">Please fix the highlighted fields above before placing your order.</p>
     }
 
-<ion-button
-      expand="block"
-      (click)="placeOrder()"
+    <ktk-button
+      variant="accent"
+      size="lg"
       [disabled]="placing()"
-      style="
-        --background: var(--bakery-burnt);
-        --background-activated: var(--bakery-burnt);
-        --color: var(--bakery-dark);
-        --border-radius: 12px;
-        --box-shadow: 0 4px 16px rgba(204, 111, 0,0.35);
-        --padding-top: 16px;
-        --padding-bottom: 16px;
-        font-weight: 800;
-        font-size: 0.95rem;
-        margin-top: 16px;
-      "
-    >
+      (onClick)="placeOrder()"
+      style="--border-radius: 12px; --box-shadow: 0 4px 16px rgba(204, 111, 0, 0.35); font-weight: 800; font-size: 0.95rem; margin-top: 16px;">
       @if (placing()) {
         Placing order…
       } @else {
         @if (fulfillment() === 'pickup') { Place Pickup Order } @else { Place Delivery Order }
         · {{ formatPrice(displayTotal()) }}
       }
-    </ion-button>
+    </ktk-button>
 
     <!-- Bottom padding to prevent floating cart button overlap -->
     <div style="height: 100px;"></div>
 
-  </div>
+  </section>
 
   } <!-- /not empty -->
+
 </ion-content>

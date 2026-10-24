@@ -1,4 +1,6 @@
 import { Injectable, inject } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 import { DatabaseService } from './database.service';
 import { environment } from '../../environments/environment';
 
@@ -35,7 +37,13 @@ export class PaymentService {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({ order_id: orderId, payment_method: paymentMethod }),
+      body: JSON.stringify({
+        order_id: orderId,
+        payment_method: paymentMethod,
+        // Tells the server where to send the customer after paying: back into
+        // the installed app ('app') or to the website ('web').
+        client: Capacitor.isNativePlatform() ? 'app' : 'web',
+      }),
     });
 
     const result = await response.json() as CreatePaymentResponse;
@@ -45,6 +53,20 @@ export class PaymentService {
     }
 
     return result;
+  }
+
+  /**
+   * Opens the PayMongo checkout page.
+   * - Website: normal redirect.
+   * - Installed app: an in-app browser tab, so the app stays alive and can be
+   *   reopened by the payment-return deep link afterwards.
+   */
+  async openCheckout(url: string): Promise<void> {
+    if (Capacitor.isNativePlatform()) {
+      await Browser.open({ url });
+    } else {
+      window.location.href = url;
+    }
   }
 
   /**

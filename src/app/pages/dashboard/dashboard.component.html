@@ -1,26 +1,12 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-menu-button slot="start"></ion-menu-button>
-    <ion-title>Dashboard</ion-title>
-    <ion-buttons slot="end">
-      <ion-button
-        routerLink="/bread-catalog"
-        size="small"
-        style="--background: var(--bakery-button); --background-activated: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 8px; --padding-start: 14px; --padding-end: 14px; --margin-end: 16px; font-weight: 700; font-size: 0.8rem; white-space: nowrap;"
-      >
-        Order Now
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ktk-page-header title="Dashboard" [showNotifications]="true" />
 
 <ion-content class="page-content" [scrollY]="true">
 
   <!-- ── 1. Hero Banner ──────────────────────────────────────────────── -->
-  <div class="bakery-hero" id="home">
+  <section class="bakery-hero" id="home" aria-labelledby="hero-title">
     <div class="bakery-hero__left">
       <p class="bakery-hero__eyebrow">What Are You Craving</p>
-      <h1 class="bakery-hero__headline">
+      <h1 id="hero-title" class="bakery-hero__headline">
         Baking Smiles,<br>One Pastry<br>At A Time.
       </h1>
       <p class="bakery-hero__sub">
@@ -30,116 +16,96 @@
         <span class="rating-badge">4.8 ★★★★★</span>
         <span class="rating-stars">2,400+ reviews</span>
       </div>
-      <ion-button class="bakery-hero__cta" routerLink="/bread-catalog">
+      <ktk-button variant="accent" size="lg" routerLink="/bread-catalog">
         Browse Menu
-      </ion-button>
+      </ktk-button>
     </div>
     <div class="bakery-hero__right">
       <div class="bakery-hero__splash"></div>
       <img
         class="bakery-hero__img"
         src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=320&h=320&fit=crop&auto=format"
-        alt="Freshly baked croissants" (error)="$any($event.target).style.display='none'"
+        alt="Freshly baked croissants"
+        (error)="$any($event.target).style.display='none'"
       >
     </div>
-  </div>
+  </section>
 
   <!-- ── 2. Category Circles (derived from catalog) ─────────────────── -->
   @if (categoryCircles().length > 0) {
-    <div class="bakery-section bakery-section--beige" style="padding-bottom: 24px;">
+    <section class="bakery-section bakery-section--beige" aria-labelledby="services-title" style="padding-bottom: 24px;">
       <p class="bakery-section-eyebrow" style="text-align: center;">Services</p>
-      <h2 class="bakery-section-title" style="text-align: center;">
-        Sweet, Fluffy &amp; Delicious<br>Relishment
+      <h2 id="services-title" class="bakery-section-title" style="text-align: center;">
+        Sweet, Fluffy & Delicious<br>Relishment
       </h2>
-      <div class="bakery-cats">
+      <div class="category-grid" role="list">
         @for (cat of categoryCircles(); track cat.label) {
-          <div class="bakery-cat">
-            <div class="bakery-cat__circle">
-              @if (cat.img) {
-                <img [src]="cat.img" [alt]="cat.label" (error)="$any($event.target).style.display='none'">
-              } @else {
-                <ion-icon name="nutrition-outline" style="font-size: 1.4rem; color: var(--bakery-dark);"></ion-icon>
-              }
-            </div>
-            <span class="bakery-cat__label">{{ cat.label }}</span>
-          </div>
+          <ktk-category-tile
+            [label]="cat.label"
+            [image]="cat.img"
+            [pastelIndex]="cat.pastelIndex"
+            role="listitem">
+          </ktk-category-tile>
         }
       </div>
-    </div>
+    </section>
   }
 
   <!-- ── 3. Category Filter Pills + Product Grid ─────────────────────── -->
-  <div class="bakery-section bakery-section--cream" style="padding-top: 32px; padding-bottom: 0;">
+  <section class="bakery-section bakery-section--cream" aria-labelledby="products-title" style="padding-top: 32px; padding-bottom: 0;">
     <p class="bakery-section-eyebrow">Our Premium Product</p>
-    <h2 class="bakery-section-title">Handcrafted With Love</h2>
-  </div>
+    <h2 id="products-title" class="bakery-section-title">Handcrafted With Love</h2>
+  </section>
 
   <!-- Scrollable pills (derived from catalog) -->
-  <div class="bakery-pills">
+  <div class="bakery-pills" role="tablist" aria-label="Product categories">
     @for (cat of categories(); track cat) {
       <button
+        role="tab"
+        [attr.aria-selected]="activeCategory() === cat"
         class="bakery-pill"
         [class.bakery-pill--active]="activeCategory() === cat"
         [class.bakery-pill--inactive]="activeCategory() !== cat"
-        (click)="activeCategory.set(cat)"
-      >
+        (click)="activeCategory.set(cat)">
         {{ cat }}
       </button>
     }
   </div>
 
   <!-- Product grid -->
-  <div style="background: var(--bakery-card); padding: 0 12px 32px;">
+  <div class="product-grid-wrapper" style="background: var(--ktk-card-bg); padding: 0 12px 32px;">
 
     @if (errorMessage(); as err) {
-      <div style="text-align: center; padding: 36px 20px;">
-        <p style="font-size: 2rem; margin: 0 0 10px;">(!)</p>
-        <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: var(--bakery-dark); margin: 0 0 6px;">Could not load the catalog</p>
-        <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--bakery-text-secondary); margin: 0 0 14px;">{{ err }}</p>
-        <ion-button fill="outline" (click)="loadProducts()" style="--color: var(--bakery-dark); font-size: 0.8rem;">Try again</ion-button>
-      </div>
+      <ktk-error-state
+        type="server"
+        title="Could not load the catalog"
+        [message]="err"
+        [retryable]="true"
+        (onRetry)="loadProducts()">
+      </ktk-error-state>
     } @else if (loading()) {
-      <div style="text-align: center; padding: 48px 20px;">
-        <div style="width: 34px; height: 34px; border: 3px solid var(--bakery-card-border); border-top-color: var(--bakery-dark); border-radius: 50%; margin: 0 auto 14px; animation: spin 0.8s linear infinite;"></div>
-        <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin: 0;">Loading fresh bakes…</p>
+      <div class="skeleton-grid" role="list" aria-label="Loading products">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <ktk-skeleton type="product-card" role="listitem"></ktk-skeleton>
+        }
       </div>
     } @else if (visibleProducts().length === 0) {
-      <div style="text-align: center; padding: 48px 20px;">
-        <p style="font-size: 2.5rem; margin: 0 0 12px; color:var(--bakery-text-muted); font-family:'Inter',sans-serif; font-weight:700;">—</p>
-        <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: var(--bakery-dark); margin: 0 0 6px;">Nothing here yet</p>
-        <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary);">
-          Check back soon — our bakers are hard at work!
-        </p>
-      </div>
+      <ktk-empty-state
+        illustration="box"
+        title="Nothing here yet"
+        description="Check back soon — our bakers are hard at work!">
+      </ktk-empty-state>
     } @else {
-      <div class="bakery-product-grid" role="list">
+      <div class="grid-auto-3 stagger-children" role="list">
         @for (product of visibleProducts(); track product.id) {
-          <article class="bakery-product-card" (click)="openDetail(product)" role="listitem" tabindex="0">
-            <span class="bakery-product-card__price-tag">{{ formatPrice(product.price) }}</span>
-            @if (isSoldOut(product)) {
-              <span class="bakery-product-card__status bakery-product-card__status--sold-out">Sold Out</span>
-            } @else if (isLowStock(product)) {
-              <span class="bakery-product-card__status bakery-product-card__status--low-stock">Only {{ product.stock_quantity }} left</span>
-            }
-            <div class="bakery-product-card__img-wrap">
-              @if (product.image_url) {
-                <img [src]="product.image_url" [alt]="product.name" (error)="onImageError($event)">
-              } @else {
-                <img src="logo.jpg" alt="Product" class="bakery-img-fallback">
-              }
-            </div>
-            <div class="bakery-product-card__body">
-              <p class="bakery-product-card__name">{{ product.name }}</p>
-              <p class="bakery-product-card__stars">{{ stars(product.rating) }}</p>
-              <p class="bakery-product-card__desc">{{ product.description }}</p>
-              <div class="bakery-product-card__footer">
-                <span class="bakery-product-card__price">{{ formatPrice(product.price) }}</span>
-                <ion-button class="bakery-product-card__btn" fill="solid" (click)="addToCart(product, $event)" [disabled]="isSoldOut(product)">
-                  {{ isSoldOut(product) ? 'Sold Out' : 'Buy Now' }}
-                </ion-button>
-              </div>
-            </div>
-          </article>
+          <ktk-product-card
+            [product]="product"
+            [pastelIndex]="$index"
+            [showHeart]="true"
+            (addToCart)="addToCart(product, $event)"
+            (cardClick)="openDetail(product)"
+            role="listitem">
+          </ktk-product-card>
         }
       </div>
     }
@@ -147,98 +113,92 @@
   </div>
 
   <!-- ── 4. Chef Spotlight ───────────────────────────────────────────── -->
-  <div class="bakery-chef-section">
+  <section class="bakery-chef-section" aria-labelledby="chef-title">
     <p class="bakery-section-eyebrow">Bite into Our Best</p>
-    <ion-grid style="padding: 0;">
-      <ion-row class="ion-align-items-stretch">
-        <!-- Chef photo card -->
-        <ion-col size="12" size-md="5" style="padding: 0 8px 0 0;">
-          <div class="bakery-chef-card">
-            <img
-              class="bakery-chef-card__photo"
-              src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=500&h=400&fit=crop&auto=format"
-              alt="Head Baker Emily Parker" (error)="onImageError($event)"
-            >
-            <div class="bakery-chef-card__overlay">
-              <p>"Baked Fresh Daily<br>With Love, Just For You"</p>
-            </div>
-          </div>
-        </ion-col>
+    <div class="chef-grid">
+      <!-- Chef photo card -->
+      <div class="chef-photo-card">
+        <img
+          class="chef-photo"
+          src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=500&h=400&fit=crop&auto=format"
+          alt="Head Baker Emily Parker"
+          (error)="onImageError($event)">
+        <div class="chef-overlay">
+          <p>"Baked Fresh Daily<br>With Love, Just For You"</p>
+        </div>
+      </div>
 
-        <!-- Bio + thumbnails -->
-        <ion-col size="12" size-md="7" style="padding: 0 0 0 8px;">
-          <div class="bakery-chef-info">
-            <h3 class="bakery-chef-info__name">Emily Parker</h3>
-            <p class="bakery-chef-info__bio">
-              With over 12 years of artisan baking experience, Emily brings warmth
-              and precision to every recipe. Her philosophy is simple: only the
-              freshest ingredients, baked with heart.
-            </p>
-            <div class="bakery-chef-thumb-row">
-              <div class="bakery-chef-thumb">
-                <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=160&h=100&fit=crop&auto=format" alt="Fresh bread" (error)="onImageError($event)">
-              </div>
-              <div class="bakery-chef-thumb">
-                <img src="https://images.unsplash.com/photo-1517433456452-f9633a875f6f?w=160&h=100&fit=crop&auto=format" alt="Pastries" (error)="onImageError($event)">
-              </div>
-              <div class="bakery-chef-thumb">
-                <img src="https://images.unsplash.com/photo-1499636138777-b2b6e3b9f7c6?w=160&h=100&fit=crop&auto=format" alt="Cookies" (error)="onImageError($event)">
-              </div>
-            </div>
+      <!-- Bio + thumbnails -->
+      <div class="chef-info">
+        <h3 id="chef-title" class="chef-name">Emily Parker</h3>
+        <p class="chef-bio">
+          With over 12 years of artisan baking experience, Emily brings warmth
+          and precision to every recipe. Her philosophy is simple: only the
+          freshest ingredients, baked with heart.
+        </p>
+        <div class="chef-thumb-row">
+          <div class="chef-thumb">
+            <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=160&h=100&fit=crop&auto=format" alt="Fresh bread" (error)="onImageError($event)">
           </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </div>
+          <div class="chef-thumb">
+            <img src="https://images.unsplash.com/photo-1517433456452-f9633a875f6f?w=160&h=100&fit=crop&auto=format" alt="Pastries" (error)="onImageError($event)">
+          </div>
+          <div class="chef-thumb">
+            <img src="https://images.unsplash.com/photo-1499636138777-b2b6e3b9f7c6?w=160&h=100&fit=crop&auto=format" alt="Cookies" (error)="onImageError($event)">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- ── 5. Testimonials ─────────────────────────────────────────────── -->
-  <div class="bakery-testimonial-section">
+  <section class="bakery-testimonial-section" aria-labelledby="testimonials-title">
     <p class="bakery-section-eyebrow">Happy Customers</p>
-    <h2 class="bakery-section-title">What They Say About Us</h2>
-    <ion-grid style="padding: 0;">
-      <ion-row>
-        @for (t of testimonials; track t.id) {
-          <ion-col size="12" size-md="6" style="padding: 6px;">
-            <div class="bakery-testimonial-card">
-              <div class="bakery-testimonial-card__stars">★★★★★</div>
-              <p class="bakery-testimonial-card__text">"{{ t.text }}"</p>
-              <div class="bakery-testimonial-card__author">
-                <img [src]="t.avatar" [alt]="t.author" (error)="$any($event.target).style.display='none'">
-                <div>
-                  <p class="author-name">{{ t.author }}</p>
-                  <p class="author-role">{{ t.role }}</p>
-                </div>
-              </div>
+    <h2 id="testimonials-title" class="bakery-section-title">What They Say About Us</h2>
+    <div class="testimonial-grid stagger-children">
+      @for (t of testimonials; track t.id) {
+        <article class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"{{ t.text }}"</p>
+          <div class="testimonial-author">
+            <img [src]="t.avatar" [alt]="t.author" (error)="$any($event.target).style.display='none'">
+            <div>
+              <p class="author-name">{{ t.author }}</p>
+              <p class="author-role">{{ t.role }}</p>
             </div>
-          </ion-col>
-        }
-      </ion-row>
-    </ion-grid>
-  </div>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
 
   <!-- ── 6. Newsletter / CTA Footer ──────────────────────────────────── -->
-  <div class="bakery-newsletter">
+  <section class="bakery-newsletter" aria-labelledby="newsletter-title">
     <p class="bakery-newsletter__eyebrow">Stay In The Loop</p>
-    <h2 class="bakery-newsletter__headline">
+    <h2 id="newsletter-title" class="bakery-newsletter__headline">
       Ready For Delicious Bakes?
     </h2>
     <p class="bakery-newsletter__sub">
       Subscribe and get exclusive deals, fresh arrivals, and baking tips
       delivered straight to your inbox.
     </p>
-    <div class="bakery-newsletter__form">
+    <div class="newsletter-form">
       <ion-input
-        class="bakery-newsletter__input"
         type="email"
         placeholder="Enter your email address"
         [value]="email()"
         (ionInput)="email.set($event.detail.value ?? '')"
-      ></ion-input>
-      <ion-button class="bakery-newsletter__btn" fill="solid" (click)="handleSubscribe()" [disabled]="subscribed()">
+        class="newsletter-input">
+      </ion-input>
+      <ktk-button
+        variant="accent"
+        size="lg"
+        (onClick)="handleSubscribe()"
+        [disabled]="subscribed()">
         {{ subscribed() ? '✓ Subscribed!' : 'Subscribe' }}
-      </ion-button>
+      </ktk-button>
     </div>
-  </div>
+  </section>
 
 </ion-content>
 
@@ -246,6 +206,6 @@
 @if (selectedProduct(); as product) {
   <app-product-detail-modal
     [product]="product"
-    (dismiss)="closeDetail()"
-  ></app-product-detail-modal>
+    (dismiss)="closeDetail()">
+  </app-product-detail-modal>
 }

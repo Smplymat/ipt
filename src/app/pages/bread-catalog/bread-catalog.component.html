@@ -1,17 +1,12 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-menu-button slot="start"></ion-menu-button>
-    <ion-title>Bread Catalog</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ktk-page-header title="Shop" [showNotifications]="true" />
 
 <ion-content class="page-content" [scrollY]="true">
 
   <!-- ── Hero / Page intro ─────────────────────────────────────────────── -->
-  <div class="bakery-hero bakery-hero--catalog">
+  <section class="bakery-hero bakery-hero--catalog" aria-labelledby="catalog-title">
     <div class="bakery-hero__inner">
       <p class="bakery-section-eyebrow">Our Menu</p>
-      <h2 class="bakery-section-title">Browse Our Fresh Bakes</h2>
+      <h1 id="catalog-title" class="bakery-section-title">Browse Our Fresh Bakes</h1>
       <p class="bakery-section-subtitle">
         Every item is made from scratch each morning with locally sourced ingredients.
       </p>
@@ -25,148 +20,102 @@
           placeholder="Search breads, cakes, pastries…"
           [value]="searchQuery()"
           (input)="searchQuery.set($any($event.target).value)"
-          aria-label="Search breads, cakes, pastries"
-        >
+          aria-label="Search breads, cakes, pastries">
         @if (searchQuery().trim().length > 0) {
           <button
             class="bakery-search__clear"
             (click)="searchQuery.set('')"
-            aria-label="Clear search"
-          >✕</button>
+            aria-label="Clear search">✕</button>
         }
       </div>
 
       <!-- ── Filter / Sort toggle ─────────────────────────────────────── -->
       <div style="display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap;">
-        <ion-button
-          fill="outline"
+        <ktk-button
+          variant="outline"
           (click)="filtersOpen.set(!filtersOpen())"
-          [color]="filtersOpen() ? 'primary' : 'medium'"
-          style="--padding-start: 14px; --padding-end: 14px; --border-radius: 10px; --padding-top: 7px; --padding-bottom: 7px; font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600;"
-        >
+          [class.active]="filtersOpen()"
+          style="--border-radius: 10px; font-size: 0.8rem;">
           <ion-icon name="options-outline" slot="start" aria-hidden="true"></ion-icon>
           Filters & Sort
           @if (hasActiveFilters()) {
-            <span style="background: var(--bakery-burnt); color: var(--bakery-base); border-radius: 50%; width: 16px; height: 16px; font-size: 0.65rem; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; margin-left: 6px;">
-              ●
-            </span>
+            <span class="filter-badge">●</span>
           }
-        </ion-button>
+        </ktk-button>
         @if (hasActiveFilters()) {
-          <ion-button fill="clear" (click)="clearAllFilters()" style="--color: var(--bakery-text-muted); font-size: 0.78rem; font-family: 'Inter', sans-serif;">
-            Clear all
-          </ion-button>
+          <ktk-button variant="ghost" (click)="clearAllFilters()" size="sm">Clear all</ktk-button>
         }
       </div>
 
       <!-- ── Expandable filter / sort panel ──────────────────────────── -->
       @if (filtersOpen()) {
-        <div style="
-          background: var(--bakery-card);
-          border: 1.5px solid var(--bakery-card-border);
-          border-radius: 14px;
-          padding: 18px 16px;
-          margin-top: 10px;
-          display: grid;
-          gap: 16px;
-        ">
+        <div class="filter-panel">
           <!-- Price range -->
           <div>
-            <p style="font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--bakery-text-secondary); letter-spacing: 0.8px; margin: 0 0 8px;">
-              PRICE RANGE (₱)
-            </p>
-            <div style="display: flex; gap: 10px; align-items: center;">
+            <p class="filter-label">PRICE RANGE (₱)</p>
+            <div class="price-range-inputs">
               <input
                 type="number"
                 min="0"
                 placeholder="Min"
                 [value]="priceMin() ?? ''"
                 (input)="setPriceMin($any($event.target).value)"
-                style="
-                  flex: 1; padding: 9px 12px; border: 1.5px solid var(--bakery-card-border);
-                  border-radius: 10px; font-family: 'Inter', sans-serif;
-                  font-size: 0.85rem; color: var(--bakery-dark); background: var(--bakery-card); outline: none;
-                "
-              >
-              <span style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-muted);">–</span>
+                class="filter-input">
+              <span class="range-separator">–</span>
               <input
                 type="number"
                 min="0"
                 placeholder="Max"
                 [value]="priceMax() ?? ''"
                 (input)="setPriceMax($any($event.target).value)"
-                style="
-                  flex: 1; padding: 9px 12px; border: 1.5px solid var(--bakery-card-border);
-                  border-radius: 10px; font-family: 'Inter', sans-serif;
-                  font-size: 0.85rem; color: var(--bakery-dark); background: var(--bakery-card); outline: none;
-                "
-              >
+                class="filter-input">
             </div>
             @if (maxProductPrice() > 0) {
-              <p style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: var(--bakery-text-muted); margin: 5px 0 0;">
-                Items range from ₱0 – {{ formatPrice(maxProductPrice()) }}
-              </p>
+              <p class="filter-hint">Items range from ₱0 – {{ formatPrice(maxProductPrice()) }}</p>
             }
           </div>
 
           <!-- Sort -->
           <div>
-            <p style="font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--bakery-text-secondary); letter-spacing: 0.8px; margin: 0 0 8px;">
-              SORT BY
-            </p>
-            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-              @for (opt of [
-                { key: 'default',     label: 'Newest first' },
-                { key: 'rating_desc', label: 'Most popular' },
-                { key: 'price_asc',   label: 'Price: low to high' },
-                { key: 'price_desc',  label: 'Price: high to low' }
-              ]; track opt.key) {
-                <button
-                  (click)="sortKey.set($any(opt.key))"
-                  style="
-                    padding: 7px 14px; border-radius: 20px; border: 1.5px solid;
-                    font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 600;
-                    cursor: pointer; transition: all 0.15s;
-                  "
-                  [style.background]="sortKey() === opt.key ? 'var(--bakery-burnt)' : 'var(--bakery-card)'"
-                  [style.border-color]="sortKey() === opt.key ? 'var(--bakery-burnt)' : 'var(--bakery-card-border)'"
-                  [style.color]="sortKey() === opt.key ? '#fff' : 'var(--bakery-dark)'"
-                >
-                  {{ opt.label }}
-                </button>
-              }
-            </div>
+            <p class="filter-label">SORT BY</p>
+            <ktk-segmented-tabs
+              [segments]="sortOptions()"
+              [activeValue]="sortKey()"
+              [fullWidth]="false"
+              (valueChange)="onSortChange($event)">
+            </ktk-segmented-tabs>
           </div>
         </div>
       }
 
       <!-- ── Category pill filters ────────────────────────────────────────── -->
-      <div class="bakery-pills" style="margin-top: 16px; background: transparent; padding-bottom: 0;">
+      <div class="bakery-pills" role="tablist" aria-label="Product categories" style="margin-top: 16px;">
         @for (f of filters(); track f) {
           <button
+            role="tab"
+            [attr.aria-selected]="active() === f"
             class="bakery-pill"
             [class.bakery-pill--active]="active() === f"
             [class.bakery-pill--inactive]="active() !== f"
-            (click)="active.set(f)"
-          >
+            (click)="active.set(f)">
             {{ f }}
           </button>
         }
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- ── Product grid grouped by category ───────────────────────────── -->
-  <div style="background: var(--bakery-card); padding: 8px 12px 24px;">
+  <div class="product-grid-wrapper" style="background: var(--ktk-card-bg); padding: 8px 12px 24px;">
 
     <!-- result count + active filter summary -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin: 4px 4px 12px; flex-wrap: wrap; gap: 4px;">
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.78rem; color: var(--bakery-text-secondary); margin: 0;">
-        Showing <strong style="color: var(--bakery-dark);">{{ visible().length }}</strong> item{{ visible().length === 1 ? '' : 's' }}
-        @if (active() !== 'All') { in <strong style="color: var(--bakery-dark);">{{ active() }}</strong> }
+    <div class="results-header" style="display: flex; justify-content: space-between; align-items: center; margin: 4px 4px 12px; flex-wrap: wrap; gap: 4px;">
+      <p class="results-count">
+        Showing <strong>{{ visible().length }}</strong> item{{ visible().length === 1 ? '' : 's' }}
+        @if (active() !== 'All') { in <strong>{{ active() }}</strong> }
       </p>
       @if (sortKey() !== 'default') {
-        <span style="font-family: 'Inter', sans-serif; font-size: 0.72rem; color: var(--bakery-dark); font-weight: 600;">
+        <span class="sort-indicator">
           @if (sortKey() === 'rating_desc') { By popularity }
           @else if (sortKey() === 'price_asc') { Price low-high }
           @else if (sortKey() === 'price_desc') { Price high-low }
@@ -175,108 +124,67 @@
     </div>
 
     @if (errorMessage(); as err) {
-      <div style="text-align: center; padding: 48px 24px;">
-        <p style="font-size: 2rem; margin: 0 0 10px;">(!)</p>
-        <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: var(--bakery-dark); margin: 0 0 6px;">Could not load the menu</p>
-        <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--bakery-text-secondary); margin: 0 0 14px;">{{ err }}</p>
-        <ion-button fill="outline" (click)="loadProducts()" style="--color: var(--bakery-dark); font-size: 0.8rem;">Try again</ion-button>
-      </div>
+      <ktk-error-state
+        type="server"
+        title="Could not load the menu"
+        [message]="err"
+        [retryable]="true"
+        (onRetry)="loadProducts()">
+      </ktk-error-state>
     } @else if (loading()) {
-      <div style="padding: 0 4px 24px;">
+      <div class="skeleton-grid" role="list" aria-label="Loading products">
         @for (i of [1,2,3,4,5,6]; track i) {
-          <div class="bakery-skeleton-card">
-            <div class="bakery-skeleton-line" style="width: 60px; height: 10px; margin-bottom: 12px;"></div>
-            <div class="bakery-skeleton-line" style="width: 100%; height: 140px; border-radius: 12px 12px 0 0;"></div>
-            <div class="bakery-skeleton-line" style="width: 80%; height: 16px; margin: 12px 0 8px;"></div>
-            <div class="bakery-skeleton-line" style="width: 60%; height: 12px; margin-bottom: 8px;"></div>
-            <div class="bakery-skeleton-line" style="width: 100%; height: 12px; margin-bottom: 8px;"></div>
-            <div class="bakery-skeleton-line" style="width: 100%; height: 12px; margin-bottom: 12px;"></div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div class="bakery-skeleton-line" style="width: 50px; height: 20px;"></div>
-              <div class="bakery-skeleton-line" style="width: 96px; height: 44px; border-radius: 8px;"></div>
-            </div>
-          </div>
+          <ktk-skeleton type="product-card" role="listitem"></ktk-skeleton>
         }
       </div>
+    } @else if (visible().length === 0) {
+      <ktk-empty-state
+        illustration="search"
+        title="No results found"
+        description="Try adjusting your search or filters."
+        actionLabel="Clear filters"
+        (onAction)="clearAllFilters()">
+      </ktk-empty-state>
     } @else {
-
       @for (group of groupedProducts(); track group.category) {
-
         <div class="catalog-category-header">
           <span class="catalog-category-header__label">{{ group.category }}</span>
           <span class="catalog-category-header__count">{{ group.items.length }} item{{ group.items.length === 1 ? '' : 's' }}</span>
         </div>
 
-        <div class="bakery-product-grid" role="list">
+        <div class="grid-auto-3 stagger-children" role="list">
           @for (product of group.items; track product.id) {
-            <article class="bakery-product-card" (click)="openDetail(product)" role="listitem" tabindex="0">
-              <span class="bakery-product-card__price-tag">{{ formatPrice(product.price) }}</span>
-
-              <span class="bakery-product-card__category-tag">{{ product.category }}</span>
-
-              @if (isSoldOut(product)) {
-                <span class="bakery-product-card__status bakery-product-card__status--sold-out">Sold Out</span>
-              } @else if (isLowStock(product)) {
-                <span class="bakery-product-card__status bakery-product-card__status--low-stock">Only {{ product.stock_quantity }} left</span>
-              }
-
-              @if (product.ingredients || product.nutritional_value || product.extra_info?.length) {
-                <span class="bakery-product-card__details-badge">ℹ Details</span>
-              }
-
-              <div class="bakery-product-card__img-wrap">
-                @if (product.image_url) {
-                  <img [src]="product.image_url" [alt]="product.name" (error)="onImageError($event)">
-                } @else {
-                  <img src="logo.jpg" alt="Product" class="bakery-img-fallback">
-                }
-              </div>
-
-              <div class="bakery-product-card__body">
-                <p class="bakery-product-card__name">{{ product.name }}</p>
-                <p class="bakery-product-card__stars">{{ stars(product.rating) }}</p>
-                <p class="bakery-product-card__desc">{{ product.description }}</p>
-                <div class="bakery-product-card__footer">
-                  <span class="bakery-product-card__price">{{ formatPrice(product.price) }}</span>
-                  <ion-button class="bakery-product-card__btn" fill="solid" (click)="addToCart(product, $event)" [disabled]="isSoldOut(product)">
-                    {{ isSoldOut(product) ? 'Sold Out' : 'Buy Now' }}
-                  </ion-button>
-                </div>
-              </div>
-            </article>
+            <ktk-product-card
+              [product]="product"
+              [pastelIndex]="$index"
+              [showHeart]="true"
+              (addToCart)="addToCart(product, $event)"
+              (cardClick)="openDetail(product)"
+              role="listitem">
+            </ktk-product-card>
           }
         </div>
       }
     }
 
-      @if (visible().length === 0) {
-        <div style="text-align: center; padding: 48px 24px;">
-          <p style="font-size: 2.5rem; margin: 0 0 12px; color: var(--bakery-text-muted); font-family:'Inter',sans-serif; font-weight:700;">?</p>
-          <p style="font-family: 'Inter', sans-serif; font-weight: 700; color: var(--bakery-dark); font-size: 1rem; margin: 0 0 6px;">No results found</p>
-          <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--bakery-text-secondary); margin-bottom: 16px;">
-            Try adjusting your search or filters.
-          </p>
-          <ion-button fill="outline" (click)="clearAllFilters()" style="--color: var(--bakery-dark); font-size: 0.8rem;">Clear filters</ion-button>
-        </div>
-}
-    </div>
+  </div>
 
   <!-- ── CTA strip ───────────────────────────────────────────────────── -->
-  <div style="background: var(--bakery-dark); padding: 28px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+  <section class="cta-strip" style="background: var(--ktk-primary); padding: 28px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
     <div>
-      <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 800; color: var(--bakery-card); margin: 0 0 4px; line-height: 1.2;">Can't find what you want?</p>
-      <p style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: rgba(249, 230, 168,0.65); margin: 0;">We take custom orders for any occasion.</p>
+      <p class="cta-text" style="font-family: var(--ktk-font-sans); font-size: 1.05rem; font-weight: 800; color: var(--ktk-card); margin: 0 0 4px; line-height: 1.2;">Can't find what you want?</p>
+      <p class="cta-subtext" style="font-family: var(--ktk-font-sans); font-size: 0.82rem; color: rgba(250, 248, 242, 0.65); margin: 0;">We take custom orders for any occasion.</p>
     </div>
-    <ion-button routerLink="/custom-order" style="--background: var(--bakery-burnt); --background-activated: var(--bakery-burnt); --color: var(--bakery-dark); --border-radius: 10px; --padding-start: 20px; --padding-end: 20px; --box-shadow: 0 4px 14px rgba(204, 111, 0,0.35); font-weight: 700; font-size: 0.85rem; flex-shrink: 0;">
+    <ktk-button variant="accent" routerLink="/custom-order" style="--border-radius: 10px; font-weight: 700; font-size: 0.85rem;">
       Custom Order
-    </ion-button>
-  </div>
+    </ktk-button>
+  </section>
 
 </ion-content>
 
 @if (selectedProduct(); as product) {
   <app-product-detail-modal
     [product]="product"
-    (dismiss)="closeDetail()"
-  ></app-product-detail-modal>
+    (dismiss)="closeDetail()">
+  </app-product-detail-modal>
 }

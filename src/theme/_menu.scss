@@ -1,35 +1,35 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // _menu.scss — Knead to Know · Bakery App Side Menu
-// Light sidebar theme: #FFF4D6 panel, #4D2A00 text, #CC6F00 active accent
+// Light sidebar theme: #FFFFFF panel, #2A1A10 text, #F2A900 active accent
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ── Menu Host Override ────────────────────────────────────────────────────────
 
 ion-menu.app-menu {
   --width: 280px;
-  --background: var(--bakery-card);
-  --ion-background-color: var(--bakery-card);
-  border-right: 2px solid var(--bakery-dark);
+  --background: var(--ktk-card);
+  --ion-background-color: var(--ktk-card);
+  border-right: 2px solid var(--ktk-primary);
 
   &::part(backdrop) {
-    background-color: rgba(77, 42, 0, 0.45);
+    background-color: rgba(42, 26, 16, 0.45);
   }
 
   &::part(container) {
-    box-shadow: 6px 0 32px rgba(77, 42, 0, 0.2);
+    box-shadow: 6px 0 32px rgba(42, 26, 16, 0.2);
   }
 }
 
 // ── Scrollable Content Area ───────────────────────────────────────────────────
 
 .menu-content {
-  --background: var(--bakery-card);
+  --background: var(--ktk-card);
   --padding-start: 0;
   --padding-end: 0;
   --padding-top: 0;
   --padding-bottom: 0;
 
-  font-family: var(--bakery-font);
+  font-family: var(--ktk-font-sans);
 }
 
 // ── Brand Logo Strip ──────────────────────────────────────────────────────────
@@ -37,16 +37,16 @@ ion-menu.app-menu {
 .menu-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: calc(env(safe-area-inset-top, 0px) + 24px) 24px 18px;
+  gap: var(--ktk-space-3);
+  padding: calc(env(safe-area-inset-top, 0px) + var(--ktk-space-6)) var(--ktk-space-5) var(--ktk-space-4);
 
   .menu-brand-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--ktk-radius-input);
     overflow: hidden;
     flex-shrink: 0;
-    border: 2px solid var(--bakery-dark);
+    border: 2px solid var(--ktk-primary);
 
     img {
       width: 100%;
@@ -57,21 +57,23 @@ ion-menu.app-menu {
   }
 
   .menu-brand-name {
-    font-size: 1.05rem;
+    font-family: var(--ktk-font-serif);
+    font-size: var(--ktk-fs-lg);
     font-weight: 800;
-    color: var(--bakery-dark);
+    color: var(--ktk-text);
     letter-spacing: -0.01em;
     margin: 0;
     line-height: 1.2;
 
     span {
       display: block;
-      font-size: 0.62rem;
+      font-family: var(--ktk-font-sans);
+      font-size: var(--ktk-fs-xs);
       font-weight: 600;
-      color: var(--bakery-text-muted);
+      color: var(--ktk-text-muted);
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      margin-top: 2px;
+      margin-top: var(--ktk-space-1);
     }
   }
 }
@@ -80,28 +82,28 @@ ion-menu.app-menu {
 
 .menu-divider {
   height: 1px;
-  background-color: var(--bakery-card-border);
-  margin: 0 24px;
+  background-color: var(--ktk-card-border);
+  margin: 0 var(--ktk-space-5);
 }
 
-// ── Group Label (Shop / Account / Info / Admin) ───────────────────────────────
+// ── Group Label (Shop / Account / Info / Staff / Admin) ───────────────────────
 
 .menu-section-label {
-  font-family: var(--bakery-font);
-  font-size: 0.62rem;
+  font-family: var(--ktk-font-sans);
+  font-size: var(--ktk-fs-xs);
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--bakery-dark);
+  color: var(--ktk-text);
   opacity: 0.7;
-  padding: 16px 24px 6px;
+  padding: var(--ktk-space-4) var(--ktk-space-5) var(--ktk-space-2);
   margin: 0;
 }
 
 // ── Navigation List ───────────────────────────────────────────────────────────
 
 .menu-nav-list {
-  padding: 4px 12px;
+  padding: var(--ktk-space-1) var(--ktk-space-3);
   background: transparent;
   flex: 1;
 
@@ -115,49 +117,49 @@ ion-menu.app-menu {
 
 .menu-nav-item {
   --background: transparent;
-  --background-hover: var(--bakery-button);
-  --background-activated: var(--bakery-button);
-  --background-focused: var(--bakery-button);
-  --color: var(--bakery-dark);
-  --padding-start: 14px;
-  --padding-end: 14px;
-  --padding-top: 11px;
-  --padding-bottom: 11px;
+  --background-hover: var(--ktk-muted);
+  --background-activated: var(--ktk-muted);
+  --background-focused: var(--ktk-muted);
+  --color: var(--ktk-text);
+  --padding-start: var(--ktk-space-4);
+  --padding-end: var(--ktk-space-4);
+  --padding-top: var(--ktk-space-3);
+  --padding-bottom: var(--ktk-space-3);
   --inner-padding-end: 0;
-  --border-radius: 12px;
-  --ripple-color: rgba(204, 111, 0, 0.15);
-  --min-height: 46px;
+  --border-radius: var(--ktk-radius-input);
+  --ripple-color: rgba(242, 169, 0, 0.15);
+  --min-height: 48px;
 
-  border-radius: 12px;
-  margin-bottom: 3px;
-  transition: background var(--bakery-dur-fast) var(--bakery-ease), color var(--bakery-dur-fast) var(--bakery-ease);
+  border-radius: var(--ktk-radius-input);
+  margin-bottom: var(--ktk-space-1);
+  transition: background var(--ktk-dur-fast) var(--ktk-ease-out), color var(--ktk-dur-fast) var(--ktk-ease-out);
   cursor: pointer;
 
   &:last-child { margin-bottom: 0; }
 }
 
-// ── Active State (#4D2A00 bg, #F9E6A8 text, #CC6F00 left bar) ─────────────────
+// ── Active State (primary dark bg, cream text, amber left bar) ────────────────
 
 .menu-nav-item.active-item {
-  --background: var(--bakery-dark);
-  --color: var(--bakery-base);
-  --background-hover: var(--bakery-dark);
-  --background-activated: var(--bakery-dark);
+  --background: var(--ktk-primary);
+  --color: var(--ktk-primary-contrast);
+  --background-hover: var(--ktk-primary);
+  --background-activated: var(--ktk-primary);
   position: relative;
 
   &::part(native) {
     position: relative;
   }
 
-  // #CC6F00 left bar via box-shadow on the item
-  box-shadow: inset 3px 0 0 var(--bakery-burnt);
+  // Amber left bar via box-shadow on the item
+  box-shadow: inset 3px 0 0 var(--ktk-accent);
 
   .menu-nav-icon {
-    color: var(--bakery-base);
+    color: var(--ktk-primary-contrast);
   }
 
   .menu-nav-label {
-    color: var(--bakery-base);
+    color: var(--ktk-primary-contrast);
     font-weight: 700;
   }
 }
@@ -165,22 +167,22 @@ ion-menu.app-menu {
 // ── Nav Icon ──────────────────────────────────────────────────────────────────
 
 .menu-nav-icon {
-  font-size: 20px;
-  color: var(--bakery-dark);
-  margin-inline-end: 12px;
+  font-size: 22px;
+  color: var(--ktk-text);
+  margin-inline-end: var(--ktk-space-3);
   flex-shrink: 0;
-  transition: color var(--bakery-dur-fast) var(--bakery-ease);
+  transition: color var(--ktk-dur-fast) var(--ktk-ease-out);
 }
 
 // ── Nav Label ─────────────────────────────────────────────────────────────────
 
 .menu-nav-label {
-  font-family: var(--bakery-font);
-  font-size: 0.9375rem;
+  font-family: var(--ktk-font-sans);
+  font-size: var(--ktk-fs-sm);
   font-weight: 500;
-  color: var(--bakery-dark);
+  color: var(--ktk-text);
   line-height: 1.4;
-  transition: color var(--bakery-dur-fast) var(--bakery-ease);
+  transition: color var(--ktk-dur-fast) var(--ktk-ease-out);
 }
 
 // ── Footer: Log Out Section ───────────────────────────────────────────────────
@@ -188,12 +190,12 @@ ion-menu.app-menu {
 .menu-footer {
   position: sticky;
   bottom: 0;
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
-  background: var(--bakery-card);
-  box-shadow: 0 -4px 16px rgba(77, 42, 0, 0.1);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--ktk-space-4));
+  background: var(--ktk-card);
+  box-shadow: 0 -4px 16px rgba(42, 26, 16, 0.1);
 
   .menu-divider {
-    margin-bottom: 8px;
+    margin-bottom: var(--ktk-space-2);
   }
 }
 
@@ -202,12 +204,12 @@ ion-menu.app-menu {
 .menu-user-profile {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin: 0 20px 16px;
-  padding: 12px 16px;
-  background: var(--bakery-base);
-  border: 1px solid var(--bakery-card-border);
-  border-radius: 14px;
+  gap: var(--ktk-space-3);
+  margin: 0 var(--ktk-space-4) var(--ktk-space-4);
+  padding: var(--ktk-space-3) var(--ktk-space-4);
+  background: var(--ktk-base);
+  border: 1px solid var(--ktk-card-border);
+  border-radius: var(--ktk-radius-card);
   min-width: 0;
 
   &.guest {
@@ -221,8 +223,8 @@ ion-menu.app-menu {
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
-  border: 2px solid var(--bakery-dark);
-  background: var(--bakery-button);
+  border: 2px solid var(--ktk-primary);
+  background: var(--ktk-muted);
 
   img {
     width: 100%;
@@ -240,7 +242,7 @@ ion-menu.app-menu {
 
     ion-icon {
       font-size: 1.5rem;
-      color: var(--bakery-dark);
+      color: var(--ktk-text);
       opacity: 0.5;
     }
   }
@@ -249,26 +251,26 @@ ion-menu.app-menu {
 .menu-user-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--ktk-space-1);
   min-width: 0;
   flex: 1;
 }
 
 .menu-user-name {
-  font-family: var(--bakery-font);
-  font-size: 0.9rem;
+  font-family: var(--ktk-font-sans);
+  font-size: var(--ktk-fs-base);
   font-weight: 700;
-  color: var(--bakery-dark);
+  color: var(--ktk-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .menu-user-role {
-  font-family: var(--bakery-font);
-  font-size: 0.65rem;
+  font-family: var(--ktk-font-sans);
+  font-size: var(--ktk-fs-xs);
   font-weight: 600;
-  color: var(--bakery-burnt);
+  color: var(--ktk-accent-text);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -276,23 +278,23 @@ ion-menu.app-menu {
 .menu-user-phone {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-family: var(--bakery-font);
-  font-size: 0.7rem;
-  color: var(--bakery-text-secondary);
+  gap: var(--ktk-space-1);
+  font-family: var(--ktk-font-sans);
+  font-size: var(--ktk-fs-xs);
+  color: var(--ktk-text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 
   ion-icon {
     font-size: 0.85rem;
-    color: var(--bakery-burnt);
+    color: var(--ktk-accent-text);
     flex-shrink: 0;
   }
 }
 
 .menu-footer-list {
-  padding: 8px 12px 0;
+  padding: var(--ktk-space-2) var(--ktk-space-3) 0;
   background: transparent;
 }
 
@@ -300,10 +302,10 @@ ion-menu.app-menu {
 
 .menu-logout-item {
   --background: transparent;
-  --background-hover: var(--bakery-error-bg);
-  --background-activated: var(--bakery-error-bg);
-  border: 2px solid var(--bakery-error);
-  border-radius: 12px;
+  --background-hover: var(--ktk-error-bg);
+  --background-activated: var(--ktk-error-bg);
+  border: 2px solid var(--ktk-error);
+  border-radius: var(--ktk-radius-input);
 
   &.logging-out {
     opacity: 0.6;
@@ -311,11 +313,11 @@ ion-menu.app-menu {
   }
 
   .logout-icon {
-    color: var(--bakery-error);
+    color: var(--ktk-error);
   }
 
   .logout-label {
-    color: var(--bakery-error);
+    color: var(--ktk-error);
     font-weight: 700;
   }
 }
@@ -324,26 +326,26 @@ ion-menu.app-menu {
 
 @media (hover: hover) {
   .menu-nav-item:not(.active-item):hover {
-    --background: var(--bakery-button);
+    --background: var(--ktk-muted);
 
-    .menu-nav-icon { color: var(--bakery-burnt); }
-    .menu-nav-label { color: var(--bakery-dark); font-weight: 600; }
+    .menu-nav-icon { color: var(--ktk-accent); }
+    .menu-nav-label { color: var(--ktk-text); font-weight: 600; }
   }
 
   .menu-logout-item:hover {
-    --background: var(--bakery-error-bg);
+    --background: var(--ktk-error-bg);
 
-    .logout-icon { color: var(--bakery-error); }
-    .logout-label { color: var(--bakery-error); }
+    .logout-icon { color: var(--ktk-error); }
+    .logout-label { color: var(--ktk-error); }
   }
 }
 
 // ── Cart badge on menu nav item ──────────────────────────────────────────────────
 
 .menu-badge.cart-badge {
-  --background: var(--bakery-navbar);
-  --color: var(--bakery-dark);
-  animation: cart-badge-pop 0.3s var(--bakery-ease);
+  --background: var(--ktk-accent);
+  --color: var(--ktk-primary-contrast);
+  animation: cart-badge-pop 0.3s var(--ktk-ease-out);
 }
 
 @keyframes cart-badge-pop {
@@ -355,16 +357,16 @@ ion-menu.app-menu {
 // ── Notification count badge on the menu nav item ──────────────────────────────
 
 .menu-badge {
-  --background: var(--bakery-burnt);
-  --color: #fff;
-  font-family: var(--bakery-font);
-  font-size: 0.62rem;
+  --background: var(--ktk-accent);
+  --color: var(--ktk-primary-contrast);
+  font-family: var(--ktk-font-sans);
+  font-size: var(--ktk-fs-xs);
   font-weight: 800;
   min-width: 19px;
   height: 19px;
   line-height: 19px;
   text-align: center;
-  border-radius: 10px;
-  padding: 0 5px;
-  margin-inline-end: 2px;
+  border-radius: var(--ktk-radius-button);
+  padding: 0 var(--ktk-space-2);
+  margin-inline-end: var(--ktk-space-1);
 }

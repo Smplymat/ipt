@@ -1,25 +1,47 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { IonButton, IonContent, IonHeader, IonMenuButton, IonTitle, IonToolbar } from '@ionic/angular';
+import { IonContent } from '@ionic/angular';
 import {
   OrderWithItems,
   OrdersService,
+  OrderStatus,
   PAYMENT_LABEL,
   STATUS_BADGE,
   STATUS_LABEL,
   toErrorMessage,
 } from '../../services/orders.service';
 
+import {
+  ButtonComponent,
+  TicketCardComponent,
+  ErrorStateComponent,
+  PageHeaderComponent,
+  SkeletonComponent,
+} from '../../shared';
+
+/** Maps order status to StatusTagComponent's accepted types. */
+function mapStatusTag(status: OrderStatus): 'pending' | 'baking' | 'ready' | 'delivered' | 'cancelled' | 'lowstock' | 'success' | 'error' {
+  switch (status) {
+    case 'pending': return 'pending';
+    case 'preparing': return 'baking';
+    case 'out_for_delivery': return 'ready';
+    case 'ready_for_pickup': return 'ready';
+    case 'delivered': return 'delivered';
+    case 'cancelled': return 'cancelled';
+    default: return 'pending';
+  }
+}
+
 @Component({
   selector: 'app-order-confirmation',
   imports: [
     RouterLink,
-    IonButton,
     IonContent,
-    IonHeader,
-    IonMenuButton,
-    IonTitle,
-    IonToolbar,
+    ButtonComponent,
+    TicketCardComponent,
+    ErrorStateComponent,
+    PageHeaderComponent,
+    SkeletonComponent,
   ],
   templateUrl: './order-confirmation.component.html',
 })
@@ -36,21 +58,25 @@ export class OrderConfirmationComponent {
     return o ? o.id.replace(/-/g, '').slice(0, 10).toUpperCase() : '--------';
   });
 
+  readonly statusLabel = STATUS_LABEL;
+  readonly statusBadge = STATUS_BADGE;
+  readonly paymentLabel = PAYMENT_LABEL;
+
+  /** Maps order status to StatusTagComponent's accepted types. */
+  protected mapStatusTag = mapStatusTag;
+
   constructor() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) void this.load(id);
     else this.error.set('Order reference missing.');
   }
 
-  private async load(id: string): Promise<void> {
+  async load(id: string): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
     try {
       const order = await this.orders.getOrder(id);
       this.order.set(order);
-      // Print is intentionally manual — the button in the template calls
-      // printReceipt(). Auto-firing window.print() was removed because
-      // browsers may block it and it fires on every navigation to this page.
     } catch (err) {
       this.error.set(toErrorMessage(err));
     } finally {
@@ -89,7 +115,36 @@ export class OrderConfirmationComponent {
     return o ? (this.orders.mapUrl(o) ?? '') : '';
   }
 
-  readonly statusLabel = STATUS_LABEL;
-  readonly statusBadge = STATUS_BADGE;
-  readonly paymentLabel = PAYMENT_LABEL;
+  /** Build ticket items from order items. */
+  getTicketItems(order: OrderWithItems) {
+    return order.items.map(item => ({
+      id: item.id,
+      name: item.name,
+      qty: item.quantity,
+      price: this.formatPrice(item.price * item.quantity),
+    }));
+  }
+
+  /** Build ticket actions. */
+  getTicketActions() {
+    return [
+      {
+        label: 'Track My Orders',
+        variant: 'outline' as const,
+        icon: 'bag-handle-outline',
+        action: 'track',
+      },
+    ];
+  }
+
+  onTicketAction(action: string): void {
+    if (action === 'track') {
+      // Navigation handled by routerLink
+    }
+  }
+
+  /** Handle ticket action clicks (accepts any for template compatibility). */
+  handleTicketAction(action: unknown): void {
+    this.onTicketAction(action as string);
+  }
 }

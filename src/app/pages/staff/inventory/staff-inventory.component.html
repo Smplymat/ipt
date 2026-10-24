@@ -1,0 +1,202 @@
+<ktk-page-header title="Inventory" [showNotifications]="true" />
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- ── Hero / Page intro ─────────────────────────────────────────────── -->
+  <section class="bakery-hero bakery-hero--catalog" aria-labelledby="inventory-title">
+    <div class="bakery-hero__inner">
+      <p class="bakery-section-eyebrow">Inventory Management</p>
+      <h1 id="inventory-title" class="bakery-section-title">Manage Stock</h1>
+      <p class="bakery-section-subtitle">
+        Monitor stock levels, adjust quantities, and track low-stock items.
+      </p>
+
+      <!-- ── Search bar ───────────────────────────────────────────────── -->
+      <div class="bakery-search" style="margin-top: 14px;">
+        <ion-icon name="search-outline" class="bakery-search__icon" aria-hidden="true"></ion-icon>
+        <input
+          type="search"
+          class="bakery-search__input"
+          placeholder="Search products…"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+          aria-label="Search products">
+        @if (searchQuery().trim().length > 0) {
+          <button
+            class="bakery-search__clear"
+            (click)="searchQuery.set('')"
+            aria-label="Clear search">✕</button>
+        }
+      </div>
+
+      <!-- ── Filter / Sort toggle ─────────────────────────────────────── -->
+      <div style="display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap;">
+        <ktk-button
+          variant="outline"
+          (click)="filtersOpen.set(!filtersOpen())"
+          [class.active]="filtersOpen()"
+          style="--border-radius: 10px; font-size: 0.8rem;">
+          <ion-icon name="options-outline" slot="start" aria-hidden="true"></ion-icon>
+          Filters & Sort
+          @if (hasActiveFilters()) {
+            <span class="filter-badge">●</span>
+          }
+        </ktk-button>
+        @if (hasActiveFilters()) {
+          <ktk-button variant="ghost" (click)="clearAllFilters()" size="sm">Clear all</ktk-button>
+        }
+      </div>
+
+      <!-- ── Expandable filter / sort panel ──────────────────────────── -->
+      @if (filtersOpen()) {
+        <div class="filter-panel">
+          <!-- Price range -->
+          <div>
+            <p class="filter-label">PRICE RANGE (₱)</p>
+            <div class="price-range-inputs">
+              <input
+                type="number"
+                min="0"
+                placeholder="Min"
+                [value]="priceMin() ?? ''"
+                (input)="setPriceMin($any($event.target).value)"
+                class="filter-input">
+              <span class="range-separator">–</span>
+              <input
+                type="number"
+                min="0"
+                placeholder="Max"
+                [value]="priceMax() ?? ''"
+                (input)="setPriceMax($any($event.target).value)"
+                class="filter-input">
+            </div>
+            @if (maxProductPrice() > 0) {
+              <p class="filter-hint">Items range from ₱0 – {{ formatPrice(maxProductPrice()) }}</p>
+            }
+          </div>
+
+          <!-- Sort -->
+          <div>
+            <p class="filter-label">SORT BY</p>
+            <ktk-segmented-tabs
+              [segments]="[
+                { value: 'default', label: 'Default' },
+                { value: 'price_asc', label: 'Price: Low to High' },
+                { value: 'price_desc', label: 'Price: High to Low' },
+                { value: 'rating_desc', label: 'Highest Rated' }
+              ]"
+              [activeValue]="sortKey()"
+              [fullWidth]="false"
+              (valueChange)="onSortChange($event)">
+            </ktk-segmented-tabs>
+          </div>
+        </div>
+      }
+
+      <!-- ── Category pill filters ────────────────────────────────────────── -->
+      <div class="bakery-pills" role="tablist" aria-label="Product categories" style="margin-top: 16px;">
+        @for (f of filters(); track f) {
+          <ktk-chip
+            role="tab"
+            [attr.aria-selected]="active() === f"
+            [variant]="'pastel'"
+            [pastelIndex]="$index"
+            (onClick)="active.set(f)">
+            {{ f }}
+          </ktk-chip>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Product grid grouped by category ───────────────────────────── -->
+  <div class="product-grid-wrapper" style="background: var(--ktk-card); padding: var(--ktk-space-2) var(--ktk-space-4) var(--ktk-space-6);">
+
+    <!-- result count + active filter summary -->
+    <div class="results-header" style="display: flex; justify-content: space-between; align-items: center; margin: 4px 4px 12px; flex-wrap: wrap; gap: 4px;">
+      <p class="results-count">
+        Showing <strong>{{ visible().length }}</strong> item{{ visible().length === 1 ? '' : 's' }}
+        @if (active() !== 'All') { in <strong>{{ active() }}</strong> }
+      </p>
+      @if (sortKey() !== 'default') {
+        <span class="sort-indicator">
+          @if (sortKey() === 'rating_desc') { By rating }
+          @else if (sortKey() === 'price_asc') { Price low-high }
+          @else if (sortKey() === 'price_desc') { Price high-low }
+        </span>
+      }
+    </div>
+
+    @if (errorMessage(); as err) {
+      <ktk-error-state
+        type="server"
+        [message]="err"
+        [retryable]="true"
+        (onRetry)="loadProducts()">
+      </ktk-error-state>
+    } @else if (loading()) {
+      <div class="skeleton-grid" role="list" aria-label="Loading products">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <ktk-skeleton type="product-card" role="listitem"></ktk-skeleton>
+        }
+      </div>
+    } @else if (visible().length === 0) {
+      <ktk-empty-state
+        illustration="search"
+        title="No products found"
+        description="Try adjusting your search or filters."
+        actionLabel="Clear filters"
+        (onAction)="clearAllFilters()">
+      </ktk-empty-state>
+    } @else {
+      @for (group of groupedProducts(); track group.category) {
+        <div class="catalog-category-header">
+          <span class="catalog-category-header__label">{{ group.category }}</span>
+          <span class="catalog-category-header__count">{{ group.items.length }} item{{ group.items.length === 1 ? '' : 's' }}</span>
+        </div>
+
+        <div class="grid-auto-3 stagger-children" role="list">
+          @for (product of group.items; track product.id) {
+            <ktk-product-card
+              [product]="product"
+              [pastelIndex]="$index"
+              [showHeart]="false"
+              (cardClick)="openDetail(product)"
+              role="listitem">
+            </ktk-product-card>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <!-- ── Low Stock Alert Banner ────────────────────────────────────────── -->
+  @if (lowStockCount() > 0) {
+    <div style="background: var(--ktk-error-bg); border: 1px solid var(--ktk-error-border); border-radius: var(--ktk-radius-card); padding: var(--ktk-space-3) var(--ktk-space-4); margin: var(--ktk-space-4) var(--ktk-space-4) 0; display: flex; align-items: center; gap: var(--ktk-space-3); flex-wrap: wrap;">
+      <ion-icon name="warning-outline" style="font-size: 1.5rem; color: var(--ktk-error); flex-shrink: 0;"></ion-icon>
+      <div style="flex: 1; min-width: 200px;">
+        <p style="font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-base); font-weight: 600; color: var(--ktk-error); margin: 0 0 var(--ktk-space-1);">
+          ⚠ Low Stock Alert
+        </p>
+        <p style="font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-sm); color: var(--ktk-text-secondary); margin: 0;">
+          {{ lowStockCount() }} product{{ lowStockCount() === 1 ? '' : 's' }} running low on stock. Consider restocking soon.
+        </p>
+      </div>
+      <ktk-button variant="outline" size="sm" routerLink="/staff/products" style="--border-radius: var(--ktk-radius-button); font-weight: 600;">
+        View Products
+      </ktk-button>
+    </div>
+  }
+
+  <!-- ── CTA strip ───────────────────────────────────────────────────── -->
+  <div style="background: var(--ktk-primary); padding: var(--ktk-space-4) var(--ktk-space-4); display: flex; align-items: center; justify-content: space-between; gap: var(--ktk-space-3); flex-wrap: wrap;">
+    <div>
+      <p style="font-family: var(--ktk-font-sans); font-size: 1.05rem; font-weight: 800; color: var(--ktk-card); margin: 0 0 4px; line-height: 1.2;">Need to restock?</p>
+      <p style="font-family: var(--ktk-font-sans); font-size: 0.82rem; color: rgba(250, 248, 242, 0.65); margin: 0;">Head to Products to update stock quantities.</p>
+    </div>
+    <ktk-button variant="accent" routerLink="/staff/products" style="--border-radius: var(--ktk-radius-button); font-weight: 700; font-size: var(--ktk-fs-sm); flex-shrink: 0;">
+      Manage Products
+    </ktk-button>
+  </div>
+
+</ion-content>

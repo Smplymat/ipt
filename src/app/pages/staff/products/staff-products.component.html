@@ -1,0 +1,300 @@
+<ktk-page-header title="Products" [showNotifications]="true" />
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- ── Tabs ───────────────────────────────────────────────────────────── -->
+  <div style="background: var(--ktk-card); padding: var(--ktk-space-4) var(--ktk-space-4) 0; display: flex; gap: var(--ktk-space-2); flex-wrap: wrap;">
+    <ktk-button
+      variant="outline"
+      [class.active]="tab() === 'products'"
+      (onClick)="tab.set('products')"
+      style="--border-radius: var(--ktk-radius-button); font-weight: 600;">
+      Products
+    </ktk-button>
+    <ktk-button
+      variant="outline"
+      [class.active]="tab() === 'categories'"
+      (onClick)="tab.set('categories')"
+      style="--border-radius: var(--ktk-radius-button); font-weight: 600;">
+      Categories
+    </ktk-button>
+  </div>
+
+  @switch (tab()) {
+    @case ('products') {
+
+      <!-- ── Create product form ─────────────────────────────────────────── -->
+      <div style="background: var(--ktk-card); padding: var(--ktk-space-4) var(--ktk-space-4) 0;">
+        @if (formError(); as err) {
+          <ktk-error-state
+            type="server"
+            [message]="err"
+            [retryable]="false">
+          </ktk-error-state>
+        }
+
+        <div class="product-form-card" style="padding: var(--ktk-space-5); border: 1px solid var(--ktk-card-border); border-radius: var(--ktk-radius-card); background: var(--ktk-card); box-shadow: var(--ktk-shadow-card);">
+
+          <div style="display: flex; gap: var(--ktk-space-4); align-items: flex-start; margin-bottom: var(--ktk-space-4); flex-wrap: wrap;">
+
+            <!-- Image picker -->
+            <div style="width: 140px; flex-shrink: 0; text-align: center;">
+              @if (createImagePreview(); as preview) {
+                <div style="position: relative; width: 140px; height: 140px; border-radius: var(--ktk-radius-card); overflow: hidden; background: var(--ktk-base); border: 1px solid var(--ktk-card-border); margin-bottom: var(--ktk-space-2);">
+                  <img [src]="preview" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; display: block;" (error)="$any($event.target).style.display='none'">
+                  <button (click)="clearCreateImage()" style="position: absolute; top: var(--ktk-space-1); right: var(--ktk-space-1); width: 28px; height: 28px; border-radius: 50%; background: rgba(42, 26, 16, 0.75); color: var(--ktk-card); display: flex; align-items: center; justify-content: center; cursor: pointer; border: none;">
+                    <ion-icon [icon]="closeOutline" size="small"></ion-icon>
+                  </button>
+                </div>
+              } @else {
+                <div style="width: 140px; height: 140px; border-radius: var(--ktk-radius-card); background: var(--ktk-base); border: 2px dashed var(--ktk-muted); color: var(--ktk-text-muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--ktk-space-2); margin-bottom: var(--ktk-space-2);">
+                  <ion-icon [icon]="imageOutline" size="large" color="secondary"></ion-icon>
+                  <span style="font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-xs);">No image</span>
+                </div>
+              }
+              <input #createFile type="file" accept="image/*" hidden (change)="onFileSelected($event)">
+              <ktk-button variant="outline" size="sm" (click)="createFile.click()" style="--color: var(--ktk-text); --border-color: var(--ktk-muted); font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-xs);">
+                Choose image
+              </ktk-button>
+            </div>
+
+            <!-- Core fields -->
+            <div style="flex: 1; min-width: 280px;">
+              <ktk-form-field
+                label="Product name"
+                placeholder="e.g. Sourdough Loaf"
+                [value]="createName()"
+                (valueChange)="createName.set($event)"
+                [required]="true">
+              </ktk-form-field>
+
+              <div style="display: flex; gap: var(--ktk-space-3); flex-wrap: wrap; margin-bottom: var(--ktk-space-3);">
+                <div style="flex: 1; min-width: 160px;">
+                  <ktk-form-field
+                    label="Category"
+                    [options]="categoryNames().map(c => ({ value: c, label: c }))"
+                    [value]="createCategory()"
+                    (valueChange)="createCategory.set($event)">
+                  </ktk-form-field>
+                </div>
+                <div style="flex: 1; min-width: 140px;">
+                  <ktk-form-field
+                    label="Price (₱)"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    [value]="createPrice()"
+                    (valueChange)="createPrice.set($event)"
+                    [required]="true">
+                  </ktk-form-field>
+                </div>
+                <div style="flex: 1; min-width: 130px;">
+                  <ktk-form-field
+                    label="Stock (units)"
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="0"
+                    [value]="createStock()"
+                    (valueChange)="createStock.set($event)"
+                    [required]="true">
+                  </ktk-form-field>
+                </div>
+              </div>
+
+              <ktk-form-field
+                label="Short description (optional)"
+                placeholder="e.g. Stone-baked, chewy open crumb"
+                [value]="createDescription()"
+                (valueChange)="createDescription.set($event)">
+              </ktk-form-field>
+
+              <!-- Ingredients -->
+              <ktk-form-field
+                label="Ingredients"
+                type="textarea"
+                placeholder="e.g. Flour, Water, Salt, Yeast, Butter"
+                [value]="createIngredients()"
+                (valueChange)="createIngredients.set($event)"
+                [rows]="3">
+              </ktk-form-field>
+
+              <!-- Nutritional Value -->
+              <ktk-form-field
+                label="Nutritional Value"
+                type="textarea"
+                placeholder="e.g. Calories: 250 kcal, Protein: 8g, Carbs: 42g, Fat: 6g"
+                [value]="createNutritionalValue()"
+                (valueChange)="createNutritionalValue.set($event)"
+                [rows]="3">
+              </ktk-form-field>
+
+              <!-- Extra Info dynamic fields -->
+              <div style="margin-top: var(--ktk-space-3);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--ktk-space-2);">
+                  <ktk-form-field label="Additional Information" style="margin: 0;"></ktk-form-field>
+                  <ktk-button variant="ghost" size="sm" (onClick)="addCreateExtraItem()" style="--padding: var(--ktk-space-1) var(--ktk-space-2); font-size: var(--ktk-fs-xs);">
+                    <ion-icon [icon]="addOutline" style="font-size: 0.85rem; vertical-align: middle;"></ion-icon>
+                    Add More Information
+                  </ktk-button>
+                </div>
+
+                @for (item of createExtraInfo(); track item.id) {
+                  <div style="background: var(--ktk-base); border: 1px solid var(--ktk-card-border); border-radius: var(--ktk-radius-input); padding: var(--ktk-space-2) var(--ktk-space-3); margin-bottom: var(--ktk-space-2); display: flex; gap: var(--ktk-space-2); align-items: flex-start;">
+                    <div style="flex: 1; display: flex; gap: var(--ktk-space-2); flex-wrap: wrap;">
+                      <ktk-form-field
+                        label="Label (e.g. Allergens)"
+                        [value]="item.label"
+                        (valueChange)="updateCreateExtraItem(item.id, 'label', $event)"
+                        style="flex: 1; min-width: 120px;">
+                      </ktk-form-field>
+                      <ktk-form-field
+                        label="Detail text"
+                        [value]="item.value"
+                        (valueChange)="updateCreateExtraItem(item.id, 'value', $event)"
+                        style="flex: 2; min-width: 160px;">
+                      </ktk-form-field>
+                    </div>
+                    <button (click)="removeCreateExtraItem(item.id)" style="background: none; border: none; color: var(--ktk-text); cursor: pointer; padding: var(--ktk-space-1); flex-shrink: 0;">
+                      <ion-icon [icon]="closeOutline" style="font-size: 1rem;"></ion-icon>
+                    </button>
+                  </div>
+                }
+
+                <ktk-button
+                  [expand]="true"
+                  [disabled]="saving()"
+                  (onClick)="handleCreate()"
+                  style="--background: var(--ktk-accent); --background-hover: var(--ktk-accent-hover); --background-activated: var(--ktk-accent); --color: var(--ktk-primary); --border-radius: var(--ktk-radius-button); --box-shadow: 0 4px 14px rgba(242, 169, 0, 0.3); font-weight: 700; font-size: var(--ktk-fs-sm); height: 48px; margin-top: var(--ktk-space-4);">
+                  {{ saving() ? 'Saving…' : '+ Add Product' }}
+                </ktk-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Product list ────────────────────────────────────────────── -->
+      <div style="background: var(--ktk-card); padding: var(--ktk-space-2) var(--ktk-space-4) var(--ktk-space-6);">
+
+        @if (productsError(); as err) {
+          <ktk-error-state
+            type="server"
+            [message]="err"
+            [retryable]="true"
+            (onRetry)="loadProducts()">
+          </ktk-error-state>
+        } @else if (productsLoading()) {
+          <div class="skeleton-grid" role="list" aria-label="Loading products">
+            @for (i of [1,2,3,4,5,6]; track i) {
+              <ktk-skeleton type="product-card" role="listitem"></ktk-skeleton>
+            }
+          </div>
+        } @else if (products().length === 0) {
+          <ktk-empty-state
+            illustration="box"
+            title="No products yet"
+            description="Use the form above to add your first product."
+            [centered]="true">
+          </ktk-empty-state>
+        } @else {
+          @for (p of products(); track p.id) {
+            <ktk-ticket-card
+              [title]="p.name"
+              [subtitle]="formatPrice(p.price)"
+              [metaRows]="[
+                { label: 'Category', value: p.category, highlight: false },
+                { label: 'Description', value: p.description || '—', highlight: false },
+                { label: 'Stock', value: stockBadge(p).label, highlight: true },
+                { label: 'Rating', value: ratingStars(p.rating), highlight: false },
+                { label: 'Added', value: formattedDate(p.created_at), highlight: false }
+              ]"
+              [items]="p.extra_info?.map(e => ({ id: e.id, name: e.label, qty: 1, price: e.value })) || []"
+              [actions]="[
+                { label: 'Edit', variant: 'outline', icon: 'create-outline', action: 'edit' },
+                { label: 'Delete', variant: 'danger', icon: 'trash-outline', action: 'delete' }
+              ]"
+              [showDivider]="true"
+              (action)="handleTicketAction($event, p)"
+              class="product-ticket">
+            </ktk-ticket-card>
+          }
+        }
+
+      </div>
+
+    }
+
+    @case ('categories') {
+
+      <!-- ── Categories tab ────────────────────────────────────────────── -->
+      <div style="background: var(--ktk-card); padding: var(--ktk-space-4) var(--ktk-space-4) var(--ktk-space-6);">
+        <p class="ktk-section-eyebrow" style="margin-bottom: var(--ktk-space-2);">Manage Categories</p>
+        <p style="font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-sm); color: var(--ktk-text-secondary); margin: 0 0 var(--ktk-space-4);">
+          Categories group your products on the catalog page. Add custom ones here; they appear in the product form dropdown immediately.
+        </p>
+
+        @if (categoryFormError(); as err) {
+          <ktk-error-state type="server" [message]="err" [retryable]="false"></ktk-error-state>
+        }
+
+        <!-- Create category form -->
+        <ktk-ticket-card
+          [title]="'Add Category'"
+          [metaRows]="[]"
+          [items]="[]"
+          [actions]="[]"
+          [showDivider]="false"
+          style="--ktk-ticket-padding: var(--ktk-space-5);">
+          <div class="page-card" style="display: flex; gap: var(--ktk-space-3); align-items: flex-end; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 220px;">
+              <ktk-form-field
+                label="New Category Name"
+                placeholder="e.g. Gluten-Free"
+                [value]="newCategoryName()"
+                (valueChange)="newCategoryName.set($event)"
+                [error]="categoryFormError() ?? ''"
+                [required]="true">
+              </ktk-form-field>
+            </div>
+            <ktk-button
+              [disabled]="savingCategory()"
+              (onClick)="handleCreateCategory()"
+              style="--background: var(--ktk-accent); --background-hover: var(--ktk-accent-hover); --color: var(--ktk-primary); --border-radius: var(--ktk-radius-button); font-weight: 700; font-size: var(--ktk-fs-sm); height: 48px; --padding-start: var(--ktk-space-4); --padding-end: var(--ktk-space-4); flex-shrink: 0;">
+              {{ savingCategory() ? 'Adding…' : '+ Add Category' }}
+            </ktk-button>
+          </div>
+        </ktk-ticket-card>
+
+        <!-- Category list -->
+        @if (categoriesLoading()) {
+          <p style="text-align: center; font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-sm); color: var(--ktk-text-secondary);">Loading categories…</p>
+        } @else if (categories().length === 0) {
+          <ktk-empty-state illustration="box" title="No categories yet" description="Add one above to get started." [centered]="true"></ktk-empty-state>
+        } @else {
+          <div style="margin-top: var(--ktk-space-4); display: flex; flex-wrap: wrap; gap: var(--ktk-space-3);">
+            @for (cat of categories(); track cat.id) {
+              <div style="background: var(--ktk-card); border: 1px solid var(--ktk-card-border); border-radius: var(--ktk-radius-card); padding: var(--ktk-space-3) var(--ktk-space-4); display: flex; align-items: center; gap: var(--ktk-space-3); box-shadow: var(--ktk-shadow-card);">
+                <span style="font-family: var(--ktk-font-sans); font-size: var(--ktk-fs-base); font-weight: 600; color: var(--ktk-text);">{{ cat.name }}</span>
+                <ktk-button
+                  variant="danger"
+                  size="sm"
+                  (onClick)="confirmDeleteCategory(cat)"
+                  style="--border-radius: var(--ktk-radius-button); font-size: var(--ktk-fs-xs); flex-shrink: 0;"
+                  title="Delete category">
+                  <ion-icon [icon]="trashOutline" slot="start" aria-hidden="true"></ion-icon>
+                  Delete
+                </ktk-button>
+              </div>
+            }
+          </div>
+        }
+
+      </div>
+
+    }
+
+  }
+
+</ion-content>

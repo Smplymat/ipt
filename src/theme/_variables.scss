@@ -1,232 +1,461 @@
-/* ─────────────────────────────────────────────────────────────────────────────
-   _variables.scss — Design token system & Ionic overrides · Knead to Know Bakery
-   Palette:
-   - Base / page background:  #F9E6A8
-   - Navigation bar:           #F2A900
-   - Buttons:                  #E5D3AF
-   - Dark brown:               #4D2A00
-   - Burnt orange:             #CC6F00
-   ───────────────────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   _variables.scss — Design Token System & Ionic CSS Variable Overrides
+   Knead to Know Bakery — NEW PALETTE (replaces old F9E6A8/F2A900/E5D3AF/4D2A00/CC6F00)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@use 'tokens' as *;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FONTS (Lora + Lato via Google Fonts @import with font-display: swap)
+   TODO: For production, self-host by downloading from github.com/google/fonts
+   and updating these @font-face declarations with local paths.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Lato:wght@400;500;600;700&display=swap');
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CSS CUSTOM PROPERTIES (Design Tokens → CSS Variables)
+   Every design value exposed as --ktk-* for use anywhere in the app.
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Brand Palette (foundation — use these everywhere) ───────────────────── */
-  --bakery-base:            #F9E6A8;   /* page background, section bands, scroll area */
-  --bakery-base-rgb:        249, 230, 168;
-  --bakery-navbar:          #F2A900;   /* top nav bar, active tab indicator, stars, price badges */
-  --bakery-navbar-rgb:      242, 169, 0;
-  --bakery-button:          #E5D3AF;   /* ALL buttons (default), unselected chips, input hover */
-  --bakery-button-rgb:      229, 211, 175;
-  --bakery-dark:            #4D2A00;   /* ALL text, button text/borders, icons, sidebar active bg */
-  --bakery-dark-rgb:        77, 42, 0;
-  --bakery-burnt:           #CC6F00;   /* hover/pressed fill, focus rings, links, badges, loader */
-  --bakery-burnt-rgb:       204, 111, 0;
-  --bakery-burnt-shade:     #B35E00;   /* darker burnt — used for fills behind white text (≥4.5:1) */
+  /* ── Colors ───────────────────────────────────────────────────────────── */
+  --ktk-page-bg:            #{$css-color-page-bg};
+  --ktk-card-bg:            #{$css-color-card-bg};
+  --ktk-card-border:        #{$css-color-card-border};
+  --ktk-muted-beige:        #{$css-color-muted-beige};
+  --ktk-base-tint:          #{$css-color-base-tint};
+  --ktk-input-bg:           #{$css-color-input-bg};
 
-  /* ── Derived Surfaces (built from the palette) ──────────────────────────── */
-  --bakery-card:            #FFF4D6;   /* card surface (lighter than base so cards stand out) */
-  --bakery-card-rgb:        255, 244, 214;
-  --bakery-card-border:     rgba(77, 42, 0, 0.25);
-  --bakery-card-shadow:     0 4px 0 rgba(77, 42, 0, 0.15);
-  --bakery-base-tint:       #FDF3C4;   /* slightly lighter than base, alternating sections */
-  --bakery-input-bg:        #FFFDF5;   /* white-ish input background */
-  --bakery-input-bg-rgb:    255, 253, 245;
-  --bakery-disabled-bg:     rgba(229, 211, 175, 0.5);
-  --bakery-disabled-border: rgba(77, 42, 0, 0.4);
+  --ktk-primary:            #{$css-color-primary};
+  --ktk-primary-contrast:   #{$css-color-primary-contrast};
+  --ktk-primary-hover:      #{$css-color-primary-hover};
+  --ktk-primary-active:     #{$css-color-primary-active};
 
-  /* ── Text Colors (all built from #4D2A00) ──────────────────────────────── */
-  --bakery-text:            #4D2A00;            /* body & heading text */
-  --bakery-text-secondary:  rgba(77, 42, 0, 0.72); /* captions, meta, dates */
-  --bakery-text-muted:      rgba(77, 42, 0, 0.55); /* hints, footnotes */
-  --bakery-text-on-dark:    #F9E6A8;            /* light text on dark/burnt backgrounds */
+  --ktk-accent:             #{$css-color-accent};
+  --ktk-accent-text:        #{$css-color-accent-text};
+  --ktk-accent-hover:       #{$css-color-accent-hover};
+  --ktk-accent-active:      #{$css-color-accent-active};
+  --ktk-accent-light:       #{$css-color-accent-light};
+  --ktk-accent-focus:       #{$css-color-accent-focus};
 
-  /* ── Status Colors (order/stock status tags only) ──────────────────────── */
-  --bakery-status-pending:      #B7791F;
-  --bakery-status-delivery:     #2B6CB0;
-  --bakery-status-finished:     #2E7D4F;
-  --bakery-status-cancelled:    #B3261E;
-  --bakery-status-lowstock:     #CC6F00;
+  --ktk-pastel-yellow:      #{$css-color-pastel-yellow};
+  --ktk-pastel-bread:       #{$css-color-pastel-bread};
+  --ktk-pastel-pink:        #{$css-color-pastel-pink};
+  --ktk-pastel-cookie:      #{$css-color-pastel-cookie};
+  --ktk-pastel-lavender:    #{$css-color-pastel-lavender};
+  --ktk-pastel-green:       #{$css-color-pastel-green};
 
-  /* ── Success / Error UI (banners, validation) ───────────────────────────── */
-  --bakery-success:         #2E7D4F;
-  --bakery-success-bg:      rgba(46, 125, 79, 0.1);
-  --bakery-success-border:  rgba(46, 125, 79, 0.35);
-  --bakery-success-light:   #9BE8C4;  /* success text on dark sections */
-  --bakery-error:           #B3261E;
-  --bakery-error-bg:        rgba(179, 38, 30, 0.1);
-  --bakery-error-border:    rgba(179, 38, 30, 0.35);
-  --bakery-error-light:     #FFD2C6;  /* error text on dark sections */
+  --ktk-status-pending:     #{$css-color-status-pending};
+  --ktk-status-baking:      #{$css-color-status-baking};
+  --ktk-status-ready:       #{$css-color-status-ready};
+  --ktk-status-delivered:   #{$css-color-status-delivered};
+  --ktk-status-cancelled:   #{$css-color-status-cancelled};
+  --ktk-status-lowstock:    #{$css-color-status-lowstock};
 
-  /* ── Typography ─────────────────────────────────────────────────────────── */
-  --bakery-font:            'Inter', 'SF Pro Display', 'Roboto', sans-serif;
-  --bakery-h1:              40px;
-  --bakery-h2:              28px;
-  --bakery-h3:              20px;
-  --bakery-body:            16px;
-  --bakery-small:           13px;      /* never below this */
-  --bakery-line-height:     1.6;
+  --ktk-text:               #{$css-color-text};
+  --ktk-text-secondary:     #{$css-color-text-secondary};
+  --ktk-text-muted:         #{$css-color-text-muted};
+  --ktk-text-on-dark:       #{$css-color-text-on-dark};
+  --ktk-text-on-accent:     #{$css-color-text-on-accent};
+  --ktk-text-error:         #{$css-color-text-error};
+  --ktk-text-success:       #{$css-color-text-success};
 
-  /* ── Spacing (8px grid) ─────────────────────────────────────────────────── */
-  --bakery-space-1:         8px;
-  --bakery-space-2:         16px;
-  --bakery-space-3:         24px;
-  --bakery-space-4:         32px;
-  --bakery-space-5:         40px;
-  --bakery-container-max:   1200px;
+  --ktk-success:            #{$css-color-success};
+  --ktk-success-bg:         #{$css-color-success-bg};
+  --ktk-success-border:     #{$css-color-success-border};
+  --ktk-error:              #{$css-color-error};
+  --ktk-error-bg:           #{$css-color-error-bg};
+  --ktk-error-border:       #{$css-color-error-border};
 
-  /* ── Shape ──────────────────────────────────────────────────────────────── */
-  --bakery-radius-card:     16px;
-  --bakery-radius-button:   12px;
-  --bakery-radius-input:    10px;
-  --bakery-radius-pill:     999px;
+  /* ── Typography ───────────────────────────────────────────────────────── */
+  --ktk-font-serif:         #{$css-font-serif};
+  --ktk-font-sans:          #{$css-font-sans};
 
-  /* ── Button tokens ──────────────────────────────────────────────────────── */
-  --bakery-btn-border:     2px solid var(--bakery-dark);
-  --bakery-btn-shadow:     0 3px 0 var(--bakery-dark);
-  --bakery-btn-min-h:      44px;
+  --ktk-fs-base:            #{$css-fs-base};
+  --ktk-fs-sm:              #{$css-fs-sm};
+  --ktk-fs-xs:              #{$css-fs-xs};
+  --ktk-fs-lg:              #{$css-fs-lg};
+  --ktk-fs-xl:              #{$css-fs-xl};
+  --ktk-fs-2xl:             #{$css-fs-2xl};
+  --ktk-fs-3xl:             #{$css-fs-3xl};
+  --ktk-fs-4xl:             #{$css-fs-4xl};
 
-  /* ── Animation ──────────────────────────────────────────────────────────── */
-  --bakery-ease:           cubic-bezier(0.22, 0.61, 0.36, 1); /* ease-out */
-  --bakery-dur-fast:       150ms;
-  --bakery-dur:            250ms;
-  --bakery-dur-slow:       400ms;
+  --ktk-lh-tight:           #{$css-lh-tight};
+  --ktk-lh-normal:          #{$css-lh-normal};
+  --ktk-lh-relaxed:         #{$css-lh-relaxed};
 
-  /* ── Focus ring ────────────────────────────────────────────────────────── */
-  --bakery-focus-ring:     0 0 0 3px rgba(204, 111, 0, 0.35);
-  --bakery-focus-outline:  3px solid var(--bakery-burnt);
-  --bakery-focus-offset:   2px;
+  --ktk-fw-normal:          #{$css-fw-normal};
+  --ktk-fw-medium:          #{$css-fw-medium};
+  --ktk-fw-semibold:        #{$css-fw-semibold};
+  --ktk-fw-bold:            #{$css-fw-bold};
+  --ktk-fw-extrabold:       #{$css-fw-extrabold};
+  --ktk-fw-black:           #{$css-fw-black};
 
-  /* ═════════════════════════════════════════════════════════════════════════
-     Ionic CSS Variable Overrides
-     ═════════════════════════════════════════════════════════════════════════ */
+  /* ── Spacing ──────────────────────────────────────────────────────────── */
+  --ktk-space-1:            #{$css-space-1};
+  --ktk-space-2:            #{$css-space-2};
+  --ktk-space-3:            #{$css-space-3};
+  --ktk-space-4:            #{$css-space-4};
+  --ktk-space-5:            #{$css-space-5};
+  --ktk-space-6:            #{$css-space-6};
+  --ktk-space-7:            #{$css-space-7};
+  --ktk-space-8:            #{$css-space-8};
+  --ktk-space-10:           #{$css-space-10};
+  --ktk-space-12:           #{$css-space-12};
+  --ktk-space-16:           #{$css-space-16};
 
-  /* App background → warm base */
-  --ion-background-color:        var(--bakery-base);
-  --ion-background-color-rgb:    var(--bakery-base-rgb);
+  --ktk-container-max:      #{$css-container-max};
 
-  /* Text → dark brown */
-  --ion-text-color:              var(--bakery-dark);
-  --ion-text-color-rgb:          var(--bakery-dark-rgb);
+  /* ── Radii ────────────────────────────────────────────────────────────── */
+  --ktk-radius-card:        #{$css-radius-card};
+  --ktk-radius-tile:        #{$css-radius-tile};
+  --ktk-radius-button:      #{$css-radius-button};
+  --ktk-radius-input:       #{$css-radius-input};
+  --ktk-radius-sheet:       #{$css-radius-sheet};
+  --ktk-radius-small:       #{$css-radius-small};
 
-  /* Primary → burnt orange (hover/pressed, links, badges, loader) */
-  --ion-color-primary:           var(--bakery-burnt);
-  --ion-color-primary-rgb:       var(--bakery-burnt-rgb);
-  --ion-color-primary-contrast:  #ffffff;
-  --ion-color-primary-shade:     #B35E00;
-  --ion-color-primary-tint:      #D48529;
+  /* ── Shadows ──────────────────────────────────────────────────────────── */
+  --ktk-shadow-sm:           #{$css-shadow-sm};
+  --ktk-shadow-card:         #{$css-shadow-card};
+  --ktk-shadow-card-hover:   #{$css-shadow-card-hover};
+  --ktk-shadow-sheet:        #{$css-shadow-sheet};
+  --ktk-shadow-fab:          #{$css-shadow-fab};
+  --ktk-shadow-button:       #{$css-shadow-button};
+  --ktk-shadow-button-accent:#{$css-shadow-button-accent};
 
-  /* Secondary → navbar gold */
-  --ion-color-secondary:         var(--bakery-navbar);
-  --ion-color-secondary-rgb:     var(--bakery-navbar-rgb);
-  --ion-color-secondary-contrast: var(--bakery-dark);
-  --ion-color-secondary-shade:   #D49500;
-  --ion-color-secondary-tint:    #F4B733;
+  /* ── Borders ──────────────────────────────────────────────────────────── */
+  --ktk-border-width:        #{$css-border-width};
+  --ktk-border-width-bold:   #{$css-border-width-bold};
+  --ktk-border-card:         #{$css-border-card};
+  --ktk-border-input:        #{$css-border-input};
+  --ktk-border-focus:        #{$css-border-focus};
 
-  /* Tertiary → button beige */
-  --ion-color-tertiary:          var(--bakery-button);
-  --ion-color-tertiary-rgb:      var(--bakery-button-rgb);
-  --ion-color-tertiary-contrast: var(--bakery-dark);
-  --ion-color-tertiary-shade:    #C9BC9B;
-  --ion-color-tertiary-tint:     #E9DCC0;
+  /* ── Focus Ring ───────────────────────────────────────────────────────── */
+  --ktk-focus-ring-width:    #{$css-focus-ring-width};
+  --ktk-focus-ring-color:    #{$css-focus-ring-color};
+  --ktk-focus-ring-offset:   #{$css-focus-ring-offset};
 
-  /* Fonts */
-  --ion-font-family:             var(--bakery-font);
+  /* ── Touch Targets ────────────────────────────────────────────────────── */
+  --ktk-touch-target-min:    #{$css-touch-target-min};
 
-  /* Toolbar → navbar gold with dark text */
-  --ion-toolbar-background:      var(--bakery-navbar);
-  --ion-toolbar-color:           var(--bakery-dark);
-  --ion-toolbar-border-color:    var(--bakery-dark);
+  /* ── Animation ────────────────────────────────────────────────────────── */
+  --ktk-ease-out:            #{$css-ease-out};
+  --ktk-ease-spring:         #{$css-ease-spring};
+  --ktk-ease-in-out:         #{$css-ease-in-out};
+  --ktk-dur-fast:            #{$css-dur-fast};
+  --ktk-dur-normal:          #{$css-dur-normal};
+  --ktk-dur-slow:            #{$css-dur-slow};
+  --ktk-dur-page:            #{$css-dur-page};
+  --ktk-stagger-delay:       #{$css-stagger-delay};
 
-  /* Item backgrounds */
-  --ion-item-background:         transparent;
-  --ion-item-color:              var(--bakery-dark);
+  /* ── Z-Index ──────────────────────────────────────────────────────────── */
+  --ktk-z-dropdown:          #{$css-z-dropdown};
+  --ktk-z-sticky:            #{$css-z-sticky};
+  --ktk-z-modal-backdrop:    #{$css-z-modal-backdrop};
+  --ktk-z-modal:             #{$css-z-modal};
+  --ktk-z-toast:             #{$css-z-toast};
+  --ktk-z-splash:            #{$css-z-splash};
 
-  /* Button defaults */
-  --ion-button-border-radius:    var(--bakery-radius-button);
-  --ion-button-font-family:      var(--bakery-font);
-  --ion-button-font-weight:      700;
-
-  /* Card defaults */
-  --ion-card-border-radius:      var(--bakery-radius-card);
-
-  /* Input defaults */
-  --ion-input-border-radius:     var(--bakery-radius-input);
-
-  /* Badge defaults */
-  --ion-badge-border-radius:     8px;
-
-  /* Toast */
-  --ion-toast-background:        var(--bakery-dark);
-  --ion-toast-color:             var(--bakery-base);
-  --ion-toast-border-radius:     var(--bakery-radius-button);
-
-  /* Modal */
-  --ion-modal-background:        var(--bakery-base);
-  --ion-modal-border-radius:     24px;
-
-  /* Action Sheet */
-  --ion-action-sheet-background: var(--bakery-card);
-  --ion-action-sheet-color:      var(--bakery-dark);
-
-  /* Popover */
-  --ion-popover-background:      var(--bakery-card);
-  --ion-popover-color:           var(--bakery-dark);
-  --ion-popover-border-radius:   var(--bakery-radius-card);
-  --ion-popover-box-shadow:      0 8px 32px rgba(77, 42, 0, 0.18);
-
-  /* Loading */
-  --ion-loading-background:      var(--bakery-card);
-  --ion-loading-color:           var(--bakery-burnt);
-
-  /* Backdrop */
-  --ion-backdrop-color:          rgba(77, 42, 0, 0.4);
-  --ion-backdrop-opacity:        0.35;
+  /* ── Component Tokens ────────────────────────────────────────────────── */
+  --ktk-btn-height:          #{$css-btn-height};
+  --ktk-btn-height-sm:       #{$css-btn-height-sm};
+  --ktk-btn-height-lg:       #{$css-btn-height-lg};
+  --ktk-chip-height:         #{$css-chip-height};
+  --ktk-field-height:        #{$css-field-height};
+  --ktk-card-padding:        #{$css-card-padding};
+  --ktk-sheet-handle-width:  #{$css-sheet-handle-width};
+  --ktk-sheet-handle-height: #{$css-sheet-handle-height};
+  --ktk-tab-bar-height:      #{$css-tab-bar-height};
+  --ktk-floating-cart-height:#{$css-floating-cart-height};
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Light theme enforcement — no dark mode.
-   Even if the OS prefers dark, we keep the warm light palette.
+   IONIC CSS VARIABLE OVERRIDES
+   Maps our design tokens to Ionic's internal variables so every Ionic
+   component automatically inherits the theme.
    ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* App background → warm cream */
+  --ion-background-color:        var(--ktk-page-bg);
+  --ion-background-color-rgb:    250, 248, 242;
+
+  /* Text → dark brown */
+  --ion-text-color:              var(--ktk-text);
+  --ion-text-color-rgb:          42, 26, 16;
+
+  /* Primary → dark brown (buttons, active states) */
+  --ion-color-primary:           var(--ktk-primary);
+  --ion-color-primary-rgb:       42, 26, 16;
+  --ion-color-primary-contrast:  var(--ktk-primary-contrast);
+  --ion-color-primary-shade:     var(--ktk-primary-hover);
+  --ion-color-primary-tint:      var(--ktk-primary-active);
+
+  /* Secondary → amber (accent, active nav, badges) */
+  --ion-color-secondary:         var(--ktk-accent);
+  --ion-color-secondary-rgb:     242, 169, 0;
+  --ion-color-secondary-contrast: var(--ktk-text-on-accent);
+  --ion-color-secondary-shade:   var(--ktk-accent-hover);
+  --ion-color-secondary-tint:    var(--ktk-accent-active);
+
+  /* Tertiary → muted beige (outline buttons, chips, input backgrounds) */
+  --ion-color-tertiary:          var(--ktk-muted-beige);
+  --ion-color-tertiary-rgb:      239, 230, 212;
+  --ion-color-tertiary-contrast: var(--ktk-text);
+  --ion-color-tertiary-shade:    #D4C5A8;
+  --ion-color-tertiary-tint:     #EFE6D4;
+
+  /* Success → green */
+  --ion-color-success:           var(--ktk-success);
+  --ion-color-success-rgb:       46, 125, 79;
+  --ion-color-success-contrast:  #FFFFFF;
+  --ion-color-success-shade:     #276B43;
+  --ion-color-success-tint:      #458F63;
+
+  /* Danger → red */
+  --ion-color-danger:            var(--ktk-error);
+  --ion-color-danger-rgb:        192, 57, 43;
+  --ion-color-danger-contrast:   #FFFFFF;
+  --ion-color-danger-shade:      #A83226;
+  --ion-color-danger-tint:       #D44E40;
+
+  /* Warning → amber (same as secondary) */
+  --ion-color-warning:           var(--ktk-accent);
+  --ion-color-warning-rgb:       242, 169, 0;
+  --ion-color-warning-contrast:  var(--ktk-text-on-accent);
+  --ion-color-warning-shade:     var(--ktk-accent-hover);
+  --ion-color-warning-tint:      var(--ktk-accent-active);
+
+  /* Light → page cream */
+  --ion-color-light:             var(--ktk-page-bg);
+  --ion-color-light-rgb:         250, 248, 242;
+  --ion-color-light-contrast:    var(--ktk-text);
+  --ion-color-light-shade:       #E0DCC8;
+  --ion-color-light-tint:        #FCF9F0;
+
+  /* Medium → muted text */
+  --ion-color-medium:            var(--ktk-text-secondary);
+  --ion-color-medium-rgb:        30, 19, 11;
+  --ion-color-medium-contrast:   #FFFFFF;
+  --ion-color-medium-shade:      #1A1007;
+  --ion-color-medium-tint:       #3D2A1A;
+
+  /* Dark → primary dark brown */
+  --ion-color-dark:              var(--ktk-primary);
+  --ion-color-dark-rgb:          42, 26, 16;
+  --ion-color-dark-contrast:     var(--ktk-primary-contrast);
+  --ion-color-dark-shade:        #1A1008;
+  --ion-color-dark-tint:         #3D2A1A;
+
+  /* Fonts */
+  --ion-font-family:             var(--ktk-font-sans);
+
+  /* Toolbar → dark brown with cream text (for headers) */
+  --ion-toolbar-background:      var(--ktk-primary);
+  --ion-toolbar-color:           var(--ktk-primary-contrast);
+  --ion-toolbar-border-color:    var(--ktk-primary);
+
+  /* Item backgrounds */
+  --ion-item-background:         var(--ktk-card-bg);
+  --ion-item-color:              var(--ktk-text);
+
+  /* Button defaults — pill radius, bold weight, min 44px height */
+  --ion-button-border-radius:    var(--ktk-radius-button);
+  --ion-button-font-family:      var(--ktk-font-sans);
+  --ion-button-font-weight:      var(--ktk-fw-bold);
+  --ion-button-ios-height:       var(--ktk-btn-height);
+  --ion-button-md-height:        var(--ktk-btn-height);
+
+  /* Card defaults */
+  --ion-card-border-radius:      var(--ktk-radius-card);
+
+  /* Input defaults */
+  --ion-input-border-radius:     var(--ktk-radius-input);
+
+  /* Badge defaults */
+  --ion-badge-border-radius:     var(--ktk-radius-button);
+
+  /* Toast */
+  --ion-toast-background:        var(--ktk-primary);
+  --ion-toast-color:             var(--ktk-primary-contrast);
+  --ion-toast-border-radius:     var(--ktk-radius-button);
+
+  /* Modal */
+  --ion-modal-background:        var(--ktk-card-bg);
+  --ion-modal-border-radius:     var(--ktk-radius-sheet);
+
+  /* Action Sheet */
+  --ion-action-sheet-background: var(--ktk-card-bg);
+  --ion-action-sheet-color:      var(--ktk-text);
+  --ion-action-sheet-border-radius: var(--ktk-radius-card);
+
+  /* Popover */
+  --ion-popover-background:      var(--ktk-card-bg);
+  --ion-popover-color:           var(--ktk-text);
+  --ion-popover-border-radius:   var(--ktk-radius-card);
+  --ion-popover-box-shadow:      var(--ktk-shadow-sheet);
+
+  /* Loading */
+  --ion-loading-background:      var(--ktk-card-bg);
+  --ion-loading-color:           var(--ktk-accent);
+
+  /* Backdrop */
+  --ion-backdrop-color:          rgba(42, 26, 16, 0.4);
+  --ion-backdrop-opacity:        0.35;
+
+  /* Segment button (used for tabs/pills) */
+  --ion-segment-button-checked-background: var(--ktk-accent);
+  --ion-segment-button-checked-color:      var(--ktk-text-on-accent);
+  --ion-segment-button-hover-background:   var(--ktk-accent-light);
+  --ion-segment-button-border-radius:      var(--ktk-radius-button);
+
+  /* Checkbox / Radio */
+  --ion-checkbox-background:         var(--ktk-card-bg);
+  --ion-checkbox-background-checked: var(--ktk-primary);
+  --ion-checkbox-border-color:       var(--ktk-primary);
+  --ion-checkbox-color-checked:      var(--ktk-primary-contrast);
+  --ion-radio-color-checked:         var(--ktk-primary);
+
+  /* Range / Slider */
+  --ion-range-knob-background:       var(--ktk-primary);
+  --ion-range-bar-active-background: var(--ktk-primary);
+
+  /* Select */
+  --ion-select-border-radius:        var(--ktk-radius-input);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME ENFORCEMENT — No dark mode
+   Even if OS prefers dark, we keep the warm light palette.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --ion-background-color:        var(--bakery-base);
-    --ion-background-color-rgb:    var(--bakery-base-rgb);
-    --ion-text-color:              var(--bakery-dark);
-    --ion-text-color-rgb:          var(--bakery-dark-rgb);
-    --ion-toolbar-background:      var(--bakery-navbar);
-    --ion-toolbar-color:           var(--bakery-dark);
-    --ion-color-primary:           var(--bakery-burnt);
-    --ion-color-primary-rgb:       var(--bakery-burnt-rgb);
-    --ion-color-secondary:         var(--bakery-navbar);
-    --ion-color-secondary-rgb:     var(--bakery-navbar-rgb);
+    --ion-background-color:        var(--ktk-page-bg);
+    --ion-background-color-rgb:    250, 248, 242;
+    --ion-text-color:              var(--ktk-text);
+    --ion-text-color-rgb:          42, 26, 16;
+    --ion-toolbar-background:      var(--ktk-primary);
+    --ion-toolbar-color:           var(--ktk-primary-contrast);
+    --ion-color-primary:           var(--ktk-primary);
+    --ion-color-primary-rgb:       42, 26, 16;
+    --ion-color-secondary:         var(--ktk-accent);
+    --ion-color-secondary-rgb:     242, 169, 0;
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Global base styles
+   GLOBAL BASE STYLES
    ═══════════════════════════════════════════════════════════════════════════ */
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
-  font-family: var(--bakery-font);
-  font-size: var(--bakery-body);
-  color: var(--bakery-text);
-  line-height: var(--bakery-line-height);
+  font-family: var(--ktk-font-sans);
+  font-size: var(--ktk-fs-base);
+  color: var(--ktk-text);
+  line-height: var(--ktk-lh-relaxed);
+  background: var(--ktk-page-bg);
+  margin: 0;
+  min-height: 100vh;
 }
 
-/* Visible keyboard focus on every focusable element */
+/* Headings use serif */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--ktk-font-serif);
+  font-weight: var(--ktk-fw-extrabold);
+  color: var(--ktk-text);
+  line-height: var(--ktk-lh-tight);
+  margin: 0 0 var(--ktk-space-3) 0;
+}
+
+h1 { font-size: var(--ktk-fs-4xl); }
+h2 { font-size: var(--ktk-fs-3xl); }
+h3 { font-size: var(--ktk-fs-2xl); }
+h4 { font-size: var(--ktk-fs-xl); }
+h5 { font-size: var(--ktk-fs-lg); }
+h6 { font-size: var(--ktk-fs-base); }
+
+/* Prices use serif, tabular numerals */
+.price, .amount, [data-price] {
+  font-family: var(--ktk-font-serif);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--ktk-fw-extrabold);
+  color: var(--ktk-text);
+}
+
+/* Links */
+a {
+  color: var(--ktk-accent-text);
+  text-decoration: none;
+  transition: color var(--ktk-dur-fast) var(--ktk-ease-out);
+}
+a:hover { color: var(--ktk-primary); }
+a:focus-visible {
+  outline: var(--ktk-focus-ring-width) solid var(--ktk-focus-ring-color);
+  outline-offset: var(--ktk-focus-ring-offset);
+  border-radius: var(--ktk-radius-small);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   VISIBLE FOCUS RINGS ON EVERY INTERACTIVE ELEMENT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 *:focus-visible {
-  outline: var(--bakery-focus-outline);
-  outline-offset: var(--bakery-focus-offset);
-  border-radius: 4px;
+  outline: var(--ktk-focus-ring-width) solid var(--ktk-focus-ring-color);
+  outline-offset: var(--ktk-focus-ring-offset);
+  border-radius: var(--ktk-radius-small);
 }
 
-/* Minimum tap target */
+/* Ensure Ionic components also get visible focus */
+ion-button:focus-visible,
+ion-input:focus-visible,
+ion-select:focus-visible,
+ion-textarea:focus-visible,
+ion-checkbox:focus-visible,
+ion-radio:focus-visible,
+ion-toggle:focus-visible,
+ion-fab-button:focus-visible,
+ion-back-button:focus-visible,
+ion-menu-button:focus-visible,
+ion-tab-button:focus-visible,
+ion-item[button]:focus-visible,
+[role="button"]:focus-visible,
+button:focus-visible {
+  outline: var(--ktk-focus-ring-width) solid var(--ktk-focus-ring-color) !important;
+  outline-offset: var(--ktk-focus-ring-offset) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MINIMUM TOUCH TARGETS (44x44px)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 button,
 [role="button"],
 ion-button,
-a.button {
-  min-height: 44px;
+ion-fab-button,
+ion-back-button,
+ion-menu-button,
+ion-tab-button,
+ion-item[button],
+a.button,
+.checkout-field__input,
+ion-input,
+ion-select,
+ion-textarea {
+  min-height: var(--ktk-touch-target-min);
+  min-width: var(--ktk-touch-target-min);
 }
 
-/* Respect reduced motion */
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPECT REDUCED MOTION
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -235,5 +464,172 @@ a.button {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCROLLBAR STYLING (subtle, on-brand)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ktk-muted-beige);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ktk-primary);
+  background-clip: content-box;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ktk-muted-beige) transparent;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SELECTION COLORS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+::selection {
+  background: var(--ktk-accent);
+  color: var(--ktk-text-on-accent);
+}
+::-moz-selection {
+  background: var(--ktk-accent);
+  color: var(--ktk-text-on-accent);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UTILITY CLASSES (available globally)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.text-serif { font-family: var(--ktk-font-serif); }
+.text-sans  { font-family: var(--ktk-font-sans); }
+
+.text-primary    { color: var(--ktk-primary); }
+.text-accent     { color: var(--ktk-accent-text); }
+.text-muted      { color: var(--ktk-text-muted); }
+.text-secondary  { color: var(--ktk-text-secondary); }
+.text-error      { color: var(--ktk-text-error); }
+.text-success    { color: var(--ktk-text-success); }
+.text-on-dark    { color: var(--ktk-text-on-dark); }
+.text-on-accent  { color: var(--ktk-text-on-accent); }
+
+.bg-primary      { background: var(--ktk-primary); }
+.bg-accent       { background: var(--ktk-accent); }
+.bg-card         { background: var(--ktk-card-bg); }
+.bg-page         { background: var(--ktk-page-bg); }
+.bg-muted        { background: var(--ktk-muted-beige); }
+.bg-success      { background: var(--ktk-success-bg); border: 1px solid var(--ktk-success-border); color: var(--ktk-success); }
+.bg-error        { background: var(--ktk-error-bg); border: 1px solid var(--ktk-error-border); color: var(--ktk-error); }
+
+.rounded-card    { border-radius: var(--ktk-radius-card); }
+.rounded-tile    { border-radius: var(--ktk-radius-tile); }
+.rounded-pill    { border-radius: var(--ktk-radius-button); }
+.rounded-input   { border-radius: var(--ktk-radius-input); }
+.rounded-sheet   { border-radius: var(--ktk-radius-sheet); }
+.rounded-sm      { border-radius: var(--ktk-radius-small); }
+
+.shadow-card     { box-shadow: var(--ktk-shadow-card); }
+.shadow-card-hover { box-shadow: var(--ktk-shadow-card-hover); }
+.shadow-sheet    { box-shadow: var(--ktk-shadow-sheet); }
+.shadow-fab      { box-shadow: var(--ktk-shadow-fab); }
+
+.container-max   { max-width: var(--ktk-container-max); margin: 0 auto; width: 100%; }
+
+/* Grid utilities for responsive product grids */
+.grid-auto-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--ktk-space-5); }
+.grid-auto-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--ktk-space-5); }
+.grid-auto-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--ktk-space-4); }
+.grid-auto-5 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--ktk-space-4); }
+
+@media (max-width: 575.98px) {
+  .grid-auto-2,
+  .grid-auto-3,
+  .grid-auto-4,
+  .grid-auto-5 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--ktk-space-4);
+  }
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .grid-auto-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-auto-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-auto-4 { grid-template-columns: repeat(3, 1fr); }
+  .grid-auto-5 { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 992px) and (max-width: 1399.98px) {
+  .grid-auto-2 { grid-template-columns: repeat(3, 1fr); }
+  .grid-auto-3 { grid-template-columns: repeat(4, 1fr); }
+  .grid-auto-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid-auto-5 { grid-template-columns: repeat(5, 1fr); }
+}
+
+@media (min-width: 1400px) {
+  .grid-auto-2 { grid-template-columns: repeat(4, 1fr); }
+  .grid-auto-3 { grid-template-columns: repeat(5, 1fr); }
+  .grid-auto-4 { grid-template-columns: repeat(5, 1fr); }
+  .grid-auto-5 { grid-template-columns: repeat(6, 1fr); }
+}
+
+/* Safe area padding utilities */
+.safe-top    { padding-top: env(safe-area-inset-top, 0); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0); }
+.safe-left   { padding-left: env(safe-area-inset-left, 0); }
+.safe-right  { padding-right: env(safe-area-inset-right, 0); }
+
+/* Add bottom padding equal to floating cart + tab bar height on pages that need it */
+.pb-floating-cart { padding-bottom: calc(var(--ktk-floating-cart-height) + var(--ktk-space-6) + env(safe-area-inset-bottom, 0)); }
+.pb-tab-bar      { padding-bottom: calc(var(--ktk-tab-bar-height) + env(safe-area-inset-bottom, 0)); }
+.pb-both         { padding-bottom: calc(var(--ktk-floating-cart-height) + var(--ktk-tab-bar-height) + var(--ktk-space-6) + env(safe-area-inset-bottom, 0)); }
+
+/* Stagger animation for lists/grids */
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: ktk-fade-up var(--ktk-dur-normal) var(--ktk-ease-out) forwards;
+}
+@keyframes ktk-fade-up {
+  to { opacity: 1; transform: translateY(0); }
+}
+.stagger-children > *:nth-child(1)  { animation-delay: calc(1 * var(--ktk-stagger-delay)); }
+.stagger-children > *:nth-child(2)  { animation-delay: calc(2 * var(--ktk-stagger-delay)); }
+.stagger-children > *:nth-child(3)  { animation-delay: calc(3 * var(--ktk-stagger-delay)); }
+.stagger-children > *:nth-child(4)  { animation-delay: calc(4 * var(--ktk-stagger-delay)); }
+.stagger-children > *:nth-child(5)  { animation-delay: calc(5 * var(--ktk-stagger-delay)); }
+.stagger-children > *:nth-child(6)  { animation-delay: calc(6 * var(--ktk-stagger-delay)); }
+.stagger-children > *:nth-child(7)  { animation-delay: calc(7 * var(--ktk-stagger-delay)); }
+.stagger-children > *:nth-child(8)  { animation-delay: calc(8 * var(--ktk-stagger-delay)); }
+.stagger-children > *:nth-child(9)  { animation-delay: calc(9 * var(--ktk-stagger-delay)); }
+.stagger-children > *:nth-child(10) { animation-delay: calc(10 * var(--ktk-stagger-delay)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .stagger-children > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }

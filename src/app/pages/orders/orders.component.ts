@@ -3,48 +3,58 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
   AlertController,
-  IonButton,
-  IonCol,
   IonContent,
-  IonGrid,
-  IonHeader,
-  IonIcon,
-  IonMenuButton,
-  IonRow,
-  IonTitle,
-  IonToolbar,
   ToastController,
 } from '@ionic/angular';
-import { cartOutline } from 'ionicons/icons';
-import { addIcons } from 'ionicons';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import {
   OrderWithItems,
   OrdersService,
   OrderStatus,
+  STATUS_LABEL,
   STATUS_BADGE,
   STATUS_FLOW_DELIVERY,
   STATUS_FLOW_PICKUP,
-  STATUS_LABEL,
   toErrorMessage,
 } from '../../services/orders.service';
+
+import {
+  ButtonComponent,
+  TicketCardComponent,
+  EmptyStateComponent,
+  ErrorStateComponent,
+  SkeletonComponent,
+  SegmentedTabsComponent,
+  PageHeaderComponent,
+} from '../../shared';
+
+/** Maps order status to StatusTagComponent's accepted types. */
+function mapStatusTag(status: OrderStatus): 'pending' | 'baking' | 'ready' | 'delivered' | 'cancelled' | 'lowstock' | 'success' | 'error' {
+  switch (status) {
+    case 'pending': return 'pending';
+    case 'preparing': return 'baking';
+    case 'out_for_delivery': return 'ready';
+    case 'ready_for_pickup': return 'ready';
+    case 'delivered': return 'delivered';
+    case 'cancelled': return 'cancelled';
+    default: return 'pending';
+  }
+}
 
 @Component({
   selector: 'app-orders',
   imports: [
     CommonModule,
     RouterLink,
-    IonButton,
-    IonCol,
     IonContent,
-    IonGrid,
-    IonHeader,
-    IonIcon,
-    IonMenuButton,
-    IonRow,
-    IonTitle,
-    IonToolbar,
+    ButtonComponent,
+    TicketCardComponent,
+    EmptyStateComponent,
+    ErrorStateComponent,
+    SkeletonComponent,
+    SegmentedTabsComponent,
+    PageHeaderComponent,
   ],
   templateUrl: './orders.component.html',
 })
@@ -97,7 +107,6 @@ export class OrdersComponent implements OnDestroy {
   private unsubscribeRealtime: (() => void) | null = null;
 
   constructor() {
-    addIcons({ 'cart-outline': cartOutline });
     void this.loadOrders();
     // Live updates: staff see new/updated orders instantly; customers see
     // their own status change the moment staff push it.
@@ -108,6 +117,24 @@ export class OrdersComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.unsubscribeRealtime?.();
+  }
+
+  /** Maps order status to StatusTagComponent's accepted types. */
+  protected mapStatusTag(status: string): 'pending' | 'baking' | 'ready' | 'delivered' | 'cancelled' | 'lowstock' | 'success' | 'error' {
+    switch (status) {
+      case 'pending': return 'pending';
+      case 'preparing': return 'baking';
+      case 'out_for_delivery': return 'ready';
+      case 'ready_for_pickup': return 'ready';
+      case 'delivered': return 'delivered';
+      case 'cancelled': return 'cancelled';
+      default: return 'pending';
+    }
+  }
+
+  /** Handles tab change from segmented tabs. */
+  protected onTabChange(value: string): void {
+    this.tab.set(value as 'orders' | 'cart');
   }
 
   async loadOrders(): Promise<void> {
@@ -258,5 +285,70 @@ export class OrdersComponent implements OnDestroy {
       hour: 'numeric',
       minute: '2-digit',
     });
+  }
+
+  /** Build ticket actions based on role and order state. */
+  getOrderActions(order: OrderWithItems) {
+    const actions = [];
+
+    if (this.isStaff()) {
+      const next = this.nextStatus(order);
+      if (next && order.status !== 'cancelled' && order.status !== 'delivered') {
+        actions.push({
+          label: 'Mark as ' + this.statusLabel[next],
+          variant: 'accent' as const,
+          icon: 'checkmark-outline',
+          action: 'advance',
+        });
+      }
+      if (order.status !== 'cancelled' && order.status !== 'delivered') {
+        actions.push({
+          label: 'Cancel',
+          variant: 'danger' as const,
+          icon: 'close-outline',
+          action: 'cancel',
+        });
+      }
+    } else {
+      actions.push({
+        label: 'View Receipt & Track',
+        variant: 'accent' as const,
+        icon: 'receipt-outline',
+        action: 'view',
+      });
+      if (this.canCustomerCancel(order)) {
+        actions.push({
+          label: 'Cancel',
+          variant: 'danger' as const,
+          icon: 'close-outline',
+          action: 'cancel',
+        });
+      }
+    }
+    return actions;
+  }
+
+  /** Handle ticket action clicks (accepts any for template compatibility). */
+  handleTicketAction(action: unknown, order: OrderWithItems): void {
+    this.onTicketAction(action as string, order);
+  }
+
+  /** Handle ticket action clicks. */
+  onTicketAction(action: string, order: OrderWithItems): void {
+    switch (action) {
+      case 'advance':
+        this.advanceStatus(order);
+        break;
+      case 'cancel':
+        if (this.isStaff()) {
+          this.cancelOrder(order);
+        } else {
+          this.cancelMyOrder(order);
+        }
+        break;
+      case 'view':
+        // Navigation handled by routerLink in template if needed
+        break;
+    }
   }
 }

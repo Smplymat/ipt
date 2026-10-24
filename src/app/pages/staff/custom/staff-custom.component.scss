@@ -1,0 +1,99 @@
+// Staff Custom Orders Page Styles
+
+.staff-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ktk-space-3);
+  padding: var(--ktk-space-4) var(--ktk-space-4) var(--ktk-space-2);
+  background: var(--ktk-base);
+  border-bottom: 1px solid var(--ktk-card-border);
+  flex-wrap: wrap;
+}
+
+.staff-page-title {
+  font-family: var(--ktk-font-serif);
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+  font-weight: 800;
+  color: var(--ktk-text);
+  margin: 0 0 var(--ktk-space-1);
+  letter-spacing: -0.02em;
+}
+
+.staff-page-sub {
+  font-family: var(--ktk-font-sans);
+  font-size: var(--ktk-fs-sm);
+  color: var(--ktk-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.staff-reload-btn {
+  flex-shrink: 0;
+  --background: var(--ktk-button);
+  --color: var(--ktk-text);
+  --border-color: var(--ktk-card-border);
+  --border-radius: var(--ktk-radius-button);
+  --padding-start: var(--ktk-space-3);
+  --padding-end: var(--ktk-space-3);
+  --min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ktk-space-2);
+
+  ion-icon { font-size: 1.125rem; }
+
+  &:hover { background: var(--ktk-burnt); color: #fff; }
+  &:active { transform: translateY(2px); box-shadow: none; }
+}
+
+.staff-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ktk-space-2);
+  padding: var(--ktk-space-3) var(--ktk-space-4) var(--ktk-space-2);
+  background: var(--ktk-card);
+  border-bottom: 1px solid var(--ktk-card-border);
+}
+
+.staff-tabs ktk-chip {
+  --border-radius: var(--ktk-radius-button);
+  font-size: var(--ktk-fs-xs);
+  font-weight: 600;
+  min-height: 36px;
+  padding: 0 var(--ktk-space-3);
+}
+
+.staff-tabs ktk-chip.active {
+  --background: var(--ktk-accent);
+  --color: var(--ktk-primary-contrast);
+  font-weight: 700;
+}
+
+.custom-orders-list {
+  padding: var(--ktk-space-3) var(--ktk-space-4) var(--ktk-space-6);
+  background: var(--ktk-card);
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--ktk-space-5);
+  padding: var(--ktk-space-2) 0;
+  max-width: var(--ktk-container-max);
+  margin: 0 auto;
+}
+
+.ticket-card .ticket-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ktk-space-2);
+  justify-content: flex-end;
+  padding-top: var(--ktk-space-3);
+  border-top: 1px solid var(--ktk-card-border);
+}
+
+.ticket-card .ticket-actions ktk-button {
+  flex: 1;
+  min-width: 140px;
+}

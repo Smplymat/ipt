@@ -10,58 +10,44 @@ import {
   IonMenu,
   IonMenuToggle,
 } from '@ionic/angular';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, AppRole } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { NotificationsService } from '../../services/notifications.service';
-import { addIcons } from 'ionicons';
-import {
-  bagHandleOutline,
-  codeSlashOutline,
-  colorPaletteOutline,
-  informationCircleOutline,
-  logInOutline,
-  logOutOutline,
-  notificationsOutline,
-  personCircleOutline,
-  pricetagOutline,
-  shieldCheckmarkOutline,
-  starOutline,
-  storefrontOutline,
-  clipboardOutline,
-  mailOutline,
-  nutritionOutline,
-  personCircleOutline as personOutline,
-  callOutline,
-} from 'ionicons/icons';
-
-// ─── Types ───────────────────────────────────────────────────────────────────
 
 interface AppPage {
   title: string;
   url: string;
   icon: string;
-  staffOnly?: boolean;
-  group: 'Shop' | 'Account' | 'Info' | 'Admin';
+  roles?: AppRole[]; // Roles allowed to see this page
+  group: 'Shop' | 'Account' | 'Info' | 'Staff' | 'Admin';
 }
 
-// ─── Navigation Map ──────────────────────────────────────────────────────────
-
 const appPages: AppPage[] = [
-  { title: 'Bread Catalog',        url: '/bread-catalog',    icon: storefrontOutline,      group: 'Shop' },
-  { title: 'Custom Order',         url: '/custom-order',     icon: colorPaletteOutline,    group: 'Shop' },
-  { title: 'My Orders & Cart',     url: '/orders',           icon: bagHandleOutline,       group: 'Shop' },
-  { title: 'My Account',           url: '/profile',          icon: personCircleOutline,    group: 'Account' },
-  { title: 'Notifications',        url: '/notifications',    icon: notificationsOutline,   group: 'Account' },
-  { title: 'Promotions & Offers',  url: '/promotions',       icon: pricetagOutline,        group: 'Info' },
-  { title: 'Customer Feedback',    url: '/feedback',         icon: starOutline,           group: 'Info' },
-  { title: 'About Our Products',   url: '/about-products',   icon: nutritionOutline,     group: 'Info' },
-  { title: 'Contact Us',           url: '/contact-us',       icon: mailOutline,            group: 'Info' },
-  { title: 'Developers',           url: '/developers',       icon: codeSlashOutline,       group: 'Info' },
-  { title: 'Order Management',     url: '/order-oversight',  icon: clipboardOutline,       group: 'Admin', staffOnly: true },
-  { title: 'Admin Management',     url: '/admin',            icon: shieldCheckmarkOutline, group: 'Admin', staffOnly: true },
-];
+  // Shop section - visible to customers and staff
+  { title: 'Shop',           url: '/bread-catalog',   icon: 'storefront-outline',   roles: ['customer', 'store_admin'], group: 'Shop' },
+  { title: 'Custom Order',   url: '/custom-order',    icon: 'color-palette-outline', roles: ['customer', 'store_admin'], group: 'Shop' },
+  { title: 'My Orders',      url: '/orders',          icon: 'bag-handle-outline',   roles: ['customer', 'store_admin'], group: 'Shop' },
 
-// ─── Component ───────────────────────────────────────────────────────────────
+  // Account section - visible to all authenticated users
+  { title: 'My Account',     url: '/profile',         icon: 'person-circle-outline', roles: ['customer', 'store_admin', 'admin'], group: 'Account' },
+  { title: 'Notifications',  url: '/notifications',   icon: 'notifications-outline', roles: ['customer', 'store_admin', 'admin'], group: 'Account' },
+
+  // Info section - visible to all
+  { title: 'Promotions',     url: '/promotions',      icon: 'pricetag-outline',     roles: ['customer', 'store_admin', 'admin'], group: 'Info' },
+  { title: 'Reviews',        url: '/feedback',        icon: 'star-outline',         roles: ['customer', 'store_admin', 'admin'], group: 'Info' },
+  { title: 'Our Craft',      url: '/about-products',  icon: 'nutrition-outline',    roles: ['customer', 'store_admin', 'admin'], group: 'Info' },
+  { title: 'Contact Us',     url: '/contact-us',      icon: 'mail-outline',         roles: ['customer', 'store_admin', 'admin'], group: 'Info' },
+  { title: 'Developers',     url: '/developers',      icon: 'code-slash-outline',   roles: ['customer', 'store_admin', 'admin'], group: 'Info' },
+
+  // Staff section - visible to store_admin only
+  { title: 'Products',       url: '/staff/products',  icon: 'cube-outline',         roles: ['store_admin'], group: 'Staff' },
+  { title: 'Inventory',      url: '/staff/inventory', icon: 'clipboard-outline',    roles: ['store_admin'], group: 'Staff' },
+  { title: 'Fulfillment',    url: '/staff/orders',    icon: 'receipt-outline',      roles: ['store_admin'], group: 'Staff' },
+  { title: 'Custom Orders',  url: '/staff/custom',    icon: 'color-palette-outline', roles: ['store_admin'], group: 'Staff' },
+
+  // Admin section - visible to admin only
+  { title: 'User Management', url: '/admin/users',    icon: 'people-outline',       roles: ['admin'], group: 'Admin' },
+];
 
 @Component({
   selector: 'app-menu',
@@ -85,10 +71,6 @@ export class MenuComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationsService);
 
-  readonly logOutOutline = logOutOutline;
-  readonly logInOutline = logInOutline;
-  readonly personOutline = personOutline;
-  readonly callOutline = callOutline;
   readonly isLoggingOut = signal(false);
 
   readonly user = this.auth.user;
@@ -101,28 +83,12 @@ export class MenuComponent implements OnDestroy {
   /** Cart item count for badge on My Orders menu item. */
   readonly itemCount = this.cart.itemCount;
 
+  readonly logOutOutline = 'log-out-outline';
+  readonly logInOutline = 'log-in-outline';
+
   private readonly unsubscribe: (() => void) | null;
 
   constructor() {
-    addIcons({
-      bagHandleOutline,
-      codeSlashOutline,
-      colorPaletteOutline,
-      informationCircleOutline,
-      logInOutline,
-      logOutOutline,
-      notificationsOutline,
-      personCircleOutline,
-      pricetagOutline,
-      shieldCheckmarkOutline,
-      starOutline,
-      storefrontOutline,
-      clipboardOutline,
-      mailOutline,
-      nutritionOutline,
-      callOutline,
-    });
-
     // Keep the badge live via realtime changes…
     this.unsubscribe = this.notifications.subscribe(() => void this.refreshUnread());
     // …and refresh whenever the auth state flips (e.g. right after login).
@@ -143,15 +109,22 @@ export class MenuComponent implements OnDestroy {
     }
   }
 
-  /** Hide staff-only entries unless the current role may manage products. */
-  readonly visiblePages = computed(() =>
-    appPages.filter((p) => !p.staffOnly || this.canManageProducts())
-  );
+  /** Role label for display. */
+  roleLabel(role: AppRole): string {
+    return role === 'admin' ? 'Admin' : role === 'store_admin' ? 'Staff' : 'Customer';
+  }
 
-  /** Pages grouped by section label for the sidebar (Shop / Account / Info / Admin). */
+  /** Hide pages unless the current user has one of the allowed roles. */
+  readonly visiblePages = computed(() => {
+    const user = this.user();
+    const userRole: AppRole = user?.role ?? 'customer';
+    return appPages.filter((p) => !p.roles || p.roles.includes(userRole));
+  });
+
+  /** Pages grouped by section label for the sidebar. */
   readonly groupedPages = computed(() => {
     const pages = this.visiblePages();
-    const order: AppPage['group'][] = ['Shop', 'Account', 'Info', 'Admin'];
+    const order: AppPage['group'][] = ['Shop', 'Account', 'Info', 'Staff', 'Admin'];
     return order
       .filter((label) => pages.some((p) => p.group === label))
       .map((label) => ({ label, pages: pages.filter((p) => p.group === label) }));

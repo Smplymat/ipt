@@ -1,0 +1,74 @@
+<ktk-page-header title="Custom Orders" [showNotifications]="true" />
+
+<ion-content class="page-content" [scrollY]="true">
+
+  <!-- ── Page header ──────────────────────────────────────────────────── -->
+  <div class="staff-header">
+    <div>
+      <h1 class="staff-page-title">Custom Orders</h1>
+      <p class="staff-page-sub">Review and approve custom order requests from customers.</p>
+    </div>
+    <ktk-button class="staff-reload-btn" (click)="loadCustomOrders()" title="Refresh">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Refresh
+    </ktk-button>
+  </div>
+
+  @if (error(); as err) {
+    <ktk-error-state type="server" [message]="err" [retryable]="true" (onRetry)="loadCustomOrders()"></ktk-error-state>
+  }
+
+  @if (loading()) {
+    <div class="skeleton-grid" role="list" aria-label="Loading custom orders">
+      @for (i of [1,2,3,4,5]; track i) {
+        <ktk-skeleton type="product-card" role="listitem"></ktk-skeleton>
+      }
+    </div>
+  } @else {
+
+    <!-- ── Tab bar ────────────────────────────────────────────────────── -->
+    <div class="staff-tabs">
+      @for (status of statusOptions; track status) {
+        <ktk-chip
+          [variant]="activeTab() === status ? 'accent' : 'outline'"
+          (onClick)="activeTab.set(status)"
+          [disabled]="false">
+          {{ status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1) }}
+        </ktk-chip>
+      }
+    </div>
+
+    <!-- ── Custom Orders List ─────────────────────────────────────────── -->
+    <div class="custom-orders-list stagger-children">
+      @if (filteredOrders().length === 0) {
+        <ktk-empty-state
+          illustration="box"
+          [title]="emptyStateTitle"
+          [description]="emptyStateDescription"
+          [centered]="true">
+        </ktk-empty-state>
+      } @else {
+        @for (order of filteredOrders(); track order.id) {
+          <ktk-ticket-card
+            [title]="'Custom Order ' + shortId(order)"
+            [subtitle]="formatDate(order.created_at) + ' · Qty: ' + order.quantity"
+            [status]="order.status"
+            [metaRows]="[
+              { label: 'Customer', value: order.name + ' · ' + order.phone, highlight: true },
+              { label: 'Description', value: order.description, highlight: false },
+              { label: 'Quantity', value: order.quantity + ' unit' + (order.quantity === 1 ? '' : 's'), highlight: false },
+              { label: 'Deadline', value: order.deadline ? formatDate(order.deadline) : 'Not specified', highlight: false }
+            ]"
+            [items]="[]"
+            [actions]="getTicketActions(order)"
+            [showDivider]="true"
+            (onAction)="handleAction($event, order)">
+          </ktk-ticket-card>
+        }
+      }
+
+    </div>
+
+  }
+
+</ion-content>

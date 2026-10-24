@@ -2,13 +2,7 @@ import { Component, afterNextRender, computed, inject, signal } from '@angular/c
 import { DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import {
-  IonButton,
   IonContent,
-  IonHeader,
-  IonMenuButton,
-  IonSpinner,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
@@ -20,6 +14,16 @@ import {
   VouchersService,
   type Voucher,
 } from '../../services/vouchers.service';
+
+import {
+  ButtonComponent,
+  FormFieldComponent,
+  SegmentedTabsComponent,
+  StepIndicatorComponent,
+  EmptyStateComponent,
+  ErrorStateComponent,
+  PageHeaderComponent,
+} from '../../shared';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -45,13 +49,14 @@ const MIN_SCHEDULE_MINUTES = 30;
   imports: [
     DatePipe,
     RouterLink,
-    IonButton,
     IonContent,
-    IonHeader,
-    IonMenuButton,
-    IonSpinner,
-    IonTitle,
-    IonToolbar,
+    ButtonComponent,
+    FormFieldComponent,
+    SegmentedTabsComponent,
+    StepIndicatorComponent,
+    EmptyStateComponent,
+    ErrorStateComponent,
+    PageHeaderComponent,
   ],
   templateUrl: './checkout.component.html',
 })
@@ -81,8 +86,6 @@ export class CheckoutComponent {
   /** Minimum datetime value for the scheduler input (now + MIN_SCHEDULE_MINUTES). */
   readonly minScheduleDateTime = computed(() => {
     const d = new Date(Date.now() + MIN_SCHEDULE_MINUTES * 60 * 1000);
-    // datetime-local input wants "YYYY-MM-DDTHH:mm" in LOCAL time.
-    // toISOString() returns UTC, which is ~8 h too early in PH (UTC+8).
     const pad = (n: number) => String(n).padStart(2, '0');
     return (
       d.getFullYear() +
@@ -192,6 +195,11 @@ export class CheckoutComponent {
     this.cart.clearVoucher();
   }
 
+  /** Handles fulfillment type change from segmented tabs. */
+  onFulfillmentChange(value: string): void {
+    this.fulfillment.set(value as FulfillmentType);
+  }
+
   readonly errors = computed<FormErrors>(() => {
     const f = this.form();
     const errs: FormErrors = {};
@@ -209,6 +217,21 @@ export class CheckoutComponent {
   });
 
   readonly hasErrors = computed(() => Object.keys(this.errors()).length > 0);
+
+  /** Safely get error message for a field (returns empty string if no error). */
+  getError(field: keyof FormErrors): string {
+    return this.errors()[field] ?? '';
+  }
+
+  /** Handles schedule mode change from segmented tabs. */
+  onScheduleChange(value: string): void {
+    this.scheduleMode.set(value as 'asap' | 'scheduled');
+  }
+
+  /** Handles payment method change from segmented tabs. */
+  onPaymentChange(value: string): void {
+    this.payment.set(value as PaymentMethod);
+  }
 
   // ── Schedule validation ───────────────────────────────────────────────────
   readonly scheduleError = computed(() => {
@@ -245,7 +268,6 @@ export class CheckoutComponent {
       await this.cart.setQuantity(productId, current + delta);
     } catch (err) {
       console.error('cartQty failed:', err);
-      // Toast will be shown by the cart service or we can add one here
     }
   }
 
@@ -337,7 +359,7 @@ export class CheckoutComponent {
         latitude: isPickup ? null : f.lat,
         longitude: isPickup ? null : f.lng,
         scheduled_at: scheduledAt,
-        payment_method: this.mapPaymentMethod(selectedPayment),
+        payment_method: selectedPayment,
         promo_code: voucher ? voucher.code : null,
       };
 
@@ -362,8 +384,8 @@ export class CheckoutComponent {
       }
 
       if (paymentResult.checkout_url) {
-        // Redirect to PayMongo checkout
-        window.location.href = paymentResult.checkout_url;
+        // Open PayMongo checkout (in-app browser tab on mobile, redirect on web)
+        await this.paymentService.openCheckout(paymentResult.checkout_url);
         return;
       }
 
@@ -375,11 +397,6 @@ export class CheckoutComponent {
     } finally {
       this.placing.set(false);
     }
-  }
-
-  /** Map frontend payment method to backend payment_method enum. */
-  private mapPaymentMethod(method: PaymentMethod): 'cod' | 'online' {
-    return method === 'cod' ? 'cod' : 'online';
   }
 
   private delay(ms: number): Promise<void> {
@@ -400,5 +417,53 @@ export class CheckoutComponent {
   /** Display-friendly delivery fee — FREE for pickup. */
   displayDeliveryFee = computed(() =>
     this.fulfillment() === 'pickup' ? 0 : this.deliveryFee()
+  );
+
+  // ── Step indicator data ────────────────────────────────────────────────────
+  readonly steps = [
+    { label: 'Your Bag', description: 'Review items' },
+    { label: 'Fulfillment', description: 'Delivery or pickup' },
+    { label: 'Details', description: 'Address & schedule' },
+    { label: 'Payment', description: 'Choose payment method' },
+  ];
+
+  readonly currentStep = computed(() => {
+    if (this.fulfillment() === 'pickup' && this.scheduleMode() === 'asap' && this.payment() === 'cod') {
+      return 3; // Skip to payment if simple order
+    }
+    return 2; // Default to step 2 (fulfillment) as starting point
+  });
+
+  // ── Fulfillment segments ───────────────────────────────────────────────────
+  readonly fulfillmentSegments = [
+    { value: 'delivery', label: 'Delivery', icon: 'bicycle-outline', 
+      desc: this.subtotal() >= 500 ? 'Free delivery on this order!' : `+${this.formatPrice(this.deliveryFee())} delivery fee` },
+    { value: 'pickup', label: 'In-Store Pickup', icon: 'storefront-outline', 
+      desc: 'Pick up at 123 Banawe St, Quezon City. No delivery fee.' },
+  ];
+
+  // ── Schedule segments ──────────────────────────────────────────────────────
+  readonly scheduleSegments = [
+    { value: 'asap', label: 'As Soon As Possible', icon: 'flash-outline', desc: "We'll get on it right away." },
+    { value: 'scheduled', label: 'Schedule for Later', icon: 'calendar-outline', desc: 'Pick a date and time at least 30 minutes from now.' },
+  ];
+
+  // ── Payment segments ───────────────────────────────────────────────────────
+  readonly paymentSegments = [
+    { value: 'cod', label: 'Cash on Delivery', icon: 'cash-outline', desc: this.fulfillment() === 'pickup' ? 'Pay at the counter when you pick up.' : 'Pay the driver when your order arrives.' },
+    { value: 'card', label: 'Credit / Debit Card', icon: 'card-outline', desc: 'Visa, Mastercard, JCB via PayMongo' },
+    { value: 'gcash', label: 'GCash', icon: 'logo-gcash', desc: 'Pay with your GCash wallet' },
+    { value: 'paymaya', label: 'Maya', icon: 'logo-paymaya', desc: 'Pay with your Maya account' },
+    { value: 'grab_pay', label: 'GrabPay', icon: 'logo-grabpay', desc: 'Pay with your Grab wallet' },
+  ];
+
+  // ── Voucher picker segments ────────────────────────────────────────────────
+  readonly voucherSegments = computed(() => 
+    this.claimedVouchers().map(c => ({
+      value: c.voucher_id,
+      label: c.voucher?.code ?? '',
+      icon: 'pricetag-outline',
+      desc: this.voucherLabel(c),
+    }))
   );
 }

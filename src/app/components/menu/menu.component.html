@@ -3,11 +3,6 @@
   type="overlay"
   class="app-menu"
 >
-  <!--
-    scrollY is enabled so the nav list scrolls when it overflows the viewport.
-    The footer (user chip + log out) is taken out of the scroll flow and pinned
-    to the bottom of the menu panel via position: sticky inside a flex column.
-  -->
   <ion-content class="menu-content" [scrollY]="true">
 
     <!-- ── Brand Logo Strip ─────────────────────────────────────────── -->
@@ -77,7 +72,7 @@
           </div>
           <div class="menu-user-info">
             <span class="menu-user-name">{{ u.displayName }}</span>
-            <span class="menu-user-role">{{ u.role === 'admin' ? 'Admin' : u.role === 'store_admin' ? 'Store Admin' : 'Customer' }}</span>
+            <span class="menu-user-role">{{ roleLabel(u.role) }}</span>
             @if (u.phone) {
               <span class="menu-user-phone">
                 <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
